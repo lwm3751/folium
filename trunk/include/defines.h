@@ -9,8 +9,13 @@ typedef     short               sint16;
 typedef     unsigned short      uint16;
 typedef     int                 sint32;
 typedef     unsigned int        uint32;
+#ifdef _MSC_VER
+typedef     __int64             sint64;
+typedef     unsigned __int64    uint64;
+#else
 typedef     long long           sint64;
 typedef     unsigned long long  uint64;
+#endif
 
 typedef     int                 sint;
 typedef     unsigned int        uint;
