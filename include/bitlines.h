@@ -8,9 +8,9 @@ extern const uint32 g_line_infos[10][1024];
 class Line
 {
 public:
-    operator uint() const;
+    operator uint()const;
     void reset(uint value=0);
-    uint getbit(uint) const;
+    uint getbit(uint)const;
     void setbit(uint);
     void clearbit(uint);
     void changebit(uint);
@@ -74,8 +74,8 @@ public:
     BitLines();
     BitLines(const BitLines&);
 
-    const uint32& xinfo(uint, uint) const;
-    const uint32& yinfo(uint, uint) const;
+    const uint32& xinfo(uint, uint)const;
+    const uint32& yinfo(uint, uint)const;
 
     void setbit(uint, uint);
     void changebit(uint, uint);
@@ -86,12 +86,12 @@ private:
     Line m_xline[10];
     Line m_yline[9];
 };
-inline const uint32& BitLines::xinfo(uint x, uint y) const
+inline const uint32& BitLines::xinfo(uint x, uint y)const
 {
     assert(x < 9UL && y < 10UL);
     return g_line_infos[x][m_xline[y]];
 }
-inline const uint32& BitLines::yinfo(uint x, uint y) const
+inline const uint32& BitLines::yinfo(uint x, uint y)const
 {
     assert(x < 9UL && y < 10UL);
     return g_line_infos[y][m_yline[x]];

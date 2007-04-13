@@ -1,9 +1,7 @@
-#include <algorithm>
-using std::copy;
-using std::fill;
+#include <string.h>
 #include "xq.h"
 /*大写表示红方，小写表示黑方*/
-inline uint32 char_type(sint32 c)
+inline uint char_type(sint32 c)
 {
     switch(c)
     {
@@ -45,7 +43,7 @@ inline uint32 char_type(sint32 c)
         return InvaildPiece;
     }
 }
-inline sint32 type_char(uint32 type)
+inline sint type_char(uint32 type)
 {
     switch(type)
     {
@@ -81,7 +79,7 @@ inline sint32 type_char(uint32 type)
         return 0;
     }
 }
-inline sint32 piece_char(uint32 piece)
+inline sint piece_char(uint piece)
 {
     return type_char(piece_type(piece));
 }
@@ -89,8 +87,8 @@ inline sint32 piece_char(uint32 piece)
 void XQ::clear()
 {
     m_bitlines.reset();
-    fill(m_pieces, m_pieces + 34, InvaildSquare);
-    fill(m_squares, m_squares + 90, EmptyIndex);
+    memset(m_pieces, InvaildSquare, 34);
+    memset(m_squares, EmptyIndex, 90);
     m_squares[90] = InvaildIndex;
     m_player = Empty;
 }
@@ -186,8 +184,8 @@ XQ::XQ(string const &fen)
 XQ& XQ::operator=(const XQ &xq)
 {
     m_bitlines = xq.m_bitlines;
-    copy(xq.m_pieces, xq.m_pieces + 34, m_pieces);
-    copy(xq.m_squares, xq.m_squares + 91, m_squares);
+    memcpy(m_pieces, xq.m_pieces, 34);
+    memcpy(m_squares, xq.m_squares, 91);
     m_player = xq.m_player;
     return *this;
 }
@@ -242,124 +240,89 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     {
     case RedKing:
     case BlackKing:
-        return is_legal_king_move(src, dst);
+    {
+        if (!(square_flag(dst) & KingFlag))
+            return false;
+        if (piece_flag(square(dst)) & KingFlag)
+        {
+            if (square_x(src) != square_x(dst))
+                return false;
+            for (uint f = piece(RedKingIndex) + 9, t = piece(BlackKingIndex); f != t; f += 9)
+                if (square(f) != EmptyIndex)
+                    return false;
+            return true;
+        }
+        return dst == square_up(src) || dst == square_down(src) || dst == square_left(src) || dst == square_right(src);
+    }
     case RedAdvisor:
     case BlackAdvisor:
-        return is_legal_advisor_move(src, dst);
+    {
+        if (!(square_flag(dst) & AdvisorFlag))
+            return false;
+        register uint x, y;
+        x = square_x(src) - square_x(dst);
+        y = square_y(src) - square_y(dst);
+        return (x == 1UL || x == (0UL - 1UL)) && (y == 1UL || y == (0UL - 1UL));
+    }
     case RedBishop:
     case BlackBishop:
-        return is_legal_bishop_move(src, dst);
+        return square(bishop_eye(src, dst)) == EmptyIndex;
     case RedRook:
     case BlackRook:
-        return is_legal_rook_move(src, dst);
+    {
+        sint inc;
+        {
+            register uint sx, dx, sy, dy;
+            sx = square_x(src);
+            dx = square_x(dst);
+            sy = square_y(src);
+            dy = square_y(dst);
+            if (sx == dx)
+                inc = sy > dy ? -9 : 9;
+            else if(sy == dy)
+                inc = sx > dx ? -1 : 1;
+            else
+                return false;
+        }
+        for (uint target = src + inc; target != dst; target += inc)
+            if (square(target) != EmptyIndex)
+                return false;
+        return true;
+    }
     case RedKnight:
     case BlackKnight:
-        return is_legal_knight_move(src, dst);
+        return square(knight_leg(src, dst)) == EmptyIndex;
     case RedCannon:
     case BlackCannon:
-        return is_legal_cannon_move(src, dst);
+    {
+        sint inc;
+        {
+            register uint sx, dx, sy, dy;
+            sx = square_x(src);
+            dx = square_x(dst);
+            sy = square_y(src);
+            dy = square_y(dst);
+            if (sx == dx)
+                inc = sy > dy ? -9 : 9;
+            else if(sy == dy)
+                inc = sx > dx ? -1 : 1;
+            else
+                return false;
+        }
+        register uint count = 0;
+        for (uint target = src + inc; target != dst; target += inc)
+            if (square(target) != EmptyIndex)
+                ++count;
+        return count == (square(dst) == EmptyIndex ? 0 : 1);
+    }
     case RedPawn:
-        return is_legal_red_pawn_move(src, dst);
+        return (square_flag(dst) & RedPawnFlag) && (dst == square_down(src) || dst == square_left(src) || dst == square_right(src));
     case BlackPawn:
-        return is_legal_black_pawn_move(src, dst);
+        return (square_flag(dst) & BlackPawnFlag) && (dst == square_up(src) || dst == square_left(src) || dst == square_right(src));
     default:
         return false;
     }
 }
-bool XQ::is_legal_king_move(uint32 src, uint32 dst) const
-{
-    assert (piece_color(square(src)) != piece_color(square(dst)));
-    assert (square_flag(src) & piece_flag(square(src)) & KingFlag);
-
-    if (!(square_flag(dst) & KingFlag))
-    {
-        return false;
-    }
-    if (piece_flag(square(dst)) & KingFlag)
-    {
-        if (square_x(src) != square_x(dst))
-        {
-            return false;
-        }
-        for (uint32 f = piece(RedKingIndex) + 9, t = piece(BlackKingIndex); f != t; f += 9)
-        {
-            if (square(f) != EmptyIndex)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    return dst == square_up(src) || dst == square_down(src) || dst == square_left(src) || dst == square_right(src);
-}
-bool XQ::is_legal_rook_move(uint32 src, uint32 dst) const
-{
-    assert (piece_color(square(src)) != piece_color(square(dst)));
-    assert (square_flag(src) & piece_flag(square(src)) & RookFlag);
-    sint32 inc;
-    {
-        register uint32 sx, dx, sy, dy;
-        sx = square_x(src);
-        dx = square_x(dst);
-        sy = square_y(src);
-        dy = square_y(dst);
-        if (sx == dx)
-        {
-            inc = sy > dy ? -9 : 9;
-        }
-        else if(sy == dy)
-        {
-            inc = sx > dx ? -1 : 1;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    for (uint32 target = src + inc; target != dst; target += inc)
-    {
-        if (square(target) != EmptyIndex)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-bool XQ::is_legal_cannon_move(uint32 src, uint32 dst) const
-{
-    assert (piece_color(square(src)) != piece_color(square(dst)));
-    assert (square_flag(src) & piece_flag(square(src)) & CannonFlag);
-    sint32 inc;
-    {
-        register uint32 sx, dx, sy, dy;
-        sx = square_x(src);
-        dx = square_x(dst);
-        sy = square_y(src);
-        dy = square_y(dst);
-        if (sx == dx)
-        {
-            inc = sy > dy ? -9 : 9;
-        }
-        else if(sy == dy)
-        {
-            inc = sx > dx ? -1 : 1;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    register uint32 count = 0;
-    for (uint32 target = src + inc; target != dst; target += inc)
-    {
-        if (square(target) != EmptyIndex)
-        {
-            ++count;
-        }
-    }
-    return count == (square(dst) == EmptyIndex ? 0 : 1);
-}
-
 uint XQ::red_in_checked() const
 {
     uint kp = piece(RedKingIndex);
