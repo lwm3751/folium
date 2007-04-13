@@ -14,7 +14,6 @@ inline const uint64& piece_lock(uint piece, uint square)
 {
     assert (piece < 32UL);
     assert (square < 91UL);
-
     return g_piece_locks[piece][square];
 }
 inline const uint32& piece_key(uint piece, uint square)
