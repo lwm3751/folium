@@ -322,7 +322,6 @@ void XQ::generate_capture_moves(MoveList &ml) const
     //rook
     for(uint i = 0; i < 2; ++i)
     {
-        uint tmp;
         ++idx;
         src = piece(idx);
         if (src == InvaildSquare)
@@ -367,7 +366,6 @@ void XQ::generate_capture_moves(MoveList &ml) const
     //cannon
     for(uint i = 0; i < 2; ++i)
     {
-        uint tmp;
         ++idx;
         src = piece(idx);
         if (src == InvaildSquare)
