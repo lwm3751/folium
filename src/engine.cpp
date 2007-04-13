@@ -110,7 +110,7 @@ uint32 Engine::search(int depth, MoveList& ban)
     if (ml.size() == 0)
         return 0;
 
-    for (uint i = 1; i <= depth; ++i)
+    for (sint i = 1; i <= depth; ++i)
     {
         int best_value = -WINSCORE;
         int alpha = -WINSCORE;
