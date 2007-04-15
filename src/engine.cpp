@@ -31,7 +31,7 @@ void Engine::reset(const XQ& xq)
     assert(!xq.in_checked(1 - xq.player()));
 
     m_xq = xq;
-    
+
     m_traces[0] = create_trace(xq.in_checked(xq.player()), EmptyIndex, 0);
     m_ply = 0;
     m_start_ply = -1;
@@ -55,7 +55,6 @@ void Engine::generate_root_move(MoveList& movelist, MoveList& ban)
     movelist.clear();
     MoveList _;
     m_xq.generate_moves(_);
-    uint player = m_xq.player();
     for (uint i = 0; i < _.size(); ++i)
     {
         uint move = _[i] & 0x3fff;
@@ -85,7 +84,7 @@ void Engine::generate_root_move(MoveList& movelist, MoveList& ban)
 uint32 Engine::search(int depth, MoveList& ban)
 {
     ofstream file("folium.txt", ios::out|ios::app);
-    file << string(m_xq) << endl;    
+    file << string(m_xq) << endl;
     m_stop = false;
     m_tree_nodes = 0;
     m_quiet_nodes = 0;
