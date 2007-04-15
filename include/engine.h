@@ -97,7 +97,7 @@ inline bool Engine::make_move(uint32 move)
         m_values[np] = m_values[op]\
                         + piece_value(src_piece, dst)\
                         - piece_value(src_piece, src)\
-                        - piece_value(dst_piece, src);
+                        - piece_value(dst_piece, dst);
     }
     m_ply = np;
     return true;
