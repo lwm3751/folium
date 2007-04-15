@@ -67,7 +67,7 @@ const char *ColorStr(int color)
 void WriteDiagram()
 {
 	const char guychar[] = "KAAEERRHHCCPPPPPkaaeerrhhccppppp";
-	const char *pszGrid[20] = 
+	const char *pszGrid[20] =
 	{
 	" .-----------------------. ",
 	" |  |  |  | \\|/ |  |  |  | ",
@@ -170,12 +170,12 @@ char *movestr(char *str, int pos)
 
 bool ICCStoPos (char *str, uint& move)
 {
-	uint sx, sy, dx, dy;
+	int sx, sy, dx, dy;
 	sx = (str[0] & 0xDF) - 'A';
 	sy = (str[1]) - '0';
 	dx = (str[3] & 0xDF) - 'A';
 	dy = (str[4]) - '0';
-	
+
 	if (sx < 0 || sx > 8 || dx < 0 || dx > 8 ||
 		sy < 0 || sy > 9 || dy < 0 || dy > 9)
 	{
@@ -224,7 +224,7 @@ bool LoadFEN (const char *str)
 //------------------------------------------------------------------------------
 // The BG thread is used for background AI thinking between "AI" commands.
 //
-// This thread is a slave of the AI thread, and the AI thread guarantees that it 
+// This thread is a slave of the AI thread, and the AI thread guarantees that it
 // will not touch pEngine (except stop_thinking) while this thread is running.
 //------------------------------------------------------------------------------
 /*
@@ -303,7 +303,7 @@ void AIThread (void *arg)
 
 
 //------------------------------------------------------------------------------
-// The plugin. 
+// The plugin.
 // (See jcraner.com/qianhong for the plugin specification.)
 //------------------------------------------------------------------------------
 void Plugin ()
@@ -314,10 +314,10 @@ void Plugin ()
 	char cmd[80];
 	char arg[80];
 
-	pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 24);
+	pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 22);
 
 	while (1)
-	{ 
+	{
 		while (fgets (line, 79, stdin) == NULL)
 		{
 		}
@@ -330,7 +330,7 @@ void Plugin ()
 		// an ABORTED reply to Qianhong.
 		if (bAIThreadRunning)
 		{
-         // abort for all commands except "TIMEOUT", 
+         // abort for all commands except "TIMEOUT",
          // which causes a result to be returned
             if (stricmp (cmd, "timeout") != 0)
             {
@@ -362,7 +362,7 @@ void Plugin ()
 			//Kill_BG_Thread();
 
 			// This will have caused the thread to abort (if running).
-			// The only reply should be from any pending "AI" or "HINTS" 
+			// The only reply should be from any pending "AI" or "HINTS"
 			// command that this may have aborted, so do nothing else here.
 		}
 		else if (stricmp (cmd, "scr") == 0)
@@ -409,7 +409,7 @@ void Plugin ()
 				}
 				else
 				{
-					REPLY3 ("ERROR - Bad level %s (use %d to %d)\n", 
+					REPLY3 ("ERROR - Bad level %s (use %d to %d)\n",
 						arg, MINLEVEL, MAXLEVEL);
 				}
 			}
@@ -552,7 +552,7 @@ void Plugin ()
 			ICCStoPos (arg, move);
 
 			// If BG thread has already played this move then just increment game_ply
-			if (bg_ply == game_ply + 1 && 
+			if (bg_ply == game_ply + 1 &&
 				 guessed_move == move)
 			{
 				game_ply = bg_ply;
@@ -601,8 +601,8 @@ void Plugin ()
 			REPLY1 ("ERROR - Bad command: %s\n", cmd);
 		}
 
-		// IMPORTANT! The output must be flushed for Qianhong to 
-		// be able to read it from the pipe. Failure to do so will 
+		// IMPORTANT! The output must be flushed for Qianhong to
+		// be able to read it from the pipe. Failure to do so will
 		// result in it hanging...
 		fflush (stdout);
 	}
@@ -631,8 +631,8 @@ void PrintInfo ()
 //  "-info"      Write info to stdout and exit. The info has to be in a certain
 //               format. It tells Qianhong about the capabilities of the plugin.
 //
-//  "-plugin"    Run in plugin mode. Optional "debug" parameter signals that 
-//               the plugin has a console and may output anything it wants to 
+//  "-plugin"    Run in plugin mode. Optional "debug" parameter signals that
+//               the plugin has a console and may output anything it wants to
 //               stderr to be seen on the console.
 //------------------------------------------------------------------------------
 int main (int argc, char **argv)
