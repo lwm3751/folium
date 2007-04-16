@@ -3,6 +3,93 @@
 #include <fstream>
 using namespace std;
 
+bool Engine::make_move(uint32 move)
+{
+    register uint src, dst, src_piece, dst_piece;
+    register uint own;
+    register uint op, np;
+    src = move_src(move);
+    dst = move_dst(move);
+    assert(m_xq.is_legal_move(src, dst));
+    src_piece = m_xq.square(src);
+    dst_piece = m_xq.square(dst);
+
+    own = m_xq.player();
+    m_xq.m_bitlines.changebit(square_x(src), square_y(src));
+    m_xq.m_bitlines.setbit(square_x(dst), square_y(dst));
+    m_xq.m_squares[src] = EmptyIndex;
+    m_xq.m_squares[dst] = src_piece;
+    m_xq.m_pieces[src_piece] = dst;
+    m_xq.m_pieces[dst_piece] = InvaildSquare;
+    if (m_xq.in_checked(own))
+    {
+        m_xq.m_bitlines.changebit(square_x(src), square_y(src));
+        m_xq.m_bitlines.setbit(square_x(dst), square_y(dst));
+        m_xq.m_squares[src] = EmptyIndex;
+        m_xq.m_squares[dst] = src_piece;
+        m_xq.m_pieces[src_piece] = dst;
+        m_xq.m_pieces[dst_piece] = InvaildSquare;
+        return false;
+    }
+    m_xq.m_player = 1UL - own;
+
+    op = m_ply;
+    np = op + 1;
+
+    m_traces[np] = create_trace(m_xq.in_checked(1 - own), dst_piece, move);
+    if (dst_piece == EmptyIndex)
+    {
+        m_keys[np] = m_keys[op]\
+                    ^ piece_key(src_piece, src)
+                    ^ piece_key(src_piece, dst);
+        m_locks[np] = m_locks[op]\
+                    ^ piece_lock(src_piece, src)\
+                    ^ piece_lock(src_piece, dst);;
+        m_values[np] = m_values[op]\
+                        + piece_value(src_piece, dst)\
+                        - piece_value(src_piece, src);
+    }
+    else
+    {
+        m_keys[np] = m_keys[op]\
+                    ^ piece_key(src_piece, src)\
+                    ^ piece_key(src_piece, dst)\
+                    ^ piece_key(dst_piece, dst);
+        m_locks[np] = m_locks[op]\
+                    ^ piece_lock(src_piece, src)\
+                    ^ piece_lock(src_piece, dst)\
+                    ^ piece_lock(dst_piece, dst);
+        m_values[np] = m_values[op]\
+                        + piece_value(src_piece, dst)\
+                        - piece_value(src_piece, src)\
+                        - piece_value(dst_piece, dst);
+    }
+    m_ply = np;
+    return true;
+}
+
+void Engine::unmake_move()
+{
+    assert (m_ply > 0);
+    register uint src, dst, src_piece, dst_piece;
+    register uint32 trace = m_traces[m_ply--];
+    src = trace_src(trace);
+    dst = trace_dst(trace);
+    dst_piece = trace_dst_piece(trace);
+    src_piece = m_xq.square(dst);
+
+    if (dst_piece == EmptyIndex)
+    {
+        m_xq.m_bitlines.changebit(square_x(dst), square_y(dst));
+    }
+    m_xq.m_bitlines.changebit(square_x(src), square_y(src));
+    m_xq.m_squares[src] = src_piece;
+    m_xq.m_squares[dst] = dst_piece;
+    m_xq.m_pieces[src_piece] = src;
+    m_xq.m_pieces[dst_piece] = dst;
+    m_xq.m_player = 1UL - m_xq.m_player;
+}
+
 Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
 {
     assert(!xq.in_checked(1 - xq.player()));
@@ -14,7 +101,7 @@ Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
     m_locks[0] = 0ULL;
     m_values[0] = 0L;
 
-    for (int i = 0; i < 32; ++i)
+    for (uint i = 0; i < 32; ++i)
     {
         uint32 square = m_xq.piece(i);
         if (square == InvaildSquare)
@@ -39,7 +126,7 @@ void Engine::reset(const XQ& xq)
     m_locks[0] = 0ULL;
     m_values[0] = 0L;
 
-    for (int i = 0; i < 32; ++i)
+    for (uint i = 0; i < 32; ++i)
     {
         uint32 square = m_xq.piece(i);
         if (square == InvaildSquare)

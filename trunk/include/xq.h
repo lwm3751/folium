@@ -12,8 +12,10 @@ using std::string;
 using namespace std;
 
 class MoveList;
+class Engine;
 class XQ
 {
+friend class Engine;
 public:
     XQ();
     XQ(string const &fen);
