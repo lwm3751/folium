@@ -14,7 +14,7 @@
 				<Compiler>
 					<Add option="-march=pentium4" />
 					<Add option="-O3" />
-					<Add directory="D:\lwm\projects\folium\include" />
+					<Add directory="..\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
