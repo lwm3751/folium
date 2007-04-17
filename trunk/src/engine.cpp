@@ -23,12 +23,13 @@ bool Engine::make_move(uint32 move)
     m_xq.m_pieces[dst_piece] = InvaildSquare;
     if (m_xq.in_checked(own))
     {
-        m_xq.m_bitlines.changebit(square_x(src), square_y(src));
-        m_xq.m_bitlines.setbit(square_x(dst), square_y(dst));
-        m_xq.m_squares[src] = EmptyIndex;
-        m_xq.m_squares[dst] = src_piece;
-        m_xq.m_pieces[src_piece] = dst;
-        m_xq.m_pieces[dst_piece] = InvaildSquare;
+        m_xq.m_bitlines.setbit(square_x(src), square_y(src));
+        if (dst_piece == EmptyIndex)
+            m_xq.m_bitlines.changebit(square_x(dst), square_y(dst));
+        m_xq.m_squares[src] = src_piece;
+        m_xq.m_squares[dst] = dst_piece;
+        m_xq.m_pieces[src_piece] = src;
+        m_xq.m_pieces[dst_piece] = dst;
         return false;
     }
     m_xq.m_player = 1UL - own;
