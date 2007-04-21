@@ -375,3 +375,42 @@ uint XQ::black_in_checked() const
     uint nf = (piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp)))) & EmptyFlag;
     return pf | rf | cf | nf;
 }
+
+void XQ::make_move(uint src, uint dst)
+{
+    uint32 src_piece = square(src);
+    uint32 dst_piece = square(dst);
+    assert (src == piece(src_piece));
+    assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
+
+    m_bitlines.changebit(square_x(src), square_y(src));
+    m_bitlines.setbit(square_x(dst), square_y(dst));
+    m_squares[src] = EmptyIndex;
+    m_squares[dst] = src_piece;
+    m_pieces[src_piece] = dst;
+    m_pieces[dst_piece] = InvaildSquare;
+    m_player = 1UL - m_player;
+}
+
+void XQ::unmake_move(uint src, uint dst, uint dst_piece)
+{
+    uint32 src_piece = square(dst);
+    assert (square(src) == EmptyIndex);
+    assert (piece(src_piece) == dst);
+
+    if (dst_piece == EmptyIndex)
+    {
+        m_bitlines.changebit(square_x(dst), square_y(dst));
+    }
+    m_bitlines.changebit(square_x(src), square_y(src));
+    m_squares[src] = src_piece;
+    m_squares[dst] = dst_piece;
+    m_pieces[src_piece] = src;
+    m_pieces[dst_piece] = dst;
+    m_player = 1UL - m_player;
+
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
+}
