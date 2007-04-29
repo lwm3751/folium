@@ -291,9 +291,6 @@ int Engine::alpha_beta(int depth, int alpha, int beta)
     if (best_value >= beta)
         return best_value;
 
-    if (beta > (WINSCORE - ply - 1))
-        beta = (WINSCORE - ply - 1);
-
     if (!flag)
         depth--;
     int score;
@@ -409,9 +406,6 @@ int Engine::quiet(int alpha, int beta)
     best_value = ply - WINSCORE;
     if (best_value >= beta)
         return best_value;
-
-    if (beta > (WINSCORE - ply - 1))
-        beta = (WINSCORE - ply - 1);
 
     if (!flag)
     {
