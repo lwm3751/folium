@@ -199,20 +199,18 @@ uint32 Engine::search(int depth, MoveList& ban)
 
     for (sint i = 1; i <= depth; ++i)
     {
-        bool found = false;
         int best_value = -WINSCORE;
         int alpha = -WINSCORE;
         if (best_move)
         {
             assert(m_xq.is_legal_move(move_src(best_move), move_dst(best_move)));
             make_move(best_move);
-            best_value = - full(i, -WINSCORE, -alpha);
+            best_value = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
             file << i << "\t" << move_src(best_move) << "\t" << move_dst(best_move) << "\t" << best_value << endl;
             if (m_stop)
                 return best_move;
             alpha = best_value;
-            found = true;
         }
         for (uint j = 0; j < ml.size(); ++j)
         {
@@ -221,18 +219,7 @@ uint32 Engine::search(int depth, MoveList& ban)
             if (move == best_move)
                 continue;
             make_move(move);
-            int score;
-            if (found)
-            {
-                score = - mini(depth, -alpha+1);
-                if (score > alpha)
-                    score = - full(depth, -WINSCORE, -alpha);
-            }
-            else
-            {
-                score = - full(depth, -WINSCORE, -alpha);
-            }
-            //int score = - alpha_beta(i, -WINSCORE, -alpha);
+            int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
             if (m_stop)
                 return best_move;
@@ -243,7 +230,6 @@ uint32 Engine::search(int depth, MoveList& ban)
                 best_move = move;
                 if (score > alpha)
                 {
-                    found = true;
                     alpha = score;
                 }
             }
@@ -290,6 +276,9 @@ int Engine::alpha_beta(int depth, int alpha, int beta)
     uint32 best_move;
     if (best_value >= beta)
         return best_value;
+
+    if (beta > (WINSCORE - ply - 1))
+        beta = (WINSCORE - ply - 1);
 
     if (!flag)
         depth--;
@@ -406,6 +395,9 @@ int Engine::quiet(int alpha, int beta)
     best_value = ply - WINSCORE;
     if (best_value >= beta)
         return best_value;
+
+    if (beta > (WINSCORE - ply - 1))
+        beta = (WINSCORE - ply - 1);
 
     if (!flag)
     {

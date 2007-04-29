@@ -26,11 +26,12 @@ public:
     uint piece(uint)const;
     uint player()const;
 
+    void make_null();
     void make_move(uint, uint);
+    void unmake_null();
     void unmake_move(uint, uint, uint);
 
     bool is_legal_move(uint, uint)const;
-    bool is_legal_move(uint32)const;
 
     uint in_checked(uint)const;
 
@@ -71,9 +72,50 @@ inline uint32 XQ::player()const
     return m_player;
 }
 
-inline bool XQ::is_legal_move(uint32 move)const
+inline void XQ::make_null()
 {
-    return is_legal_move(move_src(move), move_dst(move));
+    m_player = 1UL - m_player;
+}
+inline void XQ::make_move(uint src, uint dst)
+{
+    uint32 src_piece = square(src);
+    uint32 dst_piece = square(dst);
+    assert (src == piece(src_piece));
+    assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
+
+    m_bitlines.changebit(square_x(src), square_y(src));
+    m_bitlines.setbit(square_x(dst), square_y(dst));
+    m_squares[src] = EmptyIndex;
+    m_squares[dst] = src_piece;
+    m_pieces[src_piece] = dst;
+    m_pieces[dst_piece] = InvaildSquare;
+    m_player = 1UL - m_player;
+}
+inline void XQ::unmake_null()
+{
+    m_player = 1UL - m_player;
+}
+inline void XQ::unmake_move(uint src, uint dst, uint dst_piece)
+{
+    uint32 src_piece = square(dst);
+    assert (square(src) == EmptyIndex);
+    assert (piece(src_piece) == dst);
+
+    if (dst_piece == EmptyIndex)
+    {
+        m_bitlines.changebit(square_x(dst), square_y(dst));
+    }
+    m_bitlines.changebit(square_x(src), square_y(src));
+    m_squares[src] = src_piece;
+    m_squares[dst] = dst_piece;
+    m_pieces[src_piece] = src;
+    m_pieces[dst_piece] = dst;
+    m_player = 1UL - m_player;
+
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
 }
 
 inline uint XQ::in_checked(uint color)const

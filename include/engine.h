@@ -30,9 +30,6 @@ private:
     int value();
     int alpha_beta(int, int, int);
     int quiet(int, int);
-    int full(int, int, int);
-    int mini(int, int);
-    int quies(int, int);
     XQ m_xq;
     int m_ply;//current ply
     int m_start_ply;//start search ply
