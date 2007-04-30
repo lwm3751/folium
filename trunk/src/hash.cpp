@@ -65,7 +65,7 @@ void HashTable::store(int depth, int ply, int score, uint32 move,
     if (score > MATEVALUE)
         score += ply;
     else if (score < -MATEVALUE)
-        score -= ply;
+        return;
     record.lock = lock;
     record.depth = depth;
     record.flag = 1;

@@ -31,9 +31,6 @@ int Engine::full(int depth, int alpha, int beta)
         return best_value;
     }
 
-    if (beta > (WINSCORE - ply - 1))
-        beta = (WINSCORE - ply - 1);
-
     if (!flag)
         depth--;
     int score;
@@ -42,13 +39,13 @@ int Engine::full(int depth, int alpha, int beta)
     {
         score = - full(depth, -beta, -alpha);
         unmake_move();
+        if (m_stop)
+            return - WINSCORE;
         if (score > best_value)
         {
             best_value = score;
             if (score >= beta)
             {
-                if (m_stop)
-                    return - WINSCORE;
                 m_hash_move_cuts++;
                 m_history.update_history(best_move, depth);
                 m_hash.store(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
@@ -86,7 +83,7 @@ int Engine::full(int depth, int alpha, int beta)
             continue;
         if (found)
         {
-            score = - mini(depth, -alpha+1);
+            score = - mini(depth, -alpha);
             if ((score > alpha) && (score < beta))
                 score = - full(depth, -beta, -alpha);
         }
@@ -145,9 +142,6 @@ int Engine::mini(int depth, int beta)
     uint32 best_move;
     if (best_value >= beta)
         return best_value;
-
-    if (beta > (WINSCORE - ply - 1))
-        beta = (WINSCORE - ply - 1);
 
     if (!flag)
         depth--;
@@ -245,9 +239,6 @@ int Engine::quies(int alpha, int beta)
     best_value = ply - WINSCORE;
     if (best_value >= beta)
         return best_value;
-
-    if (beta > (WINSCORE - ply - 1))
-        beta = (WINSCORE - ply - 1);
 
     if (!flag)
     {

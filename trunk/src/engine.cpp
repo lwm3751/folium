@@ -224,13 +224,13 @@ uint32 Engine::search(int depth, MoveList& ban)
             int score;
             if (found)
             {
-                score = - mini(depth, -alpha+1);
+                score = - mini(i, -alpha);
                 if (score > alpha)
-                    score = - full(depth, -WINSCORE, -alpha);
+                    score = - full(i, -WINSCORE, -alpha);
             }
             else
             {
-                score = - full(depth, -WINSCORE, -alpha);
+                score = - full(i, -WINSCORE, -alpha);
             }
             //int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
