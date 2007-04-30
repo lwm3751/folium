@@ -43,7 +43,7 @@ private:
     uint32 m_traces[512];
     History m_history;
     HashTable m_hash;
-    bool m_stop;
+    volatile bool m_stop;
 private:
     uint m_tree_nodes;
     uint m_quiet_nodes;
