@@ -1,0 +1,8 @@
+Import('env')
+qhsrc = ['qianhong.cpp']
+qianhong = env.Program(
+    'folium',
+    qhsrc,
+    LIBS=['folium'],
+    CCFLAGS = '-g -O3')
+env.Install('#bin', qianhong)
