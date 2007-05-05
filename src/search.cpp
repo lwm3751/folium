@@ -35,7 +35,7 @@ int Engine::full(int depth, int alpha, int beta)
         depth--;
     int score;
     score = m_hash.probe(depth, ply, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-    if (best_move && make_move(best_move))
+    if (best_move && m_xq.is_legal_move(best_move) && make_move(best_move))
     {
         score = - full(depth, -beta, -alpha);
         unmake_move();
@@ -147,12 +147,12 @@ int Engine::mini(int depth, int beta)
         depth--;
     int score;
     score = m_hash.probe(depth, ply, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-    if (score != INVAILDVALUE)
+    if (score != INVAILDVALUE && m_xq.is_legal_move(best_move))
     {
         m_hash_hit_nodes++;
         return score;
     }
-    if (best_move && make_move(best_move))
+    if (best_move && m_xq.is_legal_move(best_move) && make_move(best_move))
     {
         score = - mini(depth, -beta+1);
         unmake_move();
