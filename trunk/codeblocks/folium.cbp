@@ -32,6 +32,7 @@
 		<Unit filename="..\src\hash.cpp" />
 		<Unit filename="..\src\history_data.cpp" />
 		<Unit filename="..\src\move_gen.cpp" />
+		<Unit filename="..\src\search.cpp" />
 		<Unit filename="..\src\xq.cpp" />
 		<Unit filename="..\src\xq_data.cpp" />
 		<Extensions>

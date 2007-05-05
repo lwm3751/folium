@@ -12,5 +12,6 @@ fsrc = ['bitlines.cpp',
 folium = env.StaticLibrary(
     'folium',
     fsrc,
+    CPPDEFINES = {'NDEBUG':None},
     CCFLAGS = '-g -O3')
 env.Install('#bin', folium)
