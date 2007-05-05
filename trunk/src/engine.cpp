@@ -1,5 +1,8 @@
 #include "engine.h"
 
+#include <fstream>
+using namespace std;
+
 bool Engine::make_move(uint32 move)
 {
     register uint src, dst, src_piece, dst_piece;
@@ -168,6 +171,8 @@ void Engine::generate_root_move(MoveList& movelist, MoveList& ban)
 }
 uint32 Engine::search(int depth, MoveList& ban)
 {
+    ofstream file("folium.txt", ios::out|ios::app);
+    file << string(m_xq) << endl;
     m_stop = false;
     m_tree_nodes = 0;
     m_quiet_nodes = 0;
@@ -185,6 +190,8 @@ uint32 Engine::search(int depth, MoveList& ban)
     generate_root_move(ml, ban);
     if (ml.size() == 1)
     {
+        file <<  "unique move:\t "<< move_src(ml[0]) << "\t" << move_dst(ml[0]) << endl;
+        file << "-------------------------------------------------------------" << endl;
         return ml[0];
     }
     if (ml.size() == 0)
@@ -201,6 +208,7 @@ uint32 Engine::search(int depth, MoveList& ban)
             make_move(best_move);
             best_value = - full(i, -WINSCORE, -alpha);
             unmake_move();
+            file << i << "\t" << move_src(best_move) << "\t" << move_dst(best_move) << "\t" << best_value << endl;
             if (m_stop)
                 return best_move;
             alpha = best_value;
@@ -224,11 +232,13 @@ uint32 Engine::search(int depth, MoveList& ban)
             {
                 score = - full(i, -WINSCORE, -alpha);
             }
+            //int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
             if (m_stop)
                 return best_move;
             if (score > best_value)
             {
+                file << i << "\t" << move_src(move) << "\t" << move_dst(move) << "\t" << score << endl;
                 best_value = score;
                 best_move = move;
                 if (score > alpha)
@@ -240,8 +250,217 @@ uint32 Engine::search(int depth, MoveList& ban)
         }
         if (best_value > MATEVALUE || best_value < -MATEVALUE)
         {
+            file << depth << ":\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
+            file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts<< endl;
+            file << "-------------------------------------------------------------" << endl;
             return best_move;
         }
     }
+    file << depth << ":\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
+    file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts<< endl;
+    file << "-------------------------------------------------------------" << endl;
+    file.close();
     return best_move;
+}
+
+int Engine::alpha_beta(int depth, int alpha, int beta)
+{
+    if (m_stop)
+        return - WINSCORE;
+    const int ply = m_ply - m_start_ply;
+    const int flag = trace_flag(m_traces[m_ply]);
+
+    ++m_tree_nodes;
+    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
+    {
+        if (flag && trace_flag(m_traces[m_ply - 2]))
+        {
+            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+                return static_cast<int>(value() * 0.9f);
+            return INVAILDVALUE - (ply - 1);
+        }
+        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+        {
+            return (ply - 1) - INVAILDVALUE;
+        }
+        return static_cast<int>(value() * 0.9f);
+    }
+
+    int best_value = ply - WINSCORE;
+    uint32 best_move;
+    if (best_value >= beta)
+        return best_value;
+
+    if (!flag)
+        depth--;
+    int score;
+    score = m_hash.probe(depth, ply, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+    if (score != INVAILDVALUE)
+    {
+        m_hash_hit_nodes++;
+        return score;
+    }
+    if (best_move && make_move(best_move))
+    {
+        if (depth)
+            score = - alpha_beta(depth, -beta, -alpha);
+        else
+        {
+            score = - quiet(-beta, -alpha);
+        }
+        unmake_move();
+        if (score > best_value)
+        {
+            best_value = score;
+            if (score >= beta)
+            {
+                if (m_stop)
+                    return - WINSCORE;
+                m_hash_move_cuts++;
+                m_history.update_history(best_move, depth);
+                m_hash.store(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                return score;
+            }
+            if (score > alpha)
+            {
+                alpha = score;
+            }
+        }
+    }//*/
+
+    MoveList ml;
+    m_xq.generate_moves(ml);
+    uint size = ml.size();
+    for (uint i = 0; i < size; ++i)
+    {
+        ml[i] = m_history.update_move(ml[i]);
+    }
+    for (uint i = 0; i < size; ++i)
+    {
+        uint32 move = ml[i];
+        for (uint j = i + 1; j < size; ++j)
+        {
+            if (ml[j] > move)
+            {
+                ml[i] = ml[j];
+                ml[j] = move;
+                move = ml[i];
+            }
+        }
+
+        if (!make_move(move))
+            continue;
+        if (depth)
+            score = - alpha_beta(depth, -beta, -alpha);
+        else
+        {
+            score = - quiet(-beta, -alpha);
+        }
+        unmake_move();
+
+        if (score > best_value)
+        {
+            best_value = score;
+            best_move = move;
+            if (score >= beta)
+            {
+                if (m_stop)
+                    return - WINSCORE;
+                m_history.update_history(best_move, depth);
+                m_hash.store(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                return beta;
+            }
+            if (score > alpha)
+            {
+                alpha = score;
+            }
+        }
+    }
+    if (m_stop)
+        return -WINSCORE;
+    return best_value;
+}
+
+int Engine::quiet(int alpha, int beta)
+{
+    const int ply = m_ply - m_start_ply;
+    const int flag = trace_flag(m_traces[m_ply]);
+
+    m_quiet_nodes++;
+    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
+    {
+        if (flag && trace_flag(m_traces[m_ply - 2]))
+        {
+            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+                return static_cast<int>(value() * 0.9f);
+            return INVAILDVALUE - (ply - 1);
+        }
+        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+        {
+            return (ply - 1) - INVAILDVALUE;
+        }
+        return static_cast<int>(value() * 0.9f);
+    }
+
+    int score, best_value;
+    best_value = ply - WINSCORE;
+    if (best_value >= beta)
+        return best_value;
+
+    if (!flag)
+    {
+        score = value();
+        if (score >= beta)
+            return score;
+        if (score > best_value)
+        {
+            best_value = score;
+            if (score > alpha)
+                alpha = score;
+        }
+    }
+    MoveList ml;
+    if (flag)
+    {
+        m_xq.generate_moves(ml);
+    }
+    else
+    {
+        m_xq.generate_capture_moves(ml);
+        uint size = ml.size();
+        for (uint i = 0; i < size; ++i)
+        {
+            uint32 move = ml[i];
+            ml[i] = m_history.update_capture_move(move, m_xq.square(move_src(move)), m_xq.square(move_dst(move)));
+        }
+    }
+
+    uint size = ml.size();
+    for (uint i = 0; i < size; ++i)
+    {
+        uint32 move = ml[i];
+        for (uint j = i + 1; j < size; ++j)
+        {
+            if (ml[j] > move)
+            {
+                ml[i] = ml[j];
+                ml[j] = move;
+                move = ml[i];
+            }
+        }
+        if (!make_move(move))
+            continue;
+        score = - quiet(-beta, -alpha);
+        unmake_move();
+
+        if (score >= beta)
+            return beta;
+        if (score > best_value)
+        {
+            best_value = score;
+            if (score > alpha)
+                alpha = score;
+        }
+    }
+    return best_value;
 }
