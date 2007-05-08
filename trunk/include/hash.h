@@ -23,11 +23,15 @@ public:
     HashTable(uint32 power=22);
     ~HashTable();
     void clear();
-    int probe(int depth, int ply, int beta, uint32& move, uint player, const uint32 &key, const uint64 &lock);
-    void store(int depth, int ply, int score, uint32 move, uint player, const uint32 &key, const uint64 &lock);
+    int probe(int depth, int ply, int alpha, int beta,\
+            uint32& move, uint player, const uint32 &key, const uint64 &lock);
+    void store_beta(int depth, int ply, int score, uint32 move, uint player, const uint32 &key, const uint64 &lock);
+    void store_alpha(int depth, int ply, int score, uint32 move, uint player, const uint32 &key, const uint64 &lock);
+    void store_pv(int depth, int ply, int score, uint32 move, uint player, const uint32 &key, const uint64 &lock);
 private:
     uint32 m_size;
     uint32 m_mask;
     Record* m_records[2];
 };
+
 #endif //_HASH_H_
