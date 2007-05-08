@@ -16,6 +16,8 @@ public:
     void reset(const XQ&);
     bool make_move(uint32 move);
     void unmake_move();
+    void make_null();
+    void unmake_null();
     uint32 search(int, MoveList&);
 public:
     // for plugin
@@ -28,8 +30,6 @@ public:
 private:
     void generate_root_move(MoveList& movelist, MoveList& ban);
     int value();
-    int alpha_beta(int, int, int);
-    int quiet(int, int);
     int full(int, int, int);
     int mini(int, int);
     int quies(int, int);
@@ -49,6 +49,8 @@ private:
     uint m_quiet_nodes;
     uint m_hash_hit_nodes;
     uint m_hash_move_cuts;
+    uint m_null_nodes;
+    uint m_null_cuts;
 };
 
 inline int Engine::value()
@@ -56,5 +58,26 @@ inline int Engine::value()
     return (m_xq.player() == Red ? m_values[m_ply] : - m_values[m_ply]) + 4;//pawn value = 9
 }
 
+inline void Engine::make_null()
+{
+    assert(!trace_flag(m_traces[m_ply]));
+    assert(m_null_ply == m_start_ply);
+    register uint op, np;
+    op = m_ply;
+    np = m_ply + 1;
+    m_keys[np] = m_keys[op];
+    m_locks[np] = m_locks[op];
+    m_values[np] = m_values[op];
+    m_traces[np] = 0;
+    m_null_ply = m_ply = np;
+    m_xq.m_player = 1UL - m_xq.m_player;
+}
+
+inline void Engine::unmake_null()
+{
+    --m_ply;
+    m_null_ply = m_start_ply;
+    m_xq.m_player = 1UL - m_xq.m_player;
+}
 
 #endif //_ENGINE_H_

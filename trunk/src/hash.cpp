@@ -35,6 +35,7 @@ int HashTable::probe(int depth, int ply, int beta,
     Record& record = m_records[player][key & m_mask];
     if (record.lock == lock && record.flag)
     {
+        move = record.move;
         int score = record.score;
         if (record.score > MATEVALUE)
             return record.score - ply;
@@ -45,7 +46,6 @@ int HashTable::probe(int depth, int ply, int beta,
             if (score >= beta)
                 return score;
         }
-        move = record.move;
     }
     else
     {

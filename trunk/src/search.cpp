@@ -152,6 +152,27 @@ int Engine::mini(int depth, int beta)
         m_hash_hit_nodes++;
         return score;
     }
+    //*
+    if (depth >= 2 && flag == 0 && m_null_ply == m_start_ply && (value() - beta > 4))
+    {
+        ++m_null_nodes;
+        make_null();
+        score = - mini(depth-3, -beta+1);
+        unmake_null();
+        if (score >= beta)
+        {
+            ++m_null_cuts;
+            return score;
+            if (depth > 3)
+            {
+                if (mini(depth-3, -beta+1) >= beta)
+                    return score;
+            }
+            else if (mini(1, -beta+1) >= beta)
+                return score;
+        }
+    }//*/
+    
     if (best_move && m_xq.is_legal_move(best_move) && make_move(best_move))
     {
         score = - mini(depth, -beta+1);
