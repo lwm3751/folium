@@ -1,5 +1,7 @@
 Import('env')
-fsrc = ['bitlines.cpp',
+Import('ccflag')
+Import('defines')
+src = ['bitlines.cpp',
     'engine_data.cpp',
     'move_gen.cpp',
     'xq_data.cpp',
@@ -11,7 +13,7 @@ fsrc = ['bitlines.cpp',
     'xq.cpp']
 folium = env.StaticLibrary(
     'folium',
-    fsrc,
-    CPPDEFINES = {'NDEBUG':None},
-    CCFLAGS = '-g -O3')
+    src,
+    CPPDEFINES = defines,
+    CCFLAGS = ccflag)
 env.Install('#bin', folium)
