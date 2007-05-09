@@ -1,5 +1,7 @@
 #include "engine.h"
 
+const int NULL_DEPTH = 2;
+
 int Engine::full(int depth, int alpha, int beta)
 {
     if (m_stop)
@@ -37,11 +39,6 @@ int Engine::full(int depth, int alpha, int beta)
         depth--;
     const int old_alpha = alpha;
     int score = m_hash.probe(depth, ply, alpha, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-    if (score != INVAILDVALUE && m_xq.is_legal_move(best_move))
-    {
-        m_hash_hit_nodes++;
-        return score;
-    }
     if (m_xq.is_legal_move(best_move) && make_move(best_move))
     {
         score = - full(depth, -beta, -alpha);
@@ -128,7 +125,7 @@ int Engine::full(int depth, int alpha, int beta)
         m_hash.store_pv(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     return best_value;
 }
-int Engine::mini(int depth, int beta)
+int Engine::mini(int depth, int beta, bool do_null)
 {
     if (depth <= 0)
         return quies(beta-1, beta);
@@ -166,23 +163,19 @@ int Engine::mini(int depth, int beta)
         return score;
     }
     //*
-    if (depth >= 2 && flag == 0 && m_null_ply == m_start_ply && (value() - beta > 4))
+    if (depth >= 2 && flag == 0 && do_null && (value() - beta > 4))
     {
         ++m_null_nodes;
         make_null();
-        score = - mini(depth-3, -beta+1);
+        score = - mini(depth - NULL_DEPTH, -beta+1, false);
         unmake_null();
         if (score >= beta)
         {
-            ++m_null_cuts;
-            return score;
-            if (depth > 3)
+            if (mini(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
             {
-                if (mini(depth-3, -beta+1) >= beta)
-                    return score;
-            }
-            else if (mini(1, -beta+1) >= beta)
+                ++m_null_cuts;
                 return score;
+            }
         }
     }//*/
     
