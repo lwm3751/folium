@@ -31,7 +31,7 @@ private:
     void generate_root_move(MoveList& movelist, MoveList& ban);
     int value();
     int full(int, int, int);
-    int mini(int, int);
+    int mini(int, int, bool do_null=true);
     int quies(int, int);
     XQ m_xq;
     int m_ply;//current ply
@@ -68,15 +68,14 @@ inline void Engine::make_null()
     m_keys[np] = m_keys[op];
     m_locks[np] = m_locks[op];
     m_values[np] = m_values[op];
-    m_traces[np] = 0;
+    m_traces[np] = m_null_ply;
     m_null_ply = m_ply = np;
     m_xq.m_player = 1UL - m_xq.m_player;
 }
 
 inline void Engine::unmake_null()
 {
-    --m_ply;
-    m_null_ply = m_start_ply;
+    m_null_ply = m_traces[m_ply--];
     m_xq.m_player = 1UL - m_xq.m_player;
 }
 
