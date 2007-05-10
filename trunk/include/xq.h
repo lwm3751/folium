@@ -13,6 +13,7 @@ using namespace std;
 
 class MoveList;
 class Engine;
+class History;
 class XQ
 {
 friend class Engine;
@@ -35,7 +36,9 @@ public:
     uint in_checked(uint)const;
 
     void generate_moves(MoveList&)const;
+    void generate_moves(MoveList&, const History&)const;
     void generate_capture_moves(MoveList&)const;
+    void generate_capture_moves(MoveList&, const History&)const;
 private:
     void clear();
     uint red_in_checked()const;
