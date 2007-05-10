@@ -6,7 +6,7 @@ from consts import *
 from xq_data import *
 
 def capture_scores():
-    capture_scores = [[0]*32 for i in range(32)]
+    capture_scores = [[0]*32 for i in range(33)]
     e = [10000, 1041, 1040, 2000, 1088, 1096,  1020]
     m = [1000, 41, 40, 200, 88, 96, 20]
     def level(src_type, dst_type): return levels[src_type][dst_type]
@@ -21,7 +21,7 @@ def capture_scores():
             if color(src_piece) != color(dst_piece):
                 src_type = type(src_piece)
                 dst_type = type(dst_piece)
-                capture_scores[src_piece][dst_piece] =  e[dst_type] - m[src_type]
+                capture_scores[dst_piece][src_piece] =  e[dst_type] - m[src_type] + 1 << 17
     return capture_scores
 capture_scores = capture_scores()
 
