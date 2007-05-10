@@ -12,7 +12,7 @@ class History
 public:
     void clear();
     void update_history(uint32, uint);
-    uint32 update_move(uint32, uint, uint)const;
+    uint32 move(uint, uint, uint, uint)const;
     static uint32 update_capture_move(uint32, uint, uint);
 private:
     uint32 m_scores[0x4000];
@@ -34,9 +34,10 @@ inline void History::update_history(uint32 move, uint depth)
     }
 }
 
-inline uint32 History::update_move(uint32 move, uint src_piece, uint dst_piece) const
+inline uint32 History::move(uint src, uint dst, uint src_piece, uint dst_piece) const
 {
-    return static_cast<uint32>((m_scores[move & 0x3fff]+g_capture_scores[dst_piece][src_piece]) << 14) | (move & 0x3fff);
+    uint m = create_move(src, dst);
+    return static_cast<uint32>((m_scores[m]+g_capture_scores[dst_piece][src_piece]) << 14) | m;
 }
 
 #endif  //_HISTORY_H

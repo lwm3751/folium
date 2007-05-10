@@ -64,13 +64,8 @@ int Engine::full(int depth, int alpha, int beta)
     }
 
     MoveList ml;
-    m_xq.generate_moves(ml);
+    m_xq.generate_moves(ml, m_history);
     uint size = ml.size();
-    for (uint i = 0; i < size; ++i)
-    {
-        uint32 move = ml[i];
-        ml[i] = m_history.update_move(move, m_xq.square(move_src(move)), m_xq.square(move_dst(move)));
-    }
     for (uint i = 0; i < size; ++i)
     {
         uint32 move = ml[i];
@@ -198,13 +193,8 @@ int Engine::mini(int depth, int beta, bool do_null)
     }
 
     MoveList ml;
-    m_xq.generate_moves(ml);
+    m_xq.generate_moves(ml, m_history);
     uint size = ml.size();
-    for (uint i = 0; i < size; ++i)
-    {
-        uint32 move = ml[i];
-        ml[i] = m_history.update_move(move, m_xq.square(move_src(move)), m_xq.square(move_dst(move)));
-    }
     for (uint i = 0; i < size; ++i)
     {
         uint32 move = ml[i];
@@ -287,15 +277,10 @@ int Engine::quies(int alpha, int beta)
     }
     MoveList ml;
     if (flag)
-        m_xq.generate_moves(ml);
+        m_xq.generate_moves(ml, m_history);
     else
-        m_xq.generate_capture_moves(ml);
+        m_xq.generate_capture_moves(ml, m_history);
     uint size = ml.size();
-    for (uint i = 0; i < size; ++i)
-    {
-        uint32 move = ml[i];
-        ml[i] = m_history.update_move(move, m_xq.square(move_src(move)), m_xq.square(move_dst(move)));
-    }
     for (uint i = 0; i < size; ++i)
     {
         uint32 move = ml[i];
