@@ -9,12 +9,9 @@ using namespace std;
 
 #define VERSION  "0.1"
 
-#define MINLEVEL 4    // from ki11egg code
-#define MAXLEVEL 9   // ki11egg goes up to 15, but who knows how slow that would be...
-
 // globals (shaRed between main thread and AI thread)
 Engine *pEngine;
-int level = 5;
+int level = 6;
 
 HANDLE hBGThread = NULL;
 
@@ -314,7 +311,7 @@ void Plugin ()
 	char cmd[80];
 	char arg[80];
 
-	pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 24);
+	pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 23);
 
 	while (1)
 	{
@@ -402,7 +399,7 @@ void Plugin ()
 			else
 			{
 				int newlevel = atoi (arg);
-				if (newlevel >= MINLEVEL && newlevel <= MAXLEVEL)
+				if (newlevel >= 6 && newlevel <= 9)
 				{
 					level = newlevel;
 					REPLY1 ("OK - Set AI level to %d\n", level);
@@ -410,7 +407,7 @@ void Plugin ()
 				else
 				{
 					REPLY3 ("ERROR - Bad level %s (use %d to %d)\n",
-						arg, MINLEVEL, MAXLEVEL);
+						arg, 6, 9);
 				}
 			}
 		}
@@ -655,10 +652,10 @@ int main (int argc, char **argv)
 		printf ("folium\n");
 		// levels
 		printf ("LEVELS 4\n");
-		printf ("5  - Default\n");
-		printf ("6\n");
+		printf ("6  - Default\n");
 		printf ("7\n");
 		printf ("8\n");
+		printf ("9\n");
 		// undo support (0 for no, 1 for yes)
 		printf ("UNDO 1\n");
 		// hint support (0 for no, 1 for yes)
