@@ -1,8 +1,9 @@
 #include "engine.h"
-
+#include <iostream>
+using namespace std;
 const int NULL_DEPTH = 2;
 
-int Engine::full(int depth, int alpha, int beta)
+int Engine::full(uint32& killer, int depth, int alpha, int beta)
 {
     if (m_stop)
         return - WINSCORE;
@@ -13,6 +14,7 @@ int Engine::full(int depth, int alpha, int beta)
     const int flag = trace_flag(m_traces[m_ply]);
 
     ++m_tree_nodes;
+    //Ñ­»·Ì½²â
     if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
     {
         if (flag && trace_flag(m_traces[m_ply - 2]))
@@ -29,30 +31,62 @@ int Engine::full(int depth, int alpha, int beta)
     }
 
     int best_value = ply - WINSCORE;
-    uint32 best_move;
+    //É±Æå¼ô²Ã
     if (best_value >= beta)
-    {
         return best_value;
-    }
+    uint32 best_move=0;
+    uint32 sub_killer=0;
+    int score;
+    MoveList ml;
 
+    //½«¾üÉìÑÓ
     if (!flag)
         depth--;
-    const int old_alpha = alpha;
-    int score = m_hash.probe(depth, ply, alpha, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-    if (m_xq.is_legal_move(best_move) && make_move(best_move))
+
+    //Ì½²âhashmove ÒÔ¼°killermove
+    //*
+    uint32 hash_move;
+    m_hash.probe(depth, ply, alpha, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+    if (m_xq.is_legal_move(hash_move))
+        ml.push(hash_move);
+    if (m_xq.is_legal_move(killer))
+        ml.push(killer);
+    if (m_xq.is_legal_move(killer>>16))
+        ml.push(killer>>16);
+    for (uint i=0; i<ml.size(); ++i)
     {
-        score = - full(depth, -beta, -alpha);
+        uint32 move = ml[i];
+        if (m_xq.player() != piece_color(m_xq.square(move_src(move))))
+            continue;
+        if (!make_move(move))
+            continue;
+        if (found)
+        {
+            score = - mini(sub_killer, depth, -alpha);
+            if ((score > alpha) && (score < beta))
+                score = - full(sub_killer, depth, -beta, -alpha);
+        }
+        else
+            score = - full(sub_killer, depth, -beta, -alpha);
         unmake_move();
         if (score > best_value)
         {
             best_value = score;
+            best_move = move & 0x3fff;
             if (score >= beta)
             {
                 if (m_stop)
-                    return -WINSCORE;
-                m_hash_move_cuts++;
+                    return - WINSCORE;
+                if (move == hash_move)
+                    m_hash_move_cuts++;
+                else if (move = killer)
+                    m_kill_cuts_1++;
+                else
+                    m_kill_cuts_2++;
                 m_history.update_history(best_move, depth);
                 m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                if ((killer&0xffff) != best_move)
+                    killer = best_move | (killer << 16);
                 return score;
             }
             if (score > alpha)
@@ -61,11 +95,9 @@ int Engine::full(int depth, int alpha, int beta)
                 alpha = score;
             }
         }
-    }
-
-    MoveList ml;
+    }//*/
     m_xq.generate_moves(ml, m_history);
-    uint size = ml.size();
+    const uint size = ml.size();
     for (uint i = 0; i < size; ++i)
     {
         uint32 move = ml[i];
@@ -83,25 +115,27 @@ int Engine::full(int depth, int alpha, int beta)
             continue;
         if (found)
         {
-            score = - mini(depth, -alpha);
+            score = - mini(sub_killer, depth, -alpha);
             if ((score > alpha) && (score < beta))
-                score = - full(depth, -beta, -alpha);
+                score = - full(sub_killer, depth, -beta, -alpha);
         }
         else
-            score = - full(depth, -beta, -alpha);
+            score = - full(sub_killer, depth, -beta, -alpha);
         unmake_move();
 
         if (score > best_value)
         {
             best_value = score;
-            best_move = move;
+            best_move = move & 0x3fff;
             if (score >= beta)
             {
                 if (m_stop)
                     return - WINSCORE;
                 m_history.update_history(best_move, depth);
                 m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-                return beta;
+                if ((killer&0xffff) != best_move)
+                    killer = best_move | (killer << 16);
+                return score;
             }
             if (score > alpha)
             {
@@ -113,19 +147,22 @@ int Engine::full(int depth, int alpha, int beta)
     if (m_stop)
         return - WINSCORE;
     m_history.update_history(best_move, depth);
-    if (best_value <= old_alpha)
+    if (best_move && (killer&0xffff) != best_move)
+        killer = best_move | (killer << 16);
+    if (!found)
         m_hash.store_alpha(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     else
         m_hash.store_pv(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     return best_value;
 }
-int Engine::mini(int depth, int beta, bool do_null)
+int Engine::mini(uint32& killer, int depth, int beta, bool do_null)
 {
     if (depth <= 0)
         return quies(beta-1, beta);
     const int ply = m_ply - m_start_ply;
     const int flag = trace_flag(m_traces[m_ply]);
 
+    //Ñ­»·Ì½²â
     ++m_tree_nodes;
     if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
     {
@@ -143,59 +180,91 @@ int Engine::mini(int depth, int beta, bool do_null)
     }
 
     int best_value = ply - WINSCORE;
-    uint32 best_move;
+    //É±Æå¼ô²Ã
     if (best_value >= beta)
         return best_value;
+    uint32 best_move=0;
+    uint32 sub_killer=0;
+    int score;
+    MoveList ml;
 
+    //½«¾üÉìÑÓ
     if (!flag)
         depth--;
-    int score;
-    score = m_hash.probe(depth, ply, beta-1, beta, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
-    if (score != INVAILDVALUE && m_xq.is_legal_move(best_move))
+
+    //hashÌ½²â
+    uint32 hash_move;
+    score = m_hash.probe(depth, ply, beta-1, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+    if (m_xq.is_legal_move(hash_move) && m_xq.player() == piece_color(m_xq.square(move_src(hash_move))))
     {
-        m_hash_hit_nodes++;
-        return score;
+        if (score != INVAILDVALUE)
+        {
+            m_hash_hit_nodes++;
+            return score;
+        }
+        ml.push(hash_move);
     }
-    //*
+
+    //null¼ô²Ã
     if (depth >= 2 && flag == 0 && do_null && (value() - beta > 4))
     {
         ++m_null_nodes;
+        uint32 tmp_killer;
         make_null();
-        score = - mini(depth - NULL_DEPTH, -beta+1, false);
+        score = - mini(tmp_killer, depth - NULL_DEPTH, -beta+1, false);
         unmake_null();
         if (score >= beta)
         {
-            if (mini(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
+            if (mini(killer, depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
             {
                 ++m_null_cuts;
                 return score;
             }
         }
-    }//*/
-    
-    if (m_xq.is_legal_move(best_move) && make_move(best_move))
+    }
+
+    //Ì½²âhashmove ÒÔ¼°killermove
+    //*
+    if (m_xq.is_legal_move(killer))
+        ml.push(killer);
+    if (m_xq.is_legal_move(killer>>16))
+        ml.push(killer>>16);//*/
+    for (uint i=0; i<ml.size(); ++i)
     {
-        score = - mini(depth, -beta+1);
+        uint32 move = ml[i];
+        assert(m_xq.is_legal_move(move));
+        assert(piece_color(m_xq.square(move_src(move)))==m_xq.m_player);
+        if (m_xq.player() != piece_color(m_xq.square(move_src(move))))
+            continue;
+        if (!make_move(move))
+            continue;
+        score = - mini(sub_killer, depth, -beta+1);
         unmake_move();
         if (score > best_value)
         {
             best_value = score;
+            best_move = move & 0x3fff;
             if (score >= beta)
             {
                 if (m_stop)
                     return - WINSCORE;
-                m_hash_move_cuts++;
+                if (move == hash_move)
+                    m_hash_move_cuts++;
+                else if (move = killer)
+                    m_kill_cuts_1++;
+                else
+                    m_kill_cuts_2++;
                 m_history.update_history(best_move, depth);
                 m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+            if ((killer&0xffff) != best_move)
+                killer = best_move | (killer << 16);
                 return score;
             }
         }
-    }
-
-    MoveList ml;
+    }//*/
     m_xq.generate_moves(ml, m_history);
-    uint size = ml.size();
-    for (uint i = 0; i < size; ++i)
+    const uint size = ml.size();
+    for (uint i = 0; i < size; ++i) 
     {
         uint32 move = ml[i];
         for (uint j = i + 1; j < size; ++j)
@@ -210,7 +279,7 @@ int Engine::mini(int depth, int beta, bool do_null)
 
         if (!make_move(move))
             continue;
-        score = - mini(depth, -beta+1);
+        score = - mini(sub_killer, depth, -beta+1);
         unmake_move();
 
         if (m_stop)
@@ -226,6 +295,8 @@ int Engine::mini(int depth, int beta, bool do_null)
                     return -WINSCORE;
                 m_history.update_history(best_move, depth);
                 m_hash.store_beta(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                if ((killer&0xffff) != best_move)
+                    killer = best_move | (killer << 16);
                 return beta;
             }
         }

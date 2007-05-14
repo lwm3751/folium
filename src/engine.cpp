@@ -1,5 +1,6 @@
 #include "engine.h"
-
+#include <string>
+#include <iostream>
 #include <fstream>
 using namespace std;
 
@@ -11,6 +12,15 @@ bool Engine::make_move(uint32 move)
     src = move_src(move);
     dst = move_dst(move);
     assert(m_xq.is_legal_move(src, dst));
+    if(m_xq.square(dst) == RedKingIndex || m_xq.square(dst) == RedKingIndex)
+    {
+        cerr << string(m_xq) << "\t@@@@@@@@@@@@@@@@@@@@@"<<endl;
+        for (uint i = 1; i <= m_ply; ++i)
+        {
+            cerr << move_src(m_traces[i]) << "\t" << move_dst(m_traces[i]) << endl;
+        }
+        cerr << move_src(move) << "\t" << move_dst(move) << endl;
+    }
     src_piece = m_xq.square(src);
     dst_piece = m_xq.square(dst);
 
@@ -178,6 +188,8 @@ uint32 Engine::search(int depth, MoveList& ban)
     m_quiet_nodes = 0;
     m_hash_hit_nodes = 0;
     m_hash_move_cuts = 0;
+    m_kill_cuts_1 = 0;
+    m_kill_cuts_2 = 0;
     m_null_nodes = 0;
     m_null_cuts = 0;
 
@@ -198,6 +210,7 @@ uint32 Engine::search(int depth, MoveList& ban)
     if (ml.size() == 0)
         return 0;
 
+    uint32 killer=0;
     for (sint i = 1; i <= depth; ++i)
     {
         bool found = false;
@@ -207,7 +220,7 @@ uint32 Engine::search(int depth, MoveList& ban)
         {
             assert(m_xq.is_legal_move(move_src(best_move), move_dst(best_move)));
             make_move(best_move);
-            best_value = - full(i, -WINSCORE, -alpha);
+            best_value = - full(killer, i, -WINSCORE, -alpha);
             unmake_move();
             file << i << "\t" << move_src(best_move) << "\t" << move_dst(best_move) << "\t" << best_value << endl;
             if (m_stop)
@@ -225,13 +238,13 @@ uint32 Engine::search(int depth, MoveList& ban)
             int score;
             if (found)
             {
-                score = - mini(i, -alpha);
+                score = - mini(killer, i, -alpha);
                 if (score > alpha)
-                    score = - full(i, -WINSCORE, -alpha);
+                    score = - full(killer, i, -WINSCORE, -alpha);
             }
             else
             {
-                score = - full(i, -WINSCORE, -alpha);
+                score = - full(killer, i, -WINSCORE, -alpha);
             }
             //int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
@@ -258,7 +271,7 @@ uint32 Engine::search(int depth, MoveList& ban)
         }
     }
     file << "depth:\t" << depth << endl << "move:\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
-    file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
+    file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
     file << "-------------------------------------------------------------" << endl;
     file.close();
     return best_move;

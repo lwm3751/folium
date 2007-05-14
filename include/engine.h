@@ -30,8 +30,8 @@ public:
 private:
     void generate_root_move(MoveList& movelist, MoveList& ban);
     int value();
-    int full(int, int, int);
-    int mini(int, int, bool do_null=true);
+    int full(uint32&, int, int, int);
+    int mini(uint32&, int, int, bool do_null=true);
     int quies(int, int);
     XQ m_xq;
     int m_ply;//current ply
@@ -49,6 +49,8 @@ private:
     uint m_quiet_nodes;
     uint m_hash_hit_nodes;
     uint m_hash_move_cuts;
+    uint m_kill_cuts_1;
+    uint m_kill_cuts_2;
     uint m_null_nodes;
     uint m_null_cuts;
 };
@@ -68,14 +70,14 @@ inline void Engine::make_null()
     m_keys[np] = m_keys[op];
     m_locks[np] = m_locks[op];
     m_values[np] = m_values[op];
-    m_traces[np] = m_null_ply;
+    m_traces[np] = m_null_ply << 16;
     m_null_ply = m_ply = np;
     m_xq.m_player = 1UL - m_xq.m_player;
 }
 
 inline void Engine::unmake_null()
 {
-    m_null_ply = m_traces[m_ply--];
+    m_null_ply = m_traces[m_ply--] >> 16;
     m_xq.m_player = 1UL - m_xq.m_player;
 }
 

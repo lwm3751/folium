@@ -230,6 +230,8 @@ XQ::operator string() const
 
 bool XQ::is_legal_move(uint32 src, uint32 dst) const
 {
+    if (src > 90 || dst > 90)
+        return false;
     register uint32 src_piece = square(src);
     //这里同时排除了src == dst
     if (piece_color(src_piece) == piece_color(square(dst)))
