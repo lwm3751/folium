@@ -30,8 +30,8 @@ public:
 private:
     void generate_root_move(MoveList& movelist, MoveList& ban);
     int value();
-    int full(uint32&, int, int, int);
-    int mini(uint32&, int, int, bool do_null=true);
+    int full(int, int, int);
+    int mini(int, int, bool do_null=true);
     int quies(int, int);
     XQ m_xq;
     int m_ply;//current ply
@@ -46,6 +46,7 @@ private:
     volatile bool m_stop;
 private:
     uint m_tree_nodes;
+    uint m_leaf_nodes;
     uint m_quiet_nodes;
     uint m_hash_hit_nodes;
     uint m_hash_move_cuts;

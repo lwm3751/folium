@@ -167,12 +167,14 @@ char *movestr(char *str, int pos)
 
 bool ICCStoPos (char *str, uint& move)
 {
+    fprintf (stderr, "^_^Move <%s> \n", str);
 	int sx, sy, dx, dy;
 	sx = (str[0] & 0xDF) - 'A';
 	sy = (str[1]) - '0';
 	dx = (str[3] & 0xDF) - 'A';
 	dy = (str[4]) - '0';
-
+    fprintf (stderr, "@@Move <%d><%d><%d><%d> \n", sx, sy, dx, dy);
+fflush(stderr);
 	if (sx < 0 || sx > 8 || dx < 0 || dx > 8 ||
 		sy < 0 || sy > 9 || dy < 0 || dy > 9)
 	{

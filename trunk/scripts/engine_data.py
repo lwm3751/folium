@@ -143,6 +143,15 @@ def hash():
         RedCannonKeys[sq] = randint(0, 0x100000000)
         BlackCannonLocks[sq] = randint(0, 0x10000000000000000)
         BlackCannonKeys[sq] = randint(0, 0x100000000)
+    file = open('hash.data')
+    for seq in [RedKingPawnLocks,BlackKingPawnLocks,AdvisorBishopLocks,RedRookLocks,BlackRookLocks,RedKnightLocks,BlackKnightLocks,RedCannonLocks,BlackCannonLocks]:
+        for i in range(90):
+            i1 = int(file.readline())
+            i2 = int(file.readline())
+            seq[i] = (i1<<32)|i2
+    for seq in [RedKingPawnKeys,BlackKingPawnKeys,AdvisorBishopKeys,RedRookKeys,BlackRookKeys,RedKnightKeys,BlackKnightKeys,RedCannonKeys,BlackCannonKeys]:
+        for i in range(90):
+            seq[i] = int(file.readline())
 hash()
 
 def main():

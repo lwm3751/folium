@@ -1,4 +1,5 @@
 #include "engine.h"
+#include <time.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -11,6 +12,10 @@ bool Engine::make_move(uint32 move)
     register uint op, np;
     src = move_src(move);
     dst = move_dst(move);
+    if (!m_xq.is_legal_move(src, dst))
+    {
+        cerr << string(m_xq) << "\t@"<< src << "\t@"<<dst<<endl;
+    }
     assert(m_xq.is_legal_move(src, dst));
     if(m_xq.square(dst) == RedKingIndex || m_xq.square(dst) == RedKingIndex)
     {
@@ -185,6 +190,7 @@ uint32 Engine::search(int depth, MoveList& ban)
     file << string(m_xq) << endl;
     m_stop = false;
     m_tree_nodes = 0;
+    m_leaf_nodes = 0;
     m_quiet_nodes = 0;
     m_hash_hit_nodes = 0;
     m_hash_move_cuts = 0;
@@ -209,8 +215,8 @@ uint32 Engine::search(int depth, MoveList& ban)
     }
     if (ml.size() == 0)
         return 0;
-
-    uint32 killer=0;
+    clock_t start;
+    start = clock();
     for (sint i = 1; i <= depth; ++i)
     {
         bool found = false;
@@ -220,7 +226,7 @@ uint32 Engine::search(int depth, MoveList& ban)
         {
             assert(m_xq.is_legal_move(move_src(best_move), move_dst(best_move)));
             make_move(best_move);
-            best_value = - full(killer, i, -WINSCORE, -alpha);
+            best_value = - full(i, -WINSCORE, -alpha);
             unmake_move();
             file << i << "\t" << move_src(best_move) << "\t" << move_dst(best_move) << "\t" << best_value << endl;
             if (m_stop)
@@ -238,13 +244,13 @@ uint32 Engine::search(int depth, MoveList& ban)
             int score;
             if (found)
             {
-                score = - mini(killer, i, -alpha);
+                score = - mini(i, -alpha);
                 if (score > alpha)
-                    score = - full(killer, i, -WINSCORE, -alpha);
+                    score = - full(i, -WINSCORE, -alpha);
             }
             else
             {
-                score = - full(killer, i, -WINSCORE, -alpha);
+                score = - full(i, -WINSCORE, -alpha);
             }
             //int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
@@ -265,13 +271,16 @@ uint32 Engine::search(int depth, MoveList& ban)
         if (best_value > MATEVALUE || best_value < -MATEVALUE)
         {
             file << depth << ":\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
-            file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts<< endl;
+            file << m_tree_nodes << "\t"<<m_leaf_nodes<<"\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts<< endl;
             file << "-------------------------------------------------------------" << endl;
             return best_move;
         }
     }
+    float t = float(clock()-start)/CLOCKS_PER_SEC;
+    file << "nps1:\t" << int((m_tree_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
+    file << "nps2:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
     file << "depth:\t" << depth << endl << "move:\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
-    file << m_tree_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
+    file << m_tree_nodes << "\t"<<m_leaf_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
     file << "-------------------------------------------------------------" << endl;
     file.close();
     return best_move;
