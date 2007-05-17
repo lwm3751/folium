@@ -387,8 +387,7 @@ void XQ::make_move(uint src, uint dst)
     assert (piece_color(src_piece) == m_player);
     assert (is_legal_move(src, dst));
 
-    m_bitlines.changebit(square_x(src), square_y(src));
-    m_bitlines.setbit(square_x(dst), square_y(dst));
+    m_bitlines.do_move(src, dst);
     m_squares[src] = EmptyIndex;
     m_squares[dst] = src_piece;
     m_pieces[src_piece] = dst;
@@ -402,11 +401,7 @@ void XQ::unmake_move(uint src, uint dst, uint dst_piece)
     assert (square(src) == EmptyIndex);
     assert (piece(src_piece) == dst);
 
-    if (dst_piece == EmptyIndex)
-    {
-        m_bitlines.changebit(square_x(dst), square_y(dst));
-    }
-    m_bitlines.changebit(square_x(src), square_y(src));
+    m_bitlines.undo_move(src, dst, dst_piece);
     m_squares[src] = src_piece;
     m_squares[dst] = dst_piece;
     m_pieces[src_piece] = src;
