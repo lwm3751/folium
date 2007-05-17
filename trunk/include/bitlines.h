@@ -2,6 +2,7 @@
 #define _BITLINES_H_
 
 #include "defines.h"
+#include "xq_data.h"
 
 extern const uint32 g_line_infos[10][1024];
 
@@ -81,6 +82,9 @@ public:
     void changebit(uint, uint);
     void clearbit(uint, uint);
 
+    void do_move(uint, uint);
+    void undo_move(uint, uint, uint);
+
     void reset ();
 private:
     Line m_xline[10];
@@ -99,20 +103,31 @@ inline const uint32& BitLines::yinfo(uint x, uint y)const
 inline void BitLines::setbit(uint x, uint y)
 {
     assert(x < 9UL && y < 10UL);
-    m_xline[y].setbit(x); 
+    m_xline[y].setbit(x);
     m_yline[x].setbit(y);
 }
 inline void BitLines::changebit(uint x, uint y)
 {
     assert(x < 9UL && y < 10UL);
-    m_xline[y].changebit(x); 
+    m_xline[y].changebit(x);
     m_yline[x].changebit(y);
 }
 inline void BitLines::clearbit(uint x, uint y)
 {
     assert(x < 9UL && y < 10UL);
-    m_xline[y].clearbit(x); 
+    m_xline[y].clearbit(x);
     m_yline[x].clearbit(y);
+}
+inline void BitLines::do_move(uint src, uint dst)
+{
+    changebit(square_x(src), square_y(src));
+    setbit(square_x(dst), square_y(dst));
+}
+inline void BitLines::undo_move(uint src, uint dst, uint dst_piece)
+{
+    if (dst_piece == EmptyIndex)
+        changebit(square_x(dst), square_y(dst));
+    changebit(square_x(src), square_y(src));
 }
 #endif    //_BITLINES_H_
 

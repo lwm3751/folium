@@ -30,17 +30,14 @@ bool Engine::make_move(uint32 move)
     dst_piece = m_xq.square(dst);
 
     own = m_xq.player();
-    m_xq.m_bitlines.changebit(square_x(src), square_y(src));
-    m_xq.m_bitlines.setbit(square_x(dst), square_y(dst));
+    m_xq.m_bitlines.do_move(src, dst);
     m_xq.m_squares[src] = EmptyIndex;
     m_xq.m_squares[dst] = src_piece;
     m_xq.m_pieces[src_piece] = dst;
     m_xq.m_pieces[dst_piece] = InvaildSquare;
     if (m_xq.in_checked(own))
     {
-        m_xq.m_bitlines.setbit(square_x(src), square_y(src));
-        if (dst_piece == EmptyIndex)
-            m_xq.m_bitlines.changebit(square_x(dst), square_y(dst));
+        m_xq.m_bitlines.undo_move(src, dst, dst_piece);
         m_xq.m_squares[src] = src_piece;
         m_xq.m_squares[dst] = dst_piece;
         m_xq.m_pieces[src_piece] = src;
@@ -94,11 +91,7 @@ void Engine::unmake_move()
     dst_piece = trace_dst_piece(trace);
     src_piece = m_xq.square(dst);
 
-    if (dst_piece == EmptyIndex)
-    {
-        m_xq.m_bitlines.changebit(square_x(dst), square_y(dst));
-    }
-    m_xq.m_bitlines.changebit(square_x(src), square_y(src));
+    m_xq.m_bitlines.undo_move(src, dst, dst_piece);
     m_xq.m_squares[src] = src_piece;
     m_xq.m_squares[dst] = dst_piece;
     m_xq.m_pieces[src_piece] = src;
