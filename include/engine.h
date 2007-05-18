@@ -64,7 +64,6 @@ inline int Engine::value()
 inline void Engine::make_null()
 {
     assert(!trace_flag(m_traces[m_ply]));
-    assert(m_null_ply == m_start_ply);
     register uint op, np;
     op = m_ply;
     np = m_ply + 1;

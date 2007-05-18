@@ -328,7 +328,7 @@ int Engine::mini(int depth, int beta, bool do_null)
         if (score > best_value)
         {
             best_value = score;
-            best_move = move;
+            best_move = move & 0x3fff;
             if (best_value >= beta)
             {
                 if (m_stop)
