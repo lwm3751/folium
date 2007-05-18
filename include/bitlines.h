@@ -85,6 +85,15 @@ public:
     void do_move(uint, uint);
     void undo_move(uint, uint, uint);
 
+    uint square_up_1(uint sq)const;
+    uint square_down_1(uint sq)const;
+    uint square_left_1(uint sq)const;
+    uint square_right_1(uint sq)const;
+    uint square_up_2(uint sq)const;
+    uint square_down_2(uint sq)const;
+    uint square_left_2(uint sq)const;
+    uint square_right_2(uint sq)const;
+
     void reset ();
 private:
     Line m_xline[10];
@@ -128,6 +137,54 @@ inline void BitLines::undo_move(uint src, uint dst, uint dst_piece)
     if (dst_piece == EmptyIndex)
         changebit(square_x(dst), square_y(dst));
     changebit(square_x(src), square_y(src));
+}
+inline uint BitLines::square_up_1(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(x, LineInfo::get_prev_1(yinfo(x, y)));
+}
+inline uint BitLines::square_down_1(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(x, LineInfo::get_next_1(yinfo(x, y)));
+}
+inline uint BitLines::square_left_1(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(LineInfo::get_prev_1(xinfo(x, y)), y);
+}
+inline uint BitLines::square_right_1(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(LineInfo::get_next_1(xinfo(x, y)), y);
+}
+inline uint BitLines::square_up_2(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(x, LineInfo::get_prev_2(yinfo(x, y)));
+}
+inline uint BitLines::square_down_2(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(x, LineInfo::get_next_2(yinfo(x, y)));
+}
+inline uint BitLines::square_left_2(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(LineInfo::get_prev_2(xinfo(x, y)), y);
+}
+inline uint BitLines::square_right_2(uint sq)const
+{
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    return xy_square(LineInfo::get_next_2(xinfo(x, y)), y);
 }
 #endif    //_BITLINES_H_
 
