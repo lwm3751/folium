@@ -21,7 +21,7 @@ def main():
             n2 = n1 + 1
             while not flag & (1 << n2):
                 n2 += 1
-            line_infos[idx][flag & 1023] = p1 | (p2 << 8) | (n1 << 16) | (n2 << 24)
+            line_infos[idx][flag & 1023] = p1 | (p2 << 4) | (n1 << 8) | (n2 << 12)
     dict = {}
     dict['infos'] = d2a_str(line_infos, u32)
     template = open(os.path.join(template_path, 'bitlines_data.cpp.tmpl'), 'rb').read()

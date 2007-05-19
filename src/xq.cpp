@@ -327,55 +327,59 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
 }
 uint XQ::red_in_checked() const
 {
-    uint kp = piece(RedKingIndex);
-    uint kx = square_x(kp);
-    uint ky = square_y(kp);
-    uint pf = (piece_flag(square(square_down(kp)))
-                | piece_flag(square(square_left(kp)))
-                | piece_flag(square(square_right(kp)))) & BlackPawnFlag;
-    if (kp == 90)
-        cout << string(*this) << endl;
-    //cout << 2 << kp << "~~~" << kx << "~~~" << ky << endl;
-    uint32 xinfo = m_bitlines.xinfo(kx, ky);
-    uint rf = piece_flag(square(xy_square(LineInfo::get_prev_1(xinfo), ky)))
-                | piece_flag(square(xy_square(LineInfo::get_next_1(xinfo), ky)));
-    uint cf = piece_flag(square(xy_square(LineInfo::get_prev_2(xinfo), ky)))
-                | piece_flag(square(xy_square(LineInfo::get_next_2(xinfo), ky)));
-    uint32 yinfo = m_bitlines.yinfo(kx, ky);
-    rf |= piece_flag(square(xy_square(kx, LineInfo::get_prev_1(yinfo))))
-        | piece_flag(square(xy_square(kx, LineInfo::get_next_1(yinfo))));
-    cf |= piece_flag(square(xy_square(kx, LineInfo::get_prev_2(yinfo))))
-        | piece_flag(square(xy_square(kx, LineInfo::get_next_2(yinfo))));
-    rf &= BlackRookFlag | BlackKingFlag;
-    cf &= BlackCannonFlag;
-    uint nf = (piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp)))) & EmptyFlag;
-    return pf | rf | cf | nf;
+    register uint kp = piece(RedKingIndex);
+    assert(kp != InvaildSquare);
+    register uint flag =
+        //pawn
+        ((piece_flag(square(square_down(kp)))
+        | piece_flag(square(square_left(kp)))
+        | piece_flag(square(square_right(kp))))
+        & BlackPawnFlag)
+        //rook
+        | ((piece_flag(square(m_bitlines.square_up_1(kp)))
+        | piece_flag(square(m_bitlines.square_down_1(kp)))
+        | piece_flag(square(m_bitlines.square_left_1(kp)))
+        | piece_flag(square(m_bitlines.square_right_1(kp))))
+        & (BlackRookFlag | BlackKingFlag))
+        //cannon
+        | ((piece_flag(square(m_bitlines.square_up_2(kp)))
+        | piece_flag(square(m_bitlines.square_down_2(kp)))
+        | piece_flag(square(m_bitlines.square_left_2(kp)))
+        | piece_flag(square(m_bitlines.square_right_2(kp))))
+        & BlackCannonFlag)
+        //knight
+        | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) 
+        | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp))))
+        & EmptyFlag);
+    return flag;
 }
 uint XQ::black_in_checked() const
 {
-    uint kp = piece(BlackKingIndex);
-    uint kx = square_x(kp);
-    uint ky = square_y(kp);
-    uint pf = (piece_flag(square(square_up(kp)))
-                | piece_flag(square(square_left(kp)))
-                | piece_flag(square(square_right(kp)))) & RedPawnFlag;
-    if (kp == 90)
-        cout << string(*this) << endl;
-    //cout << 1 << kp << "~~~" << kx << "~~~" << ky << endl;
-    const uint32 &xinfo = m_bitlines.xinfo(kx, ky);
-    uint rf = piece_flag(square(xy_square(LineInfo::get_prev_1(xinfo), ky)))
-                | piece_flag(square(xy_square(LineInfo::get_next_1(xinfo), ky)));
-    uint cf = piece_flag(square(xy_square(LineInfo::get_prev_2(xinfo), ky)))
-                | piece_flag(square(xy_square(LineInfo::get_next_2(xinfo), ky)));
-    const uint32 &yinfo = m_bitlines.yinfo(kx, ky);
-    rf |= piece_flag(square(xy_square(kx, LineInfo::get_prev_1(yinfo))))
-        | piece_flag(square(xy_square(kx, LineInfo::get_next_1(yinfo))));
-    cf |= piece_flag(square(xy_square(kx, LineInfo::get_prev_2(yinfo))))
-        | piece_flag(square(xy_square(kx, LineInfo::get_next_2(yinfo))));
-    rf &= RedRookFlag | RedKingFlag;
-    cf &= RedCannonFlag;
-    uint nf = (piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp)))) & EmptyFlag;
-    return pf | rf | cf | nf;
+    register uint kp = piece(BlackKingIndex);
+    assert(kp != InvaildSquare);
+    register uint flag =
+        //pawn
+        ((piece_flag(square(square_up(kp)))
+        | piece_flag(square(square_left(kp)))
+        | piece_flag(square(square_right(kp))))
+        & RedPawnFlag)
+        //rook
+        | ((piece_flag(square(m_bitlines.square_up_1(kp)))
+        | piece_flag(square(m_bitlines.square_down_1(kp)))
+        | piece_flag(square(m_bitlines.square_left_1(kp)))
+        | piece_flag(square(m_bitlines.square_right_1(kp))))
+        & (RedRookFlag | RedKingFlag))
+        //cannon
+        | ((piece_flag(square(m_bitlines.square_up_2(kp)))
+        | piece_flag(square(m_bitlines.square_down_2(kp)))
+        | piece_flag(square(m_bitlines.square_left_2(kp)))
+        | piece_flag(square(m_bitlines.square_right_2(kp))))
+        & RedCannonFlag)
+        //knight
+        | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) 
+        | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp))))
+        & EmptyFlag);
+    return flag;
 }
 
 void XQ::make_move(uint src, uint dst)
