@@ -33,6 +33,7 @@ inline void Killer::push(uint move)
 }
 
 static Killer killers[LIMIT_DEPTH+1];
+static MoveList movelists[LIMIT_DEPTH];
 int Engine::full(int depth, int alpha, int beta)
 {
     if (m_stop)
@@ -42,28 +43,20 @@ int Engine::full(int depth, int alpha, int beta)
         ++m_leaf_nodes;
         return quies(alpha, beta);
     }
-    bool found = false;
     const int ply = m_ply - m_start_ply;
     const int flag = trace_flag(m_traces[m_ply]);
 
     ++m_tree_nodes;
+
     //Ñ­»·Ì½²â
-    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
     {
-        if (flag && trace_flag(m_traces[m_ply - 2]))
-        {
-            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-                return static_cast<int>(value() * 0.9f);
-            return INVAILDVALUE - (ply - 1);
-        }
-        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-        {
-            return (ply - 1) - INVAILDVALUE;
-        }
-        return static_cast<int>(value() * 0.9f);
+        int score = loop_value(ply);
+        if (score != INVAILDVALUE)
+            return score;
     }
 
     int best_value = ply - WINSCORE;
+
     //É±Æå¼ô²Ã
     if (best_value >= beta)
         return best_value;
@@ -81,6 +74,7 @@ int Engine::full(int depth, int alpha, int beta)
     if (!flag)
         depth--;
 
+    bool found = false;
     //Ì½²âhashmove ÒÔ¼°killermove
     //*
     uint32 hash_move;
@@ -202,19 +196,10 @@ int Engine::mini(int depth, int beta, bool do_null)
     const int flag = trace_flag(m_traces[m_ply]);
 
     //Ñ­»·Ì½²â
-    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
     {
-        if (flag && trace_flag(m_traces[m_ply - 2]))
-        {
-            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-                return static_cast<int>(value() * 0.9f);
-            return INVAILDVALUE - (ply - 1);
-        }
-        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-        {
-            return (ply - 1) - INVAILDVALUE;
-        }
-        return static_cast<int>(value() * 0.9f);
+        int score = loop_value(ply);
+        if (score != INVAILDVALUE)
+            return score;
     }
 
     int best_value = ply - WINSCORE;
@@ -357,19 +342,11 @@ int Engine::quies(int alpha, int beta)
     const int flag = trace_flag(m_traces[m_ply]);
 
     m_quiet_nodes++;
-    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
+    //Ñ­»·Ì½²â
     {
-        if (flag && trace_flag(m_traces[m_ply - 2]))
-        {
-            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-                return static_cast<int>(value() * 0.9f);
-            return INVAILDVALUE - (ply - 1);
-        }
-        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
-        {
-            return (ply - 1) - INVAILDVALUE;
-        }
-        return static_cast<int>(value() * 0.9f);
+        int score = loop_value(ply);
+        if (score != INVAILDVALUE)
+            return score;
     }
 
     int score, best_value;
