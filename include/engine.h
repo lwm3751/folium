@@ -29,7 +29,8 @@ public:
     uint _ply()const{return m_ply;}
 private:
     void generate_root_move(MoveList& movelist, MoveList& ban);
-    int value();
+    int value()const;
+    int loop_value(int)const;
     int full(int, int, int);
     int mini(int, int, bool do_null=true);
     int quies(int, int);
@@ -56,9 +57,26 @@ private:
     uint m_null_cuts;
 };
 
-inline int Engine::value()
+inline int Engine::value()const
 {
     return (m_xq.player() == Red ? m_values[m_ply] : - m_values[m_ply]) + 4;//pawn value = 9
+}
+
+inline int Engine::loop_value(int ply)const
+{
+    if ((m_ply - m_null_ply) >= 4 && m_keys[m_ply] == m_keys[m_ply - 4])
+    {
+        if (trace_flag(m_traces[m_ply]) && trace_flag(m_traces[m_ply - 2]))
+        {
+            if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+                return static_cast<int>(value() * 0.9f);
+            return INVAILDVALUE - (ply - 1);
+        }
+        else if (trace_flag(m_traces[m_ply - 1]) && trace_flag(m_traces[m_ply - 3]))
+            return (ply - 1) - INVAILDVALUE;
+        return static_cast<int>(value() * 0.9f);
+    }
+    return INVAILDVALUE;
 }
 
 inline void Engine::make_null()
