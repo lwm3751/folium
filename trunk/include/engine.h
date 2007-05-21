@@ -33,6 +33,7 @@ private:
     int loop_value(int)const;
     int full(int, int, int);
     int mini(int, int, bool do_null=true);
+    int leaf(int, int);
     int quies(int, int);
     XQ m_xq;
     int m_ply;//current ply

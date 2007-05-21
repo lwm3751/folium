@@ -70,15 +70,16 @@ int Engine::full(int depth, int alpha, int beta)
     int score;
     MoveList ml;
 
+    int call_depth = depth - 1;
     //½«¾üÉìÑÓ
-    if (!flag)
-        depth--;
+    if (flag)
+        ++call_depth;
 
     bool found = false;
     //Ì½²âhashmove ÒÔ¼°killermove
     //*
     uint32 hash_move;
-    m_hash.probe(depth, ply, alpha, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+    m_hash.probe(call_depth, ply, alpha, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     ml.push(hash_move);
     killer.update(ml);
     for (uint i=0; i<ml.size(); ++i)
@@ -92,12 +93,12 @@ int Engine::full(int depth, int alpha, int beta)
             continue;
         if (found)
         {
-            score = - mini(depth, -alpha);
+            score = - mini(call_depth, -alpha);
             if ((score > alpha) && (score < beta))
-                score = - full(depth, -beta, -alpha);
+                score = - full(call_depth, -beta, -alpha);
         }
         else
-            score = - full(depth, -beta, -alpha);
+            score = - full(call_depth, -beta, -alpha);
         unmake_move();
         if (score > best_value)
         {
@@ -113,8 +114,8 @@ int Engine::full(int depth, int alpha, int beta)
                     m_kill_cuts_1++;
                 else
                     m_kill_cuts_2++;
-                m_history.update_history(best_move, depth);
-                m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                m_history.update_history(best_move, call_depth);
+                m_hash.store_beta(call_depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
                 killer.push(best_move);
                 return score;
             }
@@ -144,12 +145,12 @@ int Engine::full(int depth, int alpha, int beta)
             continue;
         if (found)
         {
-            score = - mini( depth, -alpha);
+            score = - mini(call_depth, -alpha);
             if ((score > alpha) && (score < beta))
-                score = - full(depth, -beta, -alpha);
+                score = - full(call_depth, -beta, -alpha);
         }
         else
-            score = - full(depth, -beta, -alpha);
+            score = - full(call_depth, -beta, -alpha);
         unmake_move();
 
         if (score > best_value)
@@ -160,8 +161,8 @@ int Engine::full(int depth, int alpha, int beta)
             {
                 if (m_stop)
                     return - WINSCORE;
-                m_history.update_history(best_move, depth);
-                m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                m_history.update_history(best_move, call_depth);
+                m_hash.store_beta(call_depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
                 killer.push(best_move);
                 return score;
             }
@@ -177,11 +178,11 @@ int Engine::full(int depth, int alpha, int beta)
     if (best_move)
     {
         killer.push(best_move);
-        m_history.update_history(best_move, depth);
+        m_history.update_history(best_move, call_depth);
         if (!found)
-            m_hash.store_alpha(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+            m_hash.store_alpha(call_depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
         else
-            m_hash.store_pv(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+            m_hash.store_pv(call_depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     }
     return best_value;
 }
@@ -218,13 +219,14 @@ int Engine::mini(int depth, int beta, bool do_null)
     int score;
     MoveList ml;
 
+    int call_depth = depth - 1;
     //½«¾üÉìÑÓ
-    if (!flag)
-        depth--;
+    if (flag)
+        ++call_depth;
 
     //hashÌ½²â
     uint32 hash_move;
-    score = m_hash.probe(depth, ply, beta-1, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+    score = m_hash.probe(call_depth, ply, beta-1, beta, hash_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     if (m_xq.is_legal_move(hash_move) && m_xq.player() == piece_color(m_xq.square(move_src(hash_move))))
     {
         if (score != INVAILDVALUE)
@@ -235,15 +237,15 @@ int Engine::mini(int depth, int beta, bool do_null)
     }
 
     //null¼ô²Ã
-    if (depth >= 2 && flag == 0 && do_null && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
+    if (call_depth >= 2 && flag == 0 && do_null && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
     {
         ++m_null_nodes;
         make_null();
-        score = - mini(depth - NULL_DEPTH, -beta+1, false);
+        score = - mini(call_depth - NULL_DEPTH, -beta+1, false);
         unmake_null();
         if (score >= beta)
         {
-            if (mini( depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
+            if (mini(call_depth > NULL_DEPTH ? (call_depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
             {
                 ++m_null_cuts;
                 return score;
@@ -264,7 +266,7 @@ int Engine::mini(int depth, int beta, bool do_null)
             continue;
         if (!make_move(move))
             continue;
-        score = - mini(depth, -beta+1);
+        score = - mini(call_depth, -beta+1);
         unmake_move();
         if (score > best_value)
         {
@@ -280,8 +282,8 @@ int Engine::mini(int depth, int beta, bool do_null)
                     m_kill_cuts_1++;
                 else
                     m_kill_cuts_2++;
-                m_history.update_history(best_move, depth);
-                m_hash.store_beta(depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                m_history.update_history(best_move, call_depth);
+                m_hash.store_beta(call_depth, ply, score, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
                 killer.push(best_move);
                 return score;
             }
@@ -304,7 +306,7 @@ int Engine::mini(int depth, int beta, bool do_null)
 
         if (!make_move(move))
             continue;
-        score = - mini(depth, -beta+1);
+        score = - mini(call_depth, -beta+1);
         unmake_move();
 
         if (m_stop)
@@ -318,8 +320,8 @@ int Engine::mini(int depth, int beta, bool do_null)
             {
                 if (m_stop)
                     return -WINSCORE;
-                m_history.update_history(best_move, depth);
-                m_hash.store_beta(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+                m_history.update_history(best_move, call_depth);
+                m_hash.store_beta(call_depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
                 killer.push(best_move);
                 return beta;
             }
@@ -330,8 +332,8 @@ int Engine::mini(int depth, int beta, bool do_null)
     if (best_move)
     {
         killer.push(best_move);
-        m_history.update_history(best_move, depth);
-        m_hash.store_alpha(depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
+        m_history.update_history(best_move, call_depth);
+        m_hash.store_alpha(call_depth, ply, best_value, best_move, m_xq.player(), m_keys[m_ply], m_locks[m_ply]);
     }
     return best_value;
 }
