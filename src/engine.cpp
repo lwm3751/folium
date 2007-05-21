@@ -12,22 +12,10 @@ bool Engine::make_move(uint32 move)
     uint op, np;
     src = move_src(move);
     dst = move_dst(move);
-    if (!m_xq.is_legal_move(src, dst))
-    {
-        cerr << string(m_xq) << "\t@"<< src << "\t@"<<dst<<endl;
-    }
     assert(m_xq.is_legal_move(src, dst));
-    if(m_xq.square(dst) == RedKingIndex || m_xq.square(dst) == RedKingIndex)
-    {
-        cerr << string(m_xq) << "\t@@@@@@@@@@@@@@@@@@@@@"<<endl;
-        for (uint i = 1; i <= m_ply; ++i)
-        {
-            cerr << move_src(m_traces[i]) << "\t" << move_dst(m_traces[i]) << endl;
-        }
-        cerr << move_src(move) << "\t" << move_dst(move) << endl;
-    }
     src_piece = m_xq.square(src);
     dst_piece = m_xq.square(dst);
+    assert(dst_piece != RedKingIndex && dst_piece != RedKingIndex);
 
     own = m_xq.player();
     m_xq.m_bitlines.do_move(src, dst);
