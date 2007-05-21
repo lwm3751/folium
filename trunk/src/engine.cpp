@@ -7,9 +7,9 @@ using namespace std;
 
 bool Engine::make_move(uint32 move)
 {
-    register uint src, dst, src_piece, dst_piece;
-    register uint own;
-    register uint op, np;
+    uint src, dst, src_piece, dst_piece;
+    uint own;
+    uint op, np;
     src = move_src(move);
     dst = move_dst(move);
     if (!m_xq.is_legal_move(src, dst))
@@ -84,8 +84,8 @@ bool Engine::make_move(uint32 move)
 void Engine::unmake_move()
 {
     assert (m_ply > 0);
-    register uint src, dst, src_piece, dst_piece;
-    register uint32 trace = m_traces[m_ply--];
+    uint src, dst, src_piece, dst_piece;
+    uint32 trace = m_traces[m_ply--];
     src = trace_src(trace);
     dst = trace_dst(trace);
     dst_piece = trace_dst_piece(trace);
