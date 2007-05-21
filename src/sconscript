@@ -1,8 +1,7 @@
 Import('env')
 Import('ccflag')
 Import('defines')
-src = ['bitlines.cpp',
-    'engine_data.cpp',
+src = ['engine_data.cpp',
     'move_gen.cpp',
     'xq_data.cpp',
     'bitlines_data.cpp',

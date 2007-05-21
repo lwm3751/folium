@@ -82,7 +82,7 @@ inline int Engine::loop_value(int ply)const
 inline void Engine::make_null()
 {
     assert(!trace_flag(m_traces[m_ply]));
-    register uint op, np;
+    uint op, np;
     op = m_ply;
     np = m_ply + 1;
     m_keys[np] = m_keys[op];

@@ -5,10 +5,10 @@
 
 void XQ::generate_moves(MoveList &ml) const
 {
-    register uint own = player();
-    register uint opp = 1 - own;
-    register uint idx;
-    register uint src, dst;
+    uint own = player();
+    uint opp = 1 - own;
+    uint idx;
+    uint src, dst;
     ml.clear();
     if (own == Red)
     {
@@ -158,7 +158,7 @@ void XQ::generate_moves(MoveList &ml) const
     //cannon
     for(uint i = 0; i < 2; ++i)
     {
-        register uint dst;
+        uint dst;
         src = piece(++idx);
         if (src == InvaildSquare)
             continue;
@@ -195,10 +195,10 @@ void XQ::generate_moves(MoveList &ml) const
 
 void XQ::generate_capture_moves(MoveList &ml) const
 {
-    register uint own = player();
-    register uint opp = 1 - own;
-    register uint idx;
-    register uint src, dst;
+    uint own = player();
+    uint opp = 1 - own;
+    uint idx;
+    uint src, dst;
     ml.clear();
     if (own == Red)
     {
@@ -352,10 +352,10 @@ void XQ::generate_capture_moves(MoveList &ml) const
 }
 void XQ::generate_moves(MoveList &ml, const History& history) const
 {
-    register uint own = player();
-    register uint opp = 1 - own;
-    register uint idx;
-    register uint src, dst;
+    uint own = player();
+    uint opp = 1 - own;
+    uint idx;
+    uint src, dst;
     ml.clear();
     if (own == Red)
     {
@@ -450,7 +450,7 @@ void XQ::generate_moves(MoveList &ml, const History& history) const
     //rook
     for(uint i = 0; i < 2; ++i)
     {
-        register uint dst;
+        uint dst;
         src = piece(++idx);
         if (src == InvaildSquare)
             continue;
@@ -505,7 +505,7 @@ void XQ::generate_moves(MoveList &ml, const History& history) const
     //cannon
     for(uint i = 0; i < 2; ++i)
     {
-        register uint dst;
+        uint dst;
         src = piece(++idx);
         if (src == InvaildSquare)
             continue;
@@ -542,10 +542,10 @@ void XQ::generate_moves(MoveList &ml, const History& history) const
 
 void XQ::generate_capture_moves(MoveList &ml, const History& history) const
 {
-    register uint own = player();
-    register uint opp = 1 - own;
-    register uint idx;
-    register uint src, dst;
+    uint own = player();
+    uint opp = 1 - own;
+    uint idx;
+    uint src, dst;
     ml.clear();
     if (own == Red)
     {

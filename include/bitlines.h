@@ -1,109 +1,71 @@
 #ifndef _BITLINES_H_
 #define _BITLINES_H_
 
+#include <string.h>
 #include "defines.h"
 #include "xq_data.h"
 
 extern const uint16 g_line_infos[10][1024];
+extern const uint8 g_bit_counts[1024];
+extern const uint16 g_distance_infos[91][128];
 
 class BitLines
 {
-    class Line
-    {
-    public:
-        operator uint()const;
-        void reset(uint);
-        uint getbit(uint)const;
-        void setbit(uint);
-        void clearbit(uint);
-        void changebit(uint);
-    private:
-        uint16 m_content;
-    };
 public:
     BitLines();
     void do_move(uint, uint);
     void undo_move(uint, uint, uint);
 
-    uint square_up_1(uint sq)const;
-    uint square_down_1(uint sq)const;
-    uint square_left_1(uint sq)const;
-    uint square_right_1(uint sq)const;
-    uint square_up_2(uint sq)const;
-    uint square_down_2(uint sq)const;
-    uint square_left_2(uint sq)const;
-    uint square_right_2(uint sq)const;
+    uint square_up_1(uint)const;
+    uint square_down_1(uint)const;
+    uint square_left_1(uint)const;
+    uint square_right_1(uint)const;
+    uint square_up_2(uint)const;
+    uint square_down_2(uint)const;
+    uint square_left_2(uint)const;
+    uint square_right_2(uint)const;
 
+    uint distance(uint, uint)const;
+    
     void reset ();
-    void setbit(uint, uint);
+    void setbit(uint);
 private:
     uint xinfo(uint, uint)const;
     uint yinfo(uint, uint)const;
     
-    void changebit(uint, uint);
-    void clearbit(uint, uint);
+    void changebit(uint);
 
     static uint prev_1(uint info);
     static uint prev_2(uint info);
     static uint next_1(uint info);
     static uint next_2(uint info);
 private:
-    Line m_xline[10];
-    Line m_yline[9];
+    uint16 m_lines[20];
 };
-//BitLines::Line
-inline BitLines::Line::operator uint()const
-{
-    return m_content;
-}
-inline void BitLines::Line::reset(uint32)
-{
-    m_content = 0;
-}
-inline uint BitLines::Line::getbit(uint pos)const
-{
-    return m_content & (1 << pos);
-}
-inline void BitLines::Line::setbit(uint pos)
-{
-    m_content |= (1 << pos);
-}
-inline void BitLines::Line::clearbit(uint pos)
-{
-    m_content &= ~(1 << pos);
-}
-inline void BitLines::Line::changebit(uint pos)
-{
-    m_content ^= (1 << pos);
-}
 //BitLines
 inline uint BitLines::xinfo(uint x, uint y)const
 {
     assert(x < 9UL && y < 10UL);
-    return g_line_infos[x][m_xline[y]];
+    return g_line_infos[x][m_lines[y]];
 }
 inline uint BitLines::yinfo(uint x, uint y)const
 {
     assert(x < 9UL && y < 10UL);
-    return g_line_infos[y][m_yline[x]];
+    return g_line_infos[y][m_lines[x+10]];
 }
-inline void BitLines::setbit(uint x, uint y)
+inline void BitLines::setbit(uint sq)
 {
-    assert(x < 9UL && y < 10UL);
-    m_xline[y].setbit(x);
-    m_yline[x].setbit(y);
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    m_lines[y] |= 1UL << x;
+    m_lines[x+10UL] |= 1UL << y;
 }
-inline void BitLines::changebit(uint x, uint y)
+inline void BitLines::changebit(uint sq)
 {
-    assert(x < 9UL && y < 10UL);
-    m_xline[y].changebit(x);
-    m_yline[x].changebit(y);
-}
-inline void BitLines::clearbit(uint x, uint y)
-{
-    assert(x < 9UL && y < 10UL);
-    m_xline[y].clearbit(x);
-    m_yline[x].clearbit(y);
+    uint x = square_x(sq);
+    uint y = square_y(sq);
+    m_lines[y] ^= 1UL << x;
+    m_lines[x+10UL] ^= 1UL << y;
 }
 inline uint BitLines::prev_1(uint info)
 {
@@ -124,15 +86,16 @@ inline uint BitLines::next_2(uint info)
 
 inline void BitLines::do_move(uint src, uint dst)
 {
-    changebit(square_x(src), square_y(src));
-    setbit(square_x(dst), square_y(dst));
+    changebit(src);
+    setbit(dst);
 }
 inline void BitLines::undo_move(uint src, uint dst, uint dst_piece)
 {
     if (dst_piece == EmptyIndex)
-        changebit(square_x(dst), square_y(dst));
-    changebit(square_x(src), square_y(src));
+        changebit(dst);
+    changebit(src);
 }
+
 inline uint BitLines::square_up_1(uint sq)const
 {
     uint x = square_x(sq);
@@ -180,6 +143,23 @@ inline uint BitLines::square_right_2(uint sq)const
     uint x = square_x(sq);
     uint y = square_y(sq);
     return xy_square(BitLines::next_2(xinfo(x, y)), y);
+}
+
+inline uint BitLines::distance(uint src, uint dst)const
+{
+    uint info = g_distance_infos[src][dst];
+    assert((info >> 10) < 20);
+    return g_bit_counts[info & 1023 & m_lines[info >> 10]];
+}
+
+inline BitLines::BitLines()
+{
+    reset();
+}
+inline void BitLines::reset()
+{
+    memset(m_lines, 0, 38);
+    m_lines[20] = 1023;
 }
 #endif    //_BITLINES_H_
 
