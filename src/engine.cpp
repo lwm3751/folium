@@ -258,7 +258,7 @@ uint32 Engine::search(int depth, MoveList& ban)
         }
     }
     float t = float(clock()-start)/CLOCKS_PER_SEC;
-    file << "nps1:\t" << int((m_tree_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
+    file << "nps1:\t" << int((m_tree_nodes+m_leaf_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
     file << "nps2:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
     file << "depth:\t" << depth << endl << "move:\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
     file << m_tree_nodes << "\t"<<m_leaf_nodes << "\t" << m_quiet_nodes << "\t" << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
