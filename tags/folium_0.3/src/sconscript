@@ -1,0 +1,18 @@
+Import('env')
+Import('ccflag')
+Import('defines')
+src = ['engine_data.cpp',
+    'move_gen.cpp',
+    'xq_data.cpp',
+    'bitlines_data.cpp',
+    'hash.cpp',
+    'search.cpp',
+    'engine.cpp',
+    'history_data.cpp',
+    'xq.cpp']
+folium = env.StaticLibrary(
+    'folium',
+    src,
+    CPPDEFINES = defines,
+    CCFLAGS = ccflag)
+env.Install('#bin', folium)

@@ -1,0 +1,11 @@
+Import('env')
+Import('ccflag')
+Import('defines')
+qhsrc = ['qianhong.cpp']
+qianhong = env.Program(
+    'folium',
+    qhsrc,
+    LIBS=['folium'],
+    CPPDEFINES = defines,
+    CCFLAGS = ccflag)
+env.Install('#bin', qianhong)
