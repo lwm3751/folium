@@ -72,24 +72,6 @@ def leg():
         if dst != 90: KnightLegs[src][dst] = leg
 leg()
 
-def eye():
-    u = lambda s:SquareUps[s]
-    d = lambda s:SquareDowns[s]
-    l = lambda s:SquareLefts[s]
-    r = lambda s:SquareRights[s]
-    for src in range(90):
-        if not (SquareFlags[src] & BishopFlag):
-            continue
-        dst = u(u(l(l(src))))
-        if (SquareFlags[dst] & BishopFlag):BishopEyes[src][dst] = (src + dst)/2
-        dst = u(u(r(r(src))))
-        if (SquareFlags[dst] & BishopFlag):BishopEyes[src][dst] = (src + dst)/2
-        dst = d(d(l(l(src))))
-        if (SquareFlags[dst] & BishopFlag):BishopEyes[src][dst] = (src + dst)/2
-        dst = d(d(r(r(src))))
-        if (SquareFlags[dst] & BishopFlag):BishopEyes[src][dst] = (src + dst)/2
-eye()
-
 PF = [RedKingFlag]+[RedAdvisorFlag]*2+[RedBishopFlag]*2\
     +[RedRookFlag]*2+[RedKnightFlag]*2+[RedCannonFlag]*2+[RedPawnFlag]*5\
     +[BlackKingFlag]+[BlackAdvisorFlag]*2+[BlackBishopFlag]*2\
@@ -99,6 +81,72 @@ PT = [RedKing]+[RedAdvisor]*2+[RedBishop]*2+[RedRook]*2+[RedKnight]*2+[RedCannon
     +[BlackKing]+[BlackAdvisor]*2+[BlackBishop]*2+[BlackRook]*2+[BlackKnight]*2+[BlackCannon]*2+[BlackPawn]*5\
     +[EmptyType]+[InvalidType]
 PC = [0]*16 + [1]*16 + [2] + [3]
+
+def MoveFlags():
+    u = lambda s:SquareUps[s]
+    d = lambda s:SquareDowns[s]
+    l = lambda s:SquareLefts[s]
+    r = lambda s:SquareRights[s]
+    MoveFlags = [[0]*128 for i in range(91)]
+    for src in range(90):
+        sf = SquareFlags[src]
+        #red king
+        if sf & RedKingFlag:
+            for dst in [u(src), d(src), l(src), r(src)]:
+                if SquareFlags[dst] & RedKingFlag:
+                    #这里加上兵的flag主要是为了可以区分和将见面的情况，下同
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | RedKingFlag | RedPawnFlag
+        #black king
+        elif sf & BlackKingFlag:
+            for dst in [u(src), d(src), l(src), r(src)]:
+                if SquareFlags[dst] & BlackKingFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | BlackKingFlag | BlackPawnFlag
+        #red advisor
+        if sf & RedAdvisorFlag:
+            for dst in [l(u(src)), l(d(src)), r(u(src)), r(d(src))]:
+                if SquareFlags[dst] & RedAdvisorFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | RedAdvisorFlag
+        #black advisor
+        elif sf & BlackAdvisorFlag:
+            for dst in [l(u(src)), l(d(src)), r(u(src)), r(d(src))]:
+                if SquareFlags[dst] & BlackAdvisorFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | BlackAdvisorFlag
+        #red bishop
+        elif sf & RedBishopFlag:
+            for dst in [l(l(u(u(src)))), l(l(d(d(src)))), r(r(u(u(src)))), r(r(d(d(src))))]:
+                if SquareFlags[dst] & RedBishopFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | RedBishopFlag
+        #black bishop
+        elif sf & BlackBishopFlag:
+            for dst in [l(l(u(u(src)))), l(l(d(d(src)))), r(r(u(u(src)))), r(r(d(d(src))))]:
+                if SquareFlags[dst] & BlackBishopFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | BlackBishopFlag
+        #knight
+        for dst in [l(u(u(src))), l(d(d(src))), r(u(u(src))), r(d(d(src))), l(l(u(src))), l(l(d(src))), r(r(u(src))), r(r(d(src)))]:
+            if dst in range(90):
+                MoveFlags[dst][src] = MoveFlags[dst][src] | RedKnightFlag | BlackKnightFlag
+        #red pawn
+        if sf & RedPawnFlag:        
+            for dst in [l(src), r(src), d(src)]:
+                if SquareFlags[dst] & RedPawnFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | RedPawnFlag
+        #black pawn
+        if sf & BlackPawnFlag:        
+            for dst in [l(src), r(src), u(src)]:
+                if SquareFlags[dst] & BlackPawnFlag:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | BlackPawnFlag
+        for dst in range(90):
+            df = SquareFlags[dst]
+            if sf & RedKingFlag and df & BlackKingFlag and src%9 == dst%9:
+                MoveFlags[dst][src] = MoveFlags[dst][src] | RedKingFlag
+            elif sf & BlackKingFlag and df & RedKingFlag and src%9 == dst%9:
+                MoveFlags[dst][src] = MoveFlags[dst][src] | BlackKingFlag
+            #rook cannon
+            if src != dst:
+                if src%9 == dst%9 or src/9 == dst/9:
+                    MoveFlags[dst][src] = MoveFlags[dst][src] | RedRookFlag | RedCannonFlag | BlackRookFlag | BlackCannonFlag
+    return MoveFlags
+MoveFlags=MoveFlags()
 
 def KnightMoves():
     KnightMoves = [[23130]*16 for i in range(91)]
@@ -185,8 +233,9 @@ def main():
     dict ['pflags'] = d1a_str(PF, u32)
     dict ['pcolors'] = d1a_str(PC, u32)
 
+    dict ['mf'] = d2a_str(MoveFlags, u32)
+    
     dict ['kl'] = d2a_str(KnightLegs, u32)
-    dict ['be'] = d2a_str(BishopEyes, u32)
 
     dict['nm'] = d2a_str(KnightMoves, u32)
     dict['rkpm'] = d2a_str(RedKingPawnMoves, u32)

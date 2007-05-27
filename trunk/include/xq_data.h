@@ -19,8 +19,9 @@ extern const uint16 g_piece_colors[34];
 extern const uint8 g_type_begin_index[16];
 extern const uint8 g_type_end_index[16];
 
+extern const uint16 g_move_flags[91][128];
+
 extern const uint8 g_knight_legs[91][128];
-extern const uint8 g_bishop_eyes[91][128];
 
 inline uint square_x(uint sq)
 {
@@ -109,7 +110,8 @@ inline uint bishop_eye(uint src, uint dst)
 {
     assert (src < 91UL);
     assert (dst < 91UL);
-    return g_bishop_eyes[src][dst];
+    assert (g_move_flags[dst][src] & BishopFlag);
+    return (src+dst)/2;
 }
 
 extern const uint16 g_kinght_moves[91][16];
