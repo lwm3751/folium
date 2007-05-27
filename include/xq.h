@@ -5,7 +5,7 @@
 using std::string;
 
 #include "defines.h"
-#include "bitlines.h"
+#include "bitboard.h"
 #include "xq_data.h"
 
 #include <iostream>
@@ -44,7 +44,7 @@ private:
     uint red_in_checked()const;
     uint black_in_checked()const;
 private:
-    BitLines m_bitlines;
+    BitBoard m_bitboard;
     uint8 m_pieces[34];
     uint8 m_squares[91];
     uint8 m_player;

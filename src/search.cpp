@@ -254,25 +254,7 @@ int Engine::mini(int depth, int beta, bool do_null)
         }
     }
 
-    //nullºÙ≤√
-    if (depth >= 2 && !extended && do_null && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
-    {
-        ++m_null_nodes;
-        make_null();
-        score = - mini(depth - NULL_DEPTH, -beta+1, false);
-        unmake_null();
-        if (score >= beta)
-        {
-            if (mini(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, -beta+1, false) >= beta)
-            {
-                ++m_null_cuts;
-                return score;
-            }
-        }
-    }
-
     //ÃΩ≤‚hashmove “‘º∞killermove
-    //*
     ml.push(hash_move);
     killer.update(ml);
     for (uint i=0; i<ml.size(); ++i)

@@ -4,7 +4,7 @@ Import('defines')
 src = ['engine_data.cpp',
     'move_gen.cpp',
     'xq_data.cpp',
-    'bitlines_data.cpp',
+    'bitboard_data.cpp',
     'hash.cpp',
     'search.cpp',
     'engine.cpp',

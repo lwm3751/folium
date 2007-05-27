@@ -86,7 +86,7 @@ inline sint piece_char(uint piece)
 
 void XQ::clear()
 {
-    m_bitlines.reset();
+    m_bitboard.reset();
     memset(m_pieces, InvaildSquare, 34);
     memset(m_squares, EmptyIndex, 90);
     m_squares[90] = InvaildIndex;
@@ -150,7 +150,7 @@ XQ::XQ(string const &fen)
                         clear();
                         return;
                     }
-                    m_bitlines.setbit(sq);
+                    m_bitboard.setbit(sq);
                 }
             }
             //ok
@@ -183,7 +183,7 @@ XQ::XQ(string const &fen)
 }
 XQ& XQ::operator=(const XQ &xq)
 {
-    m_bitlines = xq.m_bitlines;
+    m_bitboard = xq.m_bitboard;
     memcpy(m_pieces, xq.m_pieces, 34);
     memcpy(m_squares, xq.m_squares, 91);
     m_player = xq.m_player;
@@ -272,7 +272,7 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     case RedRook:
     case BlackRook:
     {
-        return m_bitlines.distance(src, dst) == 0;
+        return m_bitboard.distance(src, dst) == 0;
     }
     case RedKnight:
     case BlackKnight:
@@ -280,8 +280,8 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     case RedCannon:
     case BlackCannon:
     {
-        return m_bitlines.distance(src, dst) == (square(dst) == EmptyIndex ? 0 : 1);
-        return (m_bitlines.distance(src, dst) + (square(dst) >> 5)) == 1;
+        return m_bitboard.distance(src, dst) == (square(dst) == EmptyIndex ? 0 : 1);
+        return (m_bitboard.distance(src, dst) + (square(dst) >> 5)) == 1;
     }
     case RedPawn:
         return (square_flag(dst) & RedPawnFlag) && (dst == square_down(src) || dst == square_left(src) || dst == square_right(src));
@@ -302,16 +302,16 @@ uint XQ::red_in_checked() const
         | piece_flag(square(square_right(kp))))
         & BlackPawnFlag)
         //rook
-        | ((piece_flag(square(m_bitlines.square_up_1(kp)))
-        | piece_flag(square(m_bitlines.square_down_1(kp)))
-        | piece_flag(square(m_bitlines.square_left_1(kp)))
-        | piece_flag(square(m_bitlines.square_right_1(kp))))
+        | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
         & (BlackRookFlag | BlackKingFlag))
         //cannon
-        | ((piece_flag(square(m_bitlines.square_up_2(kp)))
-        | piece_flag(square(m_bitlines.square_down_2(kp)))
-        | piece_flag(square(m_bitlines.square_left_2(kp)))
-        | piece_flag(square(m_bitlines.square_right_2(kp))))
+        | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
         & BlackCannonFlag)
         //knight
         | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) 
@@ -330,16 +330,16 @@ uint XQ::black_in_checked() const
         | piece_flag(square(square_right(kp))))
         & RedPawnFlag)
         //rook
-        | ((piece_flag(square(m_bitlines.square_up_1(kp)))
-        | piece_flag(square(m_bitlines.square_down_1(kp)))
-        | piece_flag(square(m_bitlines.square_left_1(kp)))
-        | piece_flag(square(m_bitlines.square_right_1(kp))))
+        | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
+        | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
         & (RedRookFlag | RedKingFlag))
         //cannon
-        | ((piece_flag(square(m_bitlines.square_up_2(kp)))
-        | piece_flag(square(m_bitlines.square_down_2(kp)))
-        | piece_flag(square(m_bitlines.square_left_2(kp)))
-        | piece_flag(square(m_bitlines.square_right_2(kp))))
+        | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
+        | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
         & RedCannonFlag)
         //knight
         | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) 
@@ -357,7 +357,7 @@ void XQ::make_move(uint src, uint dst)
     assert (piece_color(src_piece) == m_player);
     assert (is_legal_move(src, dst));
 
-    m_bitlines.do_move(src, dst);
+    m_bitboard.do_move(src, dst);
     m_squares[src] = EmptyIndex;
     m_squares[dst] = src_piece;
     m_pieces[src_piece] = dst;
@@ -371,7 +371,7 @@ void XQ::unmake_move(uint src, uint dst, uint dst_piece)
     assert (square(src) == EmptyIndex);
     assert (piece(src_piece) == dst);
 
-    m_bitlines.undo_move(src, dst, dst_piece);
+    m_bitboard.undo_move(src, dst, dst_piece);
     m_squares[src] = src_piece;
     m_squares[dst] = dst_piece;
     m_pieces[src_piece] = src;
