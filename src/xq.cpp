@@ -235,58 +235,37 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     uint32 src_piece = square(src);
     //这里同时排除了src == dst
     if (piece_color(src_piece) == piece_color(square(dst)))
-    {
         return false;
-    }
+    if (!(g_move_flags[dst][src] & piece_flag(src_piece)))
+        return false;
     switch (piece_type(src_piece))
     {
     case RedKing:
-    case BlackKing:
-    {
-        if (!(square_flag(dst) & KingFlag))
-            return false;
-        if (piece_flag(square(dst)) & KingFlag)
-        {
-            if (square_x(src) != square_x(dst))
-                return false;
-            for (uint f = piece(RedKingIndex) + 9, t = piece(BlackKingIndex); f != t; f += 9)
-                if (square(f) != EmptyIndex)
-                    return false;
+        if (g_move_flags[dst][src] & RedPawnFlag)
             return true;
-        }
-        return dst == square_up(src) || dst == square_down(src) || dst == square_left(src) || dst == square_right(src);
-    }
+        return (piece_flag(square(dst)) & BlackKingFlag) && m_bitboard.distance(src, dst) == 0;
+    case BlackKing:
+        if (g_move_flags[dst][src] & BlackPawnFlag)
+            return true;
+        return (piece_flag(square(dst)) & RedKingFlag) && m_bitboard.distance(src, dst) == 0;
     case RedAdvisor:
     case BlackAdvisor:
-    {
-        if (!(square_flag(dst) & AdvisorFlag))
-            return false;
-        uint x, y;
-        x = square_x(src) - square_x(dst);
-        y = square_y(src) - square_y(dst);
-        return (x == 1UL || x == (0UL - 1UL)) && (y == 1UL || y == (0UL - 1UL));
-    }
+        return true;
     case RedBishop:
     case BlackBishop:
         return square(bishop_eye(src, dst)) == EmptyIndex;
     case RedRook:
     case BlackRook:
-    {
         return m_bitboard.distance(src, dst) == 0;
-    }
     case RedKnight:
     case BlackKnight:
         return square(knight_leg(src, dst)) == EmptyIndex;
     case RedCannon:
     case BlackCannon:
-    {
-        return m_bitboard.distance(src, dst) == (square(dst) == EmptyIndex ? 0 : 1);
         return (m_bitboard.distance(src, dst) + (square(dst) >> 5)) == 1;
-    }
     case RedPawn:
-        return (square_flag(dst) & RedPawnFlag) && (dst == square_down(src) || dst == square_left(src) || dst == square_right(src));
     case BlackPawn:
-        return (square_flag(dst) & BlackPawnFlag) && (dst == square_up(src) || dst == square_left(src) || dst == square_right(src));
+        return true;
     default:
         return false;
     }
