@@ -18,14 +18,14 @@ bool Engine::make_move(uint32 move)
     assert(dst_piece != RedKingIndex && dst_piece != RedKingIndex);
 
     own = m_xq.player();
-    m_xq.m_bitlines.do_move(src, dst);
+    m_xq.m_bitboard.do_move(src, dst);
     m_xq.m_squares[src] = EmptyIndex;
     m_xq.m_squares[dst] = src_piece;
     m_xq.m_pieces[src_piece] = dst;
     m_xq.m_pieces[dst_piece] = InvaildSquare;
     if (m_xq.in_checked(own))
     {
-        m_xq.m_bitlines.undo_move(src, dst, dst_piece);
+        m_xq.m_bitboard.undo_move(src, dst, dst_piece);
         m_xq.m_squares[src] = src_piece;
         m_xq.m_squares[dst] = dst_piece;
         m_xq.m_pieces[src_piece] = src;
@@ -79,7 +79,7 @@ void Engine::unmake_move()
     dst_piece = trace_dst_piece(trace);
     src_piece = m_xq.square(dst);
 
-    m_xq.m_bitlines.undo_move(src, dst, dst_piece);
+    m_xq.m_bitboard.undo_move(src, dst, dst_piece);
     m_xq.m_squares[src] = src_piece;
     m_xq.m_squares[dst] = dst_piece;
     m_xq.m_pieces[src_piece] = src;
