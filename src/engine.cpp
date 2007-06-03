@@ -8,8 +8,6 @@ using namespace std;
 bool Engine::make_move(uint32 move)
 {
     uint src, dst, src_piece, dst_piece;
-    uint own;
-    uint op, np;
     src = move_src(move);
     dst = move_dst(move);
     assert(m_xq.is_legal_move(src, dst));
@@ -17,81 +15,56 @@ bool Engine::make_move(uint32 move)
     dst_piece = m_xq.square(dst);
     assert(dst_piece != RedKingIndex && dst_piece != RedKingIndex);
 
-    own = m_xq.player();
-    m_xq.m_bitboard.do_move(src, dst);
-    m_xq.m_squares[src] = EmptyIndex;
-    m_xq.m_squares[dst] = src_piece;
-    m_xq.m_pieces[src_piece] = dst;
-    m_xq.m_pieces[dst_piece] = InvaildSquare;
-    if (m_xq.in_checked(own))
+    m_xq.make_move(src, dst);
+    if (m_xq.is_win())
     {
-        m_xq.m_bitboard.undo_move(src, dst, dst_piece);
-        m_xq.m_squares[src] = src_piece;
-        m_xq.m_squares[dst] = dst_piece;
-        m_xq.m_pieces[src_piece] = src;
-        m_xq.m_pieces[dst_piece] = dst;
+        m_xq.unmake_move(src, dst, dst_piece);
         return false;
     }
-    m_xq.m_player = 1UL - own;
-
-    op = m_ply;
-    np = op + 1;
-
-    m_traces[np] = create_trace(m_xq.in_checked(1 - own), dst_piece, move);
+    ++m_ply;
+    m_traces[m_ply] = create_trace(m_xq.check_status(), dst_piece, move);
     if (dst_piece == EmptyIndex)
     {
-        m_keys[np] = m_keys[op]\
+        m_keys[m_ply] = m_keys[m_ply-1]\
                     ^ piece_key(src_piece, src)
                     ^ piece_key(src_piece, dst);
-        m_locks[np] = m_locks[op]\
+        m_locks[m_ply] = m_locks[m_ply-1]\
                     ^ piece_lock(src_piece, src)\
                     ^ piece_lock(src_piece, dst);;
-        m_values[np] = m_values[op]\
+        m_values[m_ply] = m_values[m_ply-1]\
                         + piece_value(src_piece, dst)\
                         - piece_value(src_piece, src);
     }
     else
     {
-        m_keys[np] = m_keys[op]\
+        m_keys[m_ply] = m_keys[m_ply-1]\
                     ^ piece_key(src_piece, src)\
                     ^ piece_key(src_piece, dst)\
                     ^ piece_key(dst_piece, dst);
-        m_locks[np] = m_locks[op]\
+        m_locks[m_ply] = m_locks[m_ply-1]\
                     ^ piece_lock(src_piece, src)\
                     ^ piece_lock(src_piece, dst)\
                     ^ piece_lock(dst_piece, dst);
-        m_values[np] = m_values[op]\
+        m_values[m_ply] = m_values[m_ply-1]\
                         + piece_value(src_piece, dst)\
                         - piece_value(src_piece, src)\
                         - piece_value(dst_piece, dst);
     }
-    m_ply = np;
     return true;
 }
 
 void Engine::unmake_move()
 {
     assert (m_ply > 0);
-    uint src, dst, src_piece, dst_piece;
     uint32 trace = m_traces[m_ply--];
-    src = trace_src(trace);
-    dst = trace_dst(trace);
-    dst_piece = trace_dst_piece(trace);
-    src_piece = m_xq.square(dst);
-
-    m_xq.m_bitboard.undo_move(src, dst, dst_piece);
-    m_xq.m_squares[src] = src_piece;
-    m_xq.m_squares[dst] = dst_piece;
-    m_xq.m_pieces[src_piece] = src;
-    m_xq.m_pieces[dst_piece] = dst;
-    m_xq.m_player = 1UL - m_xq.m_player;
+    m_xq.unmake_move(trace_src(trace), trace_dst(trace), trace_dst_piece(trace));
 }
 
 Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
 {
-    assert(!xq.in_checked(1 - xq.player()));
+    assert(!xq.is_win());
 
-    m_traces[0] = create_trace(xq.in_checked(xq.player()), EmptyIndex, 0);
+    m_traces[0] = create_trace(xq.check_status(), EmptyIndex, 0);
     m_ply = 0;
     m_start_ply = -1;
     m_keys[0] = 0UL;
@@ -112,11 +85,11 @@ Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
 
 void Engine::reset(const XQ& xq)
 {
-    assert(!xq.in_checked(1 - xq.player()));
+    assert(!xq.is_win());
 
     m_xq = xq;
 
-    m_traces[0] = create_trace(xq.in_checked(xq.player()), EmptyIndex, 0);
+    m_traces[0] = create_trace(xq.check_status(), EmptyIndex, 0);
     m_ply = 0;
     m_start_ply = -1;
     m_keys[0] = 0UL;

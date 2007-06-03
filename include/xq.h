@@ -33,7 +33,8 @@ public:
     bool is_legal_move(uint, uint)const;
     bool is_legal_move(uint32)const;
 
-    uint in_checked(uint)const;
+    uint check_status()const;
+    uint is_win()const;
 
     void generate_moves(MoveList&)const;
     void generate_moves(MoveList&, const History&)const;
@@ -41,8 +42,6 @@ public:
     void generate_capture_moves(MoveList&, const History&)const;
 private:
     void clear();
-    uint red_in_checked()const;
-    uint black_in_checked()const;
 private:
     BitBoard m_bitboard;
     uint8 m_pieces[34];
@@ -77,10 +76,5 @@ inline uint32 XQ::player()const
 inline bool XQ::is_legal_move(uint32 move)const
 {
     return is_legal_move(move_src(move), move_dst(move));
-}
-
-inline uint XQ::in_checked(uint color)const
-{
-    return (color == Red ? red_in_checked() : black_in_checked()) ? 1 : 0;
 }
 #endif    //_XQ_H_

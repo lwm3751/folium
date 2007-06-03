@@ -6,7 +6,7 @@ env = Environment(CPPPATH=cpp_path, LIBPATH=lib_path)
 if sys.platform == "win32":
     env.Tool('mingw')
 ccflag = '-O3'
-ccflag = '-O3 -march=prescott'
+#ccflag = '-O3 -march=prescott'
 defines = {'NDEBUG':None}
 Export("env")
 Export("ccflag")
