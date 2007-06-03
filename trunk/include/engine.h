@@ -25,7 +25,7 @@ public:
     uint _square(uint s)const{return m_xq.square(s);}
     uint _piece(uint p)const{return m_xq.piece(p);}
     uint _player()const{return m_xq.player();}
-    uint _in_checked()const{return m_xq.in_checked(m_xq.player());}
+    uint _in_checked()const{return m_xq.check_status();}
     uint _ply()const{return m_ply;}
 private:
     void generate_root_move(MoveList& movelist, MoveList& ban);

@@ -270,60 +270,108 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
         return false;
     }
 }
-uint XQ::red_in_checked() const
+uint XQ::check_status()const
 {
-    uint kp = piece(RedKingIndex);
-    assert(kp != InvaildSquare);
-    uint flag =
-        //pawn
-        ((piece_flag(square(square_down(kp)))
-        | piece_flag(square(square_left(kp)))
-        | piece_flag(square(square_right(kp))))
-        & BlackPawnFlag)
-        //rook
-        | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
-        & (BlackRookFlag | BlackKingFlag))
-        //cannon
-        | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
-        & BlackCannonFlag)
-        //knight
-        | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) 
-        | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp))))
-        & EmptyFlag);
-    return flag;
+    const uint ksq = piece(m_player == Red ? RedKingIndex : BlackKingIndex);
+    const uint pawn_flag = (m_player == Red ? BlackPawnFlag : RedPawnFlag);
+    uint idx = (m_player == Red ? BlackRookIndex1 : RedRookIndex1);
+
+    for (uint i = 0; i < 2; ++i)
+    {
+        uint sq = piece(idx);
+        if (g_move_flags[ksq][sq] & RookFlag)
+        {
+            if (m_bitboard.distance(sq, ksq) == 0)
+                return idx;
+        }
+        ++idx;
+    }
+    for (uint i = 0; i < 2; ++i)
+    {
+        uint sq = piece(idx);
+        if (g_move_flags[ksq][sq] & KnightFlag)
+        {
+            if (square(knight_leg(sq, ksq)) == EmptyIndex)
+                return 2;
+        }
+        ++idx;
+    }
+    for (uint i = 0; i < 2; ++i)
+    {
+        uint sq = piece(idx);
+        if (g_move_flags[ksq][sq] & RookFlag)
+        {
+            if (m_bitboard.distance(sq, ksq) == 1)
+                return 3;
+        }
+        ++idx;
+    }
+    for (uint i = 0; i < 5; ++i)
+    {
+        uint sq = piece(idx);
+        if (g_move_flags[ksq][sq] & pawn_flag)
+            return idx;
+        ++idx;
+    }
+    return 0;
 }
-uint XQ::black_in_checked() const
+uint XQ::is_win()const
 {
-    uint kp = piece(BlackKingIndex);
-    assert(kp != InvaildSquare);
-    uint flag =
-        //pawn
-        ((piece_flag(square(square_up(kp)))
-        | piece_flag(square(square_left(kp)))
-        | piece_flag(square(square_right(kp))))
-        & RedPawnFlag)
-        //rook
-        | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
-        | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
-        & (RedRookFlag | RedKingFlag))
-        //cannon
-        | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
-        | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
-        & RedCannonFlag)
-        //knight
-        | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) 
-        | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp))))
-        & EmptyFlag);
+    uint flag;
+    if (m_player == Black)
+    {
+        uint kp = piece(RedKingIndex);
+        assert(kp != InvaildSquare);
+        flag =
+            //pawn
+            ((piece_flag(square(square_down(kp)))
+            | piece_flag(square(square_left(kp)))
+            | piece_flag(square(square_right(kp))))
+            & BlackPawnFlag)
+            //rook
+            | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
+            & (BlackRookFlag | BlackKingFlag))
+            //cannon
+            | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
+            & BlackCannonFlag)
+            //knight
+            | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) 
+            | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp))))
+            & EmptyFlag);
+    }
+    else
+    {
+        uint kp = piece(BlackKingIndex);
+        assert(kp != InvaildSquare);
+        flag =
+            //pawn
+            ((piece_flag(square(square_up(kp)))
+            | piece_flag(square(square_left(kp)))
+            | piece_flag(square(square_right(kp))))
+            & RedPawnFlag)
+            //rook
+            | ((piece_flag(square(m_bitboard.nonempty_up_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_down_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_left_1(kp)))
+            | piece_flag(square(m_bitboard.nonempty_right_1(kp))))
+            & (RedRookFlag | RedKingFlag))
+            //cannon
+            | ((piece_flag(square(m_bitboard.nonempty_up_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_down_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_left_2(kp)))
+            | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
+            & RedCannonFlag)
+            //knight
+            | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) 
+            | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp))))
+            & EmptyFlag);
+    }
     return flag;
 }
 
