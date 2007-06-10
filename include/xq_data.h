@@ -16,6 +16,8 @@ extern const uint8 g_piece_types[34];
 extern const uint16 g_piece_flags[34];
 extern const uint16 g_piece_colors[34];
 
+extern const uint8 g_simple_values[32];
+
 extern const uint8 g_type_begin_index[16];
 extern const uint8 g_type_end_index[16];
 

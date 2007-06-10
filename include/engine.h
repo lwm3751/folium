@@ -16,9 +16,10 @@ public:
     void reset(const XQ&);
     bool make_move(uint32 move);
     void unmake_move();
-    void make_null();
-    void unmake_null();
+    void do_null();
+    void undo_null();
     uint32 search(int, MoveList&);
+    bool is_legal_move(uint move);
 public:
     // for plugin
     void stop(){m_stop = true;}
@@ -80,7 +81,12 @@ inline int Engine::loop_value(int ply)const
     return INVAILDVALUE;
 }
 
-inline void Engine::make_null()
+inline bool Engine::is_legal_move(uint move)
+{
+    return move &&  m_xq.is_legal_move(move) && m_xq.player() == m_xq.square_color(move_src(move));
+}
+
+inline void Engine::do_null()
 {
     assert(!trace_flag(m_traces[m_ply]));
     uint op, np;
@@ -91,13 +97,13 @@ inline void Engine::make_null()
     m_values[np] = m_values[op];
     m_traces[np] = m_null_ply << 16;
     m_null_ply = m_ply = np;
-    m_xq.m_player = 1UL - m_xq.m_player;
+    m_xq.do_null();
 }
 
-inline void Engine::unmake_null()
+inline void Engine::undo_null()
 {
     m_null_ply = m_traces[m_ply--] >> 16;
-    m_xq.m_player = 1UL - m_xq.m_player;
+    m_xq.undo_null();
 }
 
 #endif //_ENGINE_H_

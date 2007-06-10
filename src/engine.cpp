@@ -15,10 +15,10 @@ bool Engine::make_move(uint32 move)
     dst_piece = m_xq.square(dst);
     assert(dst_piece != RedKingIndex && dst_piece != RedKingIndex);
 
-    m_xq.make_move(src, dst);
+    m_xq.do_move(src, dst);
     if (m_xq.is_win())
     {
-        m_xq.unmake_move(src, dst, dst_piece);
+        m_xq.undo_move(src, dst, dst_piece);
         return false;
     }
     ++m_ply;
@@ -57,7 +57,7 @@ void Engine::unmake_move()
 {
     assert (m_ply > 0);
     uint32 trace = m_traces[m_ply--];
-    m_xq.unmake_move(trace_src(trace), trace_dst(trace), trace_dst_piece(trace));
+    m_xq.undo_move(trace_src(trace), trace_dst(trace), trace_dst_piece(trace));
 }
 
 Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)

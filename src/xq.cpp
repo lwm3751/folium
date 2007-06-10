@@ -234,7 +234,7 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
         return false;
     uint32 src_piece = square(src);
     //这里同时排除了src == dst
-    if (piece_color(src_piece) == piece_color(square(dst)))
+    if (piece_color(src_piece) == square_color(dst))
         return false;
     if (!(g_move_flags[dst][src] & piece_flag(src_piece)))
         return false;
@@ -282,7 +282,7 @@ uint XQ::check_status()const
         if (g_move_flags[ksq][sq] & RookFlag)
         {
             if (m_bitboard.distance(sq, ksq) == 0)
-                return idx;
+                return 1;
         }
         ++idx;
     }
@@ -310,7 +310,7 @@ uint XQ::check_status()const
     {
         uint sq = piece(idx);
         if (g_move_flags[ksq][sq] & pawn_flag)
-            return idx;
+            return 4;
         ++idx;
     }
     return 0;
@@ -341,7 +341,7 @@ uint XQ::is_win()const
             | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
             & BlackCannonFlag)
             //knight
-            | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp))) 
+            | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp)))
             | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp))))
             & EmptyFlag);
     }
@@ -368,14 +368,139 @@ uint XQ::is_win()const
             | piece_flag(square(m_bitboard.nonempty_right_2(kp))))
             & RedCannonFlag)
             //knight
-            | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp))) 
+            | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp)))
             | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp))))
             & EmptyFlag);
     }
     return flag;
 }
+bool XQ::is_protected(uint pos, uint side)const
+{
+    if (side == Red)
+    {
+        //king
+        {
+            uint src = piece(RedKingIndex);
+            if (g_move_flags[pos][src] & RedPawnFlag)
+                return true;
+        }
+        //advisor
+        for (uint idx = RedAdvisorIndex1; idx <= RedAdvisorIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedAdvisorFlag)
+                return true;
+        }
+        //bishop
+        for (uint idx = RedBishopIndex1; idx <= RedBishopIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedBishopFlag)
+                if (square(bishop_eye(src, pos)) == EmptyIndex)
+                    return true;
+        }
+        //rook
+        for (uint idx = RedRookIndex1; idx <= RedRookIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedRookFlag)
+                if (m_bitboard.distance(src, pos) == 0)
+                    return true;
+        }
+        //knight
+        for (uint idx = RedKnightIndex1; idx <= RedKnightIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedKnightFlag)
+                if (square(knight_leg(src, pos)) == EmptyIndex)
+                    return true;
+        }
+        //cannon
+        for (uint idx = RedCannonIndex1; idx <= RedCannonIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedCannonFlag)
+                if (m_bitboard.distance(src, pos) == 1)
+                    return true;
+        }
+        //pawn
+        for (uint idx = RedPawnIndex1; idx <= RedPawnIndex5; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & RedPawnFlag)
+                return true;
+        }
+    }
+    else
+    {
+        //king
+        {
+            uint src = piece(BlackKingIndex);
+            if (g_move_flags[pos][src] & BlackPawnFlag)
+                return true;
+        }
+        //advisor
+        for (uint idx = BlackAdvisorIndex1; idx <= BlackAdvisorIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackAdvisorFlag)
+                return true;
+        }
+        //bishop
+        for (uint idx = BlackBishopIndex1; idx <= BlackBishopIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackBishopFlag)
+                if (square(bishop_eye(src, pos)) == EmptyIndex)
+                    return true;
+        }
+        //rook
+        for (uint idx = BlackRookIndex1; idx <= BlackRookIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackRookFlag)
+                if (m_bitboard.distance(src, pos) == 0)
+                    return true;
+        }
+        //knight
+        for (uint idx = BlackKnightIndex1; idx <= BlackKnightIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackKnightFlag)
+                if (square(knight_leg(src, pos)) == EmptyIndex)
+                    return true;
+        }
+        //cannon
+        for (uint idx = BlackCannonIndex1; idx <= BlackCannonIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackCannonFlag)
+                if (m_bitboard.distance(src, pos) == 1)
+                    return true;
+        }
+        //pawn
+        for (uint idx = BlackPawnIndex1; idx <= BlackPawnIndex5; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[pos][src] & BlackPawnFlag)
+                return true;
+        }
+    }
+    return false;
+}
+bool XQ::is_good_cap(uint move)const
+{
+    uint dst = move_dst(move);
+    uint dst_piece = square(dst);
+    if (dst_piece == EmptyIndex)
+        return false;
+    uint src_piece = square(move_src(move));
+    if (g_simple_values[src_piece] < g_simple_values[dst_piece])
+        return true;
+    return !is_protected(dst, 1 - player());
+}
 
-void XQ::make_move(uint src, uint dst)
+void XQ::do_move(uint src, uint dst)
 {
     uint32 src_piece = square(src);
     uint32 dst_piece = square(dst);
@@ -392,7 +517,7 @@ void XQ::make_move(uint src, uint dst)
     m_player = 1UL - m_player;
 }
 
-void XQ::unmake_move(uint src, uint dst, uint dst_piece)
+void XQ::undo_move(uint src, uint dst, uint dst_piece)
 {
     uint32 src_piece = square(dst);
     assert (square(src) == EmptyIndex);
