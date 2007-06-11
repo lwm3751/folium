@@ -1,6 +1,8 @@
 #ifndef _XQ_H_
 #define _XQ_H_
 
+#include <vector>
+using std::vector;
 #include <string>
 using std::string;
 
@@ -48,9 +50,8 @@ public:
     bool is_protected(uint pos, uint side)const;
     bool is_good_cap(uint move)const;
 
-    void generate_moves(MoveList&)const;
+    vector<uint> generate_moves()const;
     void generate_moves(MoveList&, const History&)const;
-    void generate_capture_moves(MoveList&)const;
     void generate_capture_moves(MoveList&, const History&)const;
 
     uint nonempty_up_1(uint)const;

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <direct.h>
 #include <fstream>
+#include <set>
 using namespace std;
 #include "engine.h"
 
@@ -23,8 +24,7 @@ bool bDebug = false;
 
 //int numbannedMoves = 0;
 //uint32 bannedMoves[128];
-MoveList ban;
-MoveList _ban;
+set<uint> ban;
 
 int bg_ply;
 int game_ply;
@@ -291,7 +291,8 @@ void AIThread (void *arg)
 	bAIThreadRunning = true;
 	int hints = (int)arg;
     uint move;
-    move = pEngine->search(level, _ban);
+    move = pEngine->search(level, ban);
+    ban.clear();//thread safe???
     pEngine->make_move(move);
     char str[20];
     REPLY1 ("%s\n", movestr (str, move))
@@ -453,7 +454,7 @@ void Plugin ()
 
 					if (ICCStoPos (arg, move))
 					{
-                        ban.push(move_src(move), move_dst(move));
+                        ban.insert(move);
 					}
 					else
 					{
@@ -476,10 +477,6 @@ void Plugin ()
 		{
             //Kill_BG_Thread();
 			// Reset local banned move count
-            for (uint i = 0; i < ban.size(); ++i)
-            {
-                _ban.push(move_src(ban[i]), move_dst(ban[i]));
-            }
 			// Start AI thinking in separate thread
 			hThread = (HANDLE)_beginthread (AIThread, 0, (void*)0);
 			if (hThread == (HANDLE)-1)
