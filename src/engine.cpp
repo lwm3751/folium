@@ -107,38 +107,38 @@ void Engine::reset(const XQ& xq)
         m_values[0] += piece_value(i, square);
     }
 }
-void Engine::generate_root_move(MoveList& movelist, MoveList& ban)
+static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
 {
-    movelist.clear();
-    MoveList _;
-    m_xq.generate_moves(_);
-    for (uint i = 0; i < _.size(); ++i)
+    vector<uint> ml = xq.generate_moves();
+    for (uint i = 0; i < ml.size(); ++i)
     {
-        uint move = _[i] & 0x3fff;
-        uint piece = m_xq.square(move_dst(move));
-        if (piece == RedKingIndex || piece == BlackKingIndex)
+        uint move = ml[i];
+        uint dst_piece = xq.square(move_dst(move));
+        if (dst_piece == RedKingIndex || dst_piece == BlackKingIndex)
         {
-            movelist.clear();
-            movelist.push(move_src(move), move_dst(move));
-            return;
+            ml.clear();
+            ml.push_back(move);
+            return ml;
         }
-        bool add = true;
-        for (uint j = 0; j < ban.size(); ++j)
+        bool remove = false;
+        if (ban.find(move) != ban.end())
+            remove = true;
+        else
         {
-            if (move == (ban[j] & 0x3fff))
-            {
-                add = false;
-                break;
-            }
+            xq.do_move(move_src(move), move_dst(move));
+            if (xq.is_win())
+                remove = true;
+            xq.undo_move(move_src(move), move_dst(move), dst_piece);
         }
-        if (!make_move(move))
-            continue;
-        unmake_move();
-        if (add)
-            movelist.push(move_src(move), move_dst(move));
+        if (remove)
+        {
+            ml.erase(ml.begin()+i);
+            --i;
+        }
     }
+    return ml;
 }
-uint32 Engine::search(int depth, MoveList& ban)
+uint32 Engine::search(int depth, set<uint> ban)
 {
     ofstream file("folium.txt", ios::out|ios::app);
     file << string(m_xq) << endl;
@@ -159,8 +159,7 @@ uint32 Engine::search(int depth, MoveList& ban)
     m_null_ply = m_start_ply = m_ply;
 
     uint32 best_move = 0;
-    MoveList ml;
-    generate_root_move(ml, ban);
+    vector<uint> ml = generate_root_move(m_xq, ban);
     if (ml.size() == 1)
     {
         file <<  "unique move:\t "<< move_src(ml[0]) << "\t" << move_dst(ml[0]) << endl;
@@ -168,7 +167,11 @@ uint32 Engine::search(int depth, MoveList& ban)
         return ml[0];
     }
     if (ml.size() == 0)
+    {
+        file <<  "not move!"<< endl;
+        file << "-------------------------------------------------------------" << endl;
         return 0;
+    }
     clock_t start;
     start = clock();
     for (sint i = 1; i <= depth; ++i)

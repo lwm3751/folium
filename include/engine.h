@@ -1,6 +1,9 @@
 #ifndef _ENGINE_H_
 #define _ENGINE_H_
 
+#include <set>
+using std::set;
+
 #include "defines.h"
 #include "movelist.h"
 #include "xq_data.h"
@@ -18,7 +21,7 @@ public:
     void unmake_move();
     void do_null();
     void undo_null();
-    uint32 search(int, MoveList&);
+    uint32 search(int, set<uint>);
     bool is_legal_move(uint move);
 public:
     // for plugin
@@ -29,11 +32,10 @@ public:
     uint _in_checked()const{return m_xq.check_status();}
     uint _ply()const{return m_ply;}
 private:
-    void generate_root_move(MoveList& movelist, MoveList& ban);
     int value()const;
     int loop_value(int)const;
     int full(int, int, int);
-    int mini(int, int, bool do_null=true);
+    int mini(int, int, bool allow_null=true);
     int leaf(int, int);
     int quies(int, int);
     XQ m_xq;
