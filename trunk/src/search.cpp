@@ -72,14 +72,13 @@ int Engine::full(int depth, int alpha, int beta)
     uint32 best_move=0;
     Killer& killer=killers[ply];
     killers[ply+1].clear();
-    int score;
     MoveList ml;
 
     bool found = false;
     //hash move
     if (hash_move && make_move(hash_move))
     {
-        score = - full(depth - 1, -beta, -alpha);
+        int score = - full(depth - 1, -beta, -alpha);
         unmake_move();
         if (score > best_value)
         {
@@ -113,6 +112,7 @@ int Engine::full(int depth, int alpha, int beta)
         ml[i] = 0;
         if (!make_move(move))
             continue;
+        int score;
         if (found)
         {
             score = - mini(depth - 1, -alpha);
@@ -150,6 +150,7 @@ int Engine::full(int depth, int alpha, int beta)
             continue;
         if (!make_move(move))
             continue;
+        int score;
         if (found)
         {
             score = - mini(depth - 1, -alpha);
@@ -201,6 +202,7 @@ int Engine::full(int depth, int alpha, int beta)
 
         if (!make_move(move))
             continue;
+        int score;
         if (found)
         {
             score = - mini(depth - 1, -alpha);
