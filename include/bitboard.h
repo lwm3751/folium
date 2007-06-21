@@ -158,7 +158,7 @@ inline BitBoard::BitBoard()
 inline void BitBoard::reset()
 {
     memset(m_lines, 0, 38);
-    m_lines[20] = 1023;
+    m_lines[19] = 1023;
 }
 #endif    //_BITBOARD_H_
 
