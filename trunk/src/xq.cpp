@@ -191,28 +191,26 @@ XQ& XQ::operator=(const XQ &xq)
 }
 XQ::operator string() const
 {
-    string fen;
     if (m_player == Empty)
-        return fen;
-    for (uint32 y = 9; y < 10; --y)
+        return string();
+    vector<char> chars;
+    for (sint y = 9; y >= 0; --y)
     {
         if(y != 9)
-        {
-            fen.push_back('/');
-        }
+            chars.push_back('/');
         sint32 empty_count = 0;
-        for (uint32 x = 0; x < 9; ++x)
+        for (uint x = 0; x < 9; ++x)
         {
-            uint32 sq = xy_square(x,y);
-            sint32 c = piece_char(square(sq));
+            uint sq = xy_square(x,y);
+            sint c = piece_char(square(sq));
             if (c)
             {
                 if (empty_count)
                 {
-                    fen.push_back('0' + empty_count);
+                    chars.push_back('0' + empty_count);
                     empty_count = 0;
                 }
-                fen.push_back(c);
+                chars.push_back(c);
             }
             else
             {
@@ -221,11 +219,12 @@ XQ::operator string() const
         }
         if (empty_count)
         {
-            fen.push_back('0' + empty_count);
+            chars.push_back('0' + empty_count);
         }
     }
-    fen.append(m_player == Red ? " r - - 0 1" : " b - - 0 1");
-    return fen;
+    chars.push_back(' ');
+    chars.push_back(m_player == Red ? 'r' : 'b');
+    return string(chars.begin(), chars.end());
 }
 
 bool XQ::is_legal_move(uint32 src, uint32 dst) const
