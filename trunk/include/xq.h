@@ -7,7 +7,7 @@ using std::vector;
 using std::string;
 
 #include "defines.h"
-#include "bitboard.h"
+#include "bitmap.h"
 #include "xq_data.h"
 
 #include <iostream>
@@ -66,7 +66,7 @@ public:
 private:
     void clear();
 private:
-    BitBoard m_bitboard;
+    Bitmap m_bitmap;
     uint8 m_pieces[34];
     uint8 m_squares[91];
     uint8 m_player;
@@ -116,35 +116,35 @@ inline bool XQ::is_legal_move(uint32 move)const
 
 inline uint XQ::nonempty_up_1(uint sq)const
 {
-    return m_bitboard.nonempty_up_1(sq);
+    return m_bitmap.nonempty_up_1(sq);
 }
 inline uint XQ::nonempty_up_2(uint sq)const
 {
-    return m_bitboard.nonempty_up_2(sq);
+    return m_bitmap.nonempty_up_2(sq);
 }
 inline uint XQ::nonempty_down_1(uint sq)const
 {
-    return m_bitboard.nonempty_down_1(sq);
+    return m_bitmap.nonempty_down_1(sq);
 }
 inline uint XQ::nonempty_down_2(uint sq)const
 {
-    return m_bitboard.nonempty_down_2(sq);
+    return m_bitmap.nonempty_down_2(sq);
 }
 inline uint XQ::nonempty_right_1(uint sq)const
 {
-    return m_bitboard.nonempty_right_1(sq);
+    return m_bitmap.nonempty_right_1(sq);
 }
 inline uint XQ::nonempty_right_2(uint sq)const
 {
-    return m_bitboard.nonempty_right_2(sq);
+    return m_bitmap.nonempty_right_2(sq);
 }
 inline uint XQ::nonempty_left_1(uint sq)const
 {
-    return m_bitboard.nonempty_left_1(sq);
+    return m_bitmap.nonempty_left_1(sq);
 }
 inline uint XQ::nonempty_left_2(uint sq)const
 {
-    return m_bitboard.nonempty_left_2(sq);
+    return m_bitmap.nonempty_left_2(sq);
 }
 
 #endif    //_XQ_H_
