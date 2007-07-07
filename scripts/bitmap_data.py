@@ -44,9 +44,9 @@ def main():
     dict['infos'] = d2a_str(line_infos, u32)
     dict['counts'] = d1a_str(bit_counts, u32)
     dict['distance'] = d2a_str(distance_infos, u32)
-    template = open(os.path.join(template_path, 'bitboard_data.cpp.tmpl'), 'rb').read()
+    template = open(os.path.join(template_path, 'bitmap_data.cpp.tmpl'), 'rb').read()
     template = string.Template(template)
-    path = os.path.join(folium_path, 'bitboard_data.cpp')
+    path = os.path.join(folium_path, 'bitmap_data.cpp')
     open(path, 'wb').write(str(template.safe_substitute(dict)))
 
 if __name__ == "__main__":
