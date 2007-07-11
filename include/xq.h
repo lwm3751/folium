@@ -47,7 +47,6 @@ public:
 
     uint check_status()const;
     uint is_win()const;
-    bool is_protected(uint pos, uint side)const;
     bool is_good_cap(uint move)const;
 
     vector<uint> generate_moves()const;
