@@ -1,5 +1,5 @@
 #include "engine.h"
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <iostream>
 #include <fstream>

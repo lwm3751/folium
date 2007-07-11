@@ -373,120 +373,6 @@ uint XQ::is_win()const
     }
     return flag;
 }
-bool XQ::is_protected(uint pos, uint side)const
-{
-    if (side == Red)
-    {
-        //king
-        {
-            uint src = piece(RedKingIndex);
-            if (g_move_flags[pos][src] & RedPawnFlag)
-                return true;
-        }
-        //advisor
-        for (uint idx = RedAdvisorIndex1; idx <= RedAdvisorIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedAdvisorFlag)
-                return true;
-        }
-        //bishop
-        for (uint idx = RedBishopIndex1; idx <= RedBishopIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedBishopFlag)
-                if (square(bishop_eye(src, pos)) == EmptyIndex)
-                    return true;
-        }
-        //rook
-        for (uint idx = RedRookIndex1; idx <= RedRookIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedRookFlag)
-                if (m_bitmap.distance(src, pos) == 0)
-                    return true;
-        }
-        //knight
-        for (uint idx = RedKnightIndex1; idx <= RedKnightIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedKnightFlag)
-                if (square(knight_leg(src, pos)) == EmptyIndex)
-                    return true;
-        }
-        //cannon
-        for (uint idx = RedCannonIndex1; idx <= RedCannonIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedCannonFlag)
-                if (m_bitmap.distance(src, pos) == 1)
-                    return true;
-        }
-        //pawn
-        for (uint idx = RedPawnIndex1; idx <= RedPawnIndex5; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & RedPawnFlag)
-                return true;
-        }
-    }
-    else
-    {
-        //king
-        {
-            uint src = piece(BlackKingIndex);
-            if (g_move_flags[pos][src] & BlackPawnFlag)
-                return true;
-        }
-        //advisor
-        for (uint idx = BlackAdvisorIndex1; idx <= BlackAdvisorIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackAdvisorFlag)
-                return true;
-        }
-        //bishop
-        for (uint idx = BlackBishopIndex1; idx <= BlackBishopIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackBishopFlag)
-                if (square(bishop_eye(src, pos)) == EmptyIndex)
-                    return true;
-        }
-        //rook
-        for (uint idx = BlackRookIndex1; idx <= BlackRookIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackRookFlag)
-                if (m_bitmap.distance(src, pos) == 0)
-                    return true;
-        }
-        //knight
-        for (uint idx = BlackKnightIndex1; idx <= BlackKnightIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackKnightFlag)
-                if (square(knight_leg(src, pos)) == EmptyIndex)
-                    return true;
-        }
-        //cannon
-        for (uint idx = BlackCannonIndex1; idx <= BlackCannonIndex2; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackCannonFlag)
-                if (m_bitmap.distance(src, pos) == 1)
-                    return true;
-        }
-        //pawn
-        for (uint idx = BlackPawnIndex1; idx <= BlackPawnIndex5; ++idx)
-        {
-            uint src = piece(idx);
-            if (g_move_flags[pos][src] & BlackPawnFlag)
-                return true;
-        }
-    }
-    return false;
-}
 bool XQ::is_good_cap(uint move)const
 {
     uint dst = move_dst(move);
@@ -496,7 +382,153 @@ bool XQ::is_good_cap(uint move)const
     uint src_piece = square(move_src(move));
     if (g_simple_values[src_piece] < g_simple_values[dst_piece])
         return true;
-    return !is_protected(dst, 1 - player());
+    if (player() == Red)
+    {
+        //king
+        {
+            uint src = piece(BlackKingIndex);
+            if (g_move_flags[dst][src] & BlackPawnFlag)
+                return false;
+        }
+        //advisor
+        for (uint idx = BlackAdvisorIndex1; idx <= BlackAdvisorIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackAdvisorFlag)
+                return false;
+        }
+        //bishop
+        for (uint idx = BlackBishopIndex1; idx <= BlackBishopIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackBishopFlag)
+                if (square(bishop_eye(src, dst)) == EmptyIndex)
+                    return false;
+        }
+        //rook
+        for (uint idx = BlackRookIndex1; idx <= BlackRookIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackRookFlag)
+            {
+                switch(m_bitmap.distance(src, dst))
+                {
+                case 0:
+                    return false;
+                case 1:
+                    if (m_bitmap.distance(src, move_src(move)) == 0)
+                        return false;
+                }
+            }
+        }
+        //knight
+        for (uint idx = BlackKnightIndex1; idx <= BlackKnightIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackKnightFlag)
+                if (square(knight_leg(src, dst)) == EmptyIndex)
+                    return false;
+        }
+        //cannon
+        for (uint idx = BlackCannonIndex1; idx <= BlackCannonIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackCannonFlag)
+            {
+                switch(m_bitmap.distance(src, dst))
+                {
+                case 1:
+                    if (m_bitmap.distance(src, move_src(move)) != 0)
+                        return false;
+                    break;
+                case 2:
+                    if (m_bitmap.distance(src, move_src(move)) < 2)
+                        return false;
+                }
+            }
+        }
+        //pawn
+        for (uint idx = BlackPawnIndex1; idx <= BlackPawnIndex5; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & BlackPawnFlag)
+                return false;
+        }
+    }
+    else
+    {
+        //king
+        {
+            uint src = piece(RedKingIndex);
+            if (g_move_flags[dst][src] & RedPawnFlag)
+                return false;
+        }
+        //advisor
+        for (uint idx = RedAdvisorIndex1; idx <= RedAdvisorIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedAdvisorFlag)
+                return false;
+        }
+        //bishop
+        for (uint idx = RedBishopIndex1; idx <= RedBishopIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedBishopFlag)
+                if (square(bishop_eye(src, dst)) == EmptyIndex)
+                    return false;
+        }
+        //rook
+        for (uint idx = RedRookIndex1; idx <= RedRookIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedRookFlag)
+            {
+                switch(m_bitmap.distance(src, dst))
+                {
+                case 0:
+                    return false;
+                case 1:
+                    if (m_bitmap.distance(src, move_src(move)) == 0)
+                        return false;
+                }
+            }
+        }
+        //knight
+        for (uint idx = RedKnightIndex1; idx <= RedKnightIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedKnightFlag)
+                if (square(knight_leg(src, dst)) == EmptyIndex)
+                    return false;
+        }
+        //cannon
+        for (uint idx = RedCannonIndex1; idx <= RedCannonIndex2; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedCannonFlag)
+            {
+                switch(m_bitmap.distance(src, dst))
+                {
+                case 1:
+                    if (m_bitmap.distance(src, move_src(move)) != 0)
+                        return false;
+                    break;
+                case 2:
+                    if (m_bitmap.distance(src, move_src(move)) < 2)
+                        return false;
+                }
+            }
+        }
+        //pawn
+        for (uint idx = RedPawnIndex1; idx <= RedPawnIndex5; ++idx)
+        {
+            uint src = piece(idx);
+            if (g_move_flags[dst][src] & RedPawnFlag)
+                return false;
+        }
+    }
+    return true;
 }
 
 void XQ::do_move(uint src, uint dst)
