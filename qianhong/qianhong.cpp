@@ -352,11 +352,11 @@ void Plugin ()
 		if (stricmp (cmd, "exit") == 0)
 			break;
 
-      if (stricmp (cmd, "timeout") == 0)
-      {
-         // Do nothing; we have already set stop_thinking (without setting bAbort),
-         // so any AI or HINTS command in progress should quickly reply with a move
-      }
+		if (stricmp (cmd, "timeout") == 0)
+		{
+			// Do nothing; we have already set stop_thinking (without setting bAbort),
+			// so any AI or HINTS command in progress should quickly reply with a move
+		}
 		else if (stricmp (cmd, "abort") == 0)
 		{
 			//Kill_BG_Thread();
@@ -419,13 +419,13 @@ void Plugin ()
 		else if (stricmp (cmd, "fen") == 0)
 		{
 			//Kill_BG_Thread();
-			if (LoadFEN (line))
+			if (LoadFEN (line+4))
 			{
 				REPLY ("OK\n");
 			}
 			else
 			{
-				REPLY1 ("ERROR - %s\n", message);
+				REPLY1 ("ERROR - %s\n", arg);
 			}
 		}
 
