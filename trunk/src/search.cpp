@@ -92,7 +92,8 @@ int Engine::full(int depth, int alpha, int beta)
                 m_hash_move_cuts++;
                 m_history.update_history(best_move, depth);
                 record.store_beta(depth, ply, score, best_move, m_locks[m_ply]);
-                killer.push(best_move);
+                if (!m_xq.is_good_cap(best_move))
+                    killer.push(best_move);
                 return score;
             }
             if (score > alpha)
@@ -340,7 +341,8 @@ int Engine::mini(int depth, int beta, bool allow_null)
                 m_hash_move_cuts++;
                 m_history.update_history(best_move, depth);
                 record.store_beta(depth, ply, score, best_move, m_locks[m_ply]);
-                killer.push(best_move);
+                if (!m_xq.is_good_cap(best_move))
+                    killer.push(best_move);
                 return score;
             }
         }
