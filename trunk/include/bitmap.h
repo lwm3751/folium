@@ -21,6 +21,7 @@ public:
     uint nonempty_left_2(uint)const;
     uint nonempty_right_2(uint)const;
 
+    uint mask(uint, uint)const;
     uint distance(uint, uint)const;
     
     void reset ();
@@ -144,11 +145,16 @@ inline uint Bitmap::nonempty_right_2(uint sq)const
     return xy_square(Bitmap::next_2(xinfo(x, y)), y);
 }
 
-inline uint Bitmap::distance(uint src, uint dst)const
+inline uint Bitmap::mask(uint src, uint dst)const
 {
     uint info = s_distance_infos[src][dst];
     assert((info >> 10) < 20);
-    return s_bit_counts[info & 1023 & m_lines[info >> 10]];
+    return info & m_lines[info >> 10];
+}
+
+inline uint Bitmap::distance(uint src, uint dst)const
+{
+    return s_bit_counts[mask(src, dst)];
 }
 
 inline Bitmap::Bitmap()
