@@ -34,6 +34,7 @@ public:
     operator string()const;
     uint square(uint)const;
     uint square_color(uint)const;
+    uint square_flag(uint)const;
     uint piece(uint)const;
     uint player()const;
 
@@ -88,6 +89,11 @@ inline uint XQ::square_color(uint sq)const
 {
     return piece_color(square(sq));
 }
+inline uint XQ::square_flag(uint sq)const
+{
+    return piece_flag(square(sq));
+}
+
 inline uint XQ::piece(uint idx)const
 {
     assert (idx < 34UL);
