@@ -242,11 +242,11 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     case RedKing:
         if (g_move_flags[dst][src] & RedPawnFlag)
             return true;
-        return (piece_flag(square(dst)) & BlackKingFlag) && m_bitmap.distance(src, dst) == 0;
+        return (square_flag(dst) & BlackKingFlag) && m_bitmap.distance(src, dst) == 0;
     case BlackKing:
         if (g_move_flags[dst][src] & BlackPawnFlag)
             return true;
-        return (piece_flag(square(dst)) & RedKingFlag) && m_bitmap.distance(src, dst) == 0;
+        return (square_flag(dst) & RedKingFlag) && m_bitmap.distance(src, dst) == 0;
     case RedAdvisor:
     case BlackAdvisor:
         return true;
@@ -323,25 +323,25 @@ uint XQ::is_win()const
         assert(kp != InvaildSquare);
         flag =
             //pawn
-            ((piece_flag(square(square_down(kp)))
-            | piece_flag(square(square_left(kp)))
-            | piece_flag(square(square_right(kp))))
+            ((square_flag(square_down(kp))
+            | square_flag(square_left(kp))
+            | square_flag(square_right(kp)))
             & BlackPawnFlag)
             //rook
-            | ((piece_flag(square(m_bitmap.nonempty_up_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_down_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_left_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_right_1(kp))))
+            | ((square_flag(m_bitmap.nonempty_up_1(kp))
+            | square_flag(m_bitmap.nonempty_down_1(kp))
+            | square_flag(m_bitmap.nonempty_left_1(kp))
+            | square_flag(m_bitmap.nonempty_right_1(kp)))
             & (BlackRookFlag | BlackKingFlag))
             //cannon
-            | ((piece_flag(square(m_bitmap.nonempty_up_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_down_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_left_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_right_2(kp))))
+            | ((square_flag(m_bitmap.nonempty_up_2(kp))
+            | square_flag(m_bitmap.nonempty_down_2(kp))
+            | square_flag(m_bitmap.nonempty_left_2(kp))
+            | square_flag(m_bitmap.nonempty_right_2(kp)))
             & BlackCannonFlag)
             //knight
-            | ((piece_flag(square(knight_leg(piece(BlackKnightIndex1), kp)))
-            | piece_flag(square(knight_leg(piece(BlackKnightIndex2), kp))))
+            | ((square_flag(knight_leg(piece(BlackKnightIndex1), kp))
+            | square_flag(knight_leg(piece(BlackKnightIndex2), kp)))
             & EmptyFlag);
     }
     else
@@ -350,25 +350,25 @@ uint XQ::is_win()const
         assert(kp != InvaildSquare);
         flag =
             //pawn
-            ((piece_flag(square(square_up(kp)))
-            | piece_flag(square(square_left(kp)))
-            | piece_flag(square(square_right(kp))))
+            ((square_flag(square_up(kp))
+            | square_flag(square_left(kp))
+            | square_flag(square_right(kp)))
             & RedPawnFlag)
             //rook
-            | ((piece_flag(square(m_bitmap.nonempty_up_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_down_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_left_1(kp)))
-            | piece_flag(square(m_bitmap.nonempty_right_1(kp))))
+            | ((square_flag(m_bitmap.nonempty_up_1(kp))
+            | square_flag(m_bitmap.nonempty_down_1(kp))
+            | square_flag(m_bitmap.nonempty_left_1(kp))
+            | square_flag(m_bitmap.nonempty_right_1(kp)))
             & (RedRookFlag | RedKingFlag))
             //cannon
-            | ((piece_flag(square(m_bitmap.nonempty_up_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_down_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_left_2(kp)))
-            | piece_flag(square(m_bitmap.nonempty_right_2(kp))))
+            | ((square_flag(m_bitmap.nonempty_up_2(kp))
+            | square_flag(m_bitmap.nonempty_down_2(kp))
+            | square_flag(m_bitmap.nonempty_left_2(kp))
+            | square_flag(m_bitmap.nonempty_right_2(kp)))
             & RedCannonFlag)
             //knight
-            | ((piece_flag(square(knight_leg(piece(RedKnightIndex1), kp)))
-            | piece_flag(square(knight_leg(piece(RedKnightIndex2), kp))))
+            | ((square_flag(knight_leg(piece(RedKnightIndex1), kp))
+            | square_flag(knight_leg(piece(RedKnightIndex2), kp)))
             & EmptyFlag);
     }
     return flag;
