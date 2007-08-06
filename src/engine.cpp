@@ -158,94 +158,118 @@ uint32 Engine::search(int depth, set<uint> ban)
 
     m_null_ply = m_start_ply = m_ply;
 
-    uint32 best_move = 0;
+    int best_value;
     vector<uint> ml = generate_root_move(m_xq, ban);
-    if (ml.size() == 1)
-    {
-        file <<  "unique move:\t "<< move_src(ml[0]) << "\t" << move_dst(ml[0]) << endl;
-        file << "-------------------------------------------------------------" << endl;
-        return ml[0];
-    }
-    if (ml.size() == 0)
-    {
-        file <<  "not move!"<< endl;
-        file << "-------------------------------------------------------------" << endl;
-        return 0;
-    }
+    vector<uint> bests;
     clock_t start;
     start = clock();
     for (sint i = 1; i <= depth; ++i)
     {
-        bool found = false;
-        int best_value = -WINSCORE;
-        int alpha = -WINSCORE;
-        if (best_move)
+        if (m_stop)
+            break;
+        if (ml.size() == 1)
         {
-            assert(m_xq.is_legal_move(move_src(best_move), move_dst(best_move)));
-            make_move(best_move);
-            best_value = - full(i, -WINSCORE, -alpha);
-            unmake_move();
-            file << i << "\t" << move_src(best_move) << "\t" << move_dst(best_move) << "\t" << best_value << endl;
-            if (m_stop)
-                return best_move;
-            alpha = best_value;
-            found = true;
+            file <<  "unique move!" << endl;
+            bests.clear();
+            bests.push_back(ml[0]);
+            break;
         }
-        for (uint j = 0; j < ml.size(); ++j)
+        if (ml.size() == 0)
         {
-            uint32 move = ml[j];
-            assert(m_xq.is_legal_move(move_src(move), move_dst(move)));
-            if (move == best_move)
-                continue;
-            make_move(move);
+            file <<  "lost!"<< endl;
+            break;
+        }
+        best_value = -WINSCORE;
+        vector<uint> olds;
+        bests.swap(olds);
+        for (uint j = 0; j < olds.size(); ++j)
+        {
+            if (m_stop)
+                break;
             int score;
-            if (found)
+            uint32 move = olds[j];
+            make_move(move);
+            if (best_value != -WINSCORE)
             {
-                score = - mini(i, -alpha);
-                if (score > alpha)
-                    score = - full(i, -WINSCORE, -alpha);
+                score = - full(i, -1-best_value, 1-best_value);
+                if (score > best_value)
+                    score = - full(i, -WINSCORE, -1-best_value);
             }
             else
             {
-                score = - full(i, -WINSCORE, -alpha);
+                score = - full(i, -WINSCORE, WINSCORE);
             }
-            //int score = - alpha_beta(i, -WINSCORE, -alpha);
             unmake_move();
-            if (m_stop)
-                return best_move;
-            if (score > best_value)
+            if (score >= best_value)
             {
-                file << i << "\t" << move_src(move) << "\t" << move_dst(move) << "\t" << score << endl;
-                best_value = score;
-                best_move = move;
-                if (score > alpha)
+                if (score > best_value)
+                    bests.clear();
+                if (find(bests.begin(), bests.end(), move) == bests.end())
                 {
-                    found = true;
-                    alpha = score;
+                    bests.push_back(move);
+                    file << i << "\t" << move_src(move) << "\t" << move_dst(move) << "\t" << score << endl;
                 }
+                best_value = score;
             }
         }
-        if (best_value > MATEVALUE || best_value < -MATEVALUE)
+        for (uint j = 0; j < ml.size(); ++j)
         {
-            float t = float(clock()-start)/CLOCKS_PER_SEC;
-            file << "nps1:\t" << int((m_tree_nodes+m_leaf_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
-            file << "nps2:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
-            file << depth << ":\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
-            file << m_tree_nodes << "\t"<<m_leaf_nodes << "\t" << m_quiet_nodes << endl;
-            file << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << endl;
-            file << m_null_nodes << "\t" <<  m_null_cuts << endl;
-            file << "-------------------------------------------------------------" << endl;
-            return best_move;
+            if (m_stop)
+                break;
+            uint32 move = ml[j];
+            if (!make_move(move))
+            {
+                ml[j] = 0;
+                continue;
+            }
+            int score;
+            if (best_value != -WINSCORE)
+            {
+                score = - full(i, -1-best_value, 1-best_value);
+                if (score > best_value)
+                    score = - full(i, -WINSCORE, -1-best_value);
+            }
+            else
+            {
+                score = - full(i, -WINSCORE, WINSCORE);
+            }
+            unmake_move();
+            if (score >= best_value)
+            {
+                if (score > best_value)
+                    bests.clear();
+                if (find(bests.begin(), bests.end(), move) == bests.end())
+                {
+                    bests.push_back(move);
+                    file << i << "\t" << move_src(move) << "\t" << move_dst(move) << "\t" << score << endl;
+                }
+                best_value = score;
+            }
+            else if (score < -MATEVALUE)
+            {
+                ml[j] = 0;
+            }
         }
+
+        float t = float(clock()-start)/CLOCKS_PER_SEC;
+        if (t > 0.01)
+            file << "nps:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
+
+        if (best_value > MATEVALUE || best_value < -MATEVALUE)
+            break;
+        ml.erase(remove(ml.begin(), ml.end(), 0), ml.end());
     }
-    float t = float(clock()-start)/CLOCKS_PER_SEC;
-    file << "nps1:\t" << int((m_tree_nodes+m_leaf_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
-    file << "nps2:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
-    file << "depth:\t" << depth << endl << "move:\t" << move_src(best_move) << "\t" << move_dst(best_move) << endl;
+    file << "depth:\t" << depth << endl;
+    for (uint i = 0; i < bests.size(); ++i)
+    {
+        file << "move:\t" << move_src(bests[i]) << "\t" << move_dst(bests[i]) << endl;
+    }
     file << m_tree_nodes << "\t"<<m_leaf_nodes << "\t" << m_quiet_nodes << endl;
     file << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << endl;
     file << m_null_nodes << "\t" <<  m_null_cuts << endl;
     file << "-------------------------------------------------------------" << endl;
     file.close();
-    return best_move;
+    if (bests.empty())
+        return 0;
+    return bests[clock()%bests.size()];
 }

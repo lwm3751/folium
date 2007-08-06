@@ -44,8 +44,10 @@ int Engine::full(int depth, int alpha, int beta)
     if (best_value >= beta)
         return best_value;
     if (ply == LIMIT_DEPTH)
-        return value();    int extended = 0;
+        return value();
+    int extended = 0;
     //将军伸延
+    //if (trace_flag(m_traces[m_ply]) || trace_dst(m_traces[m_ply]) == trace_dst(m_traces[m_ply-1]))
     if (trace_flag(m_traces[m_ply]))
     {
         ++depth;
@@ -64,11 +66,24 @@ int Engine::full(int depth, int alpha, int beta)
     }
     ++m_tree_nodes;
     //hash探测
-    uint32 hash_move;
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
-    record.probe(depth, ply, alpha, beta, hash_move, m_locks[m_ply]);
-    if (is_legal_move(hash_move))
-        hash_move = 0;
+    uint32 hash_move;
+    {
+        int score = record.probe(depth, ply, beta-1, beta, hash_move, m_locks[m_ply]);
+        if (hash_move)
+        {
+            if (m_xq.is_legal_move(hash_move))
+            {
+                if (score != INVAILDVALUE)
+                {
+                    m_hash_hit_nodes++;
+                    return score;
+                }
+            }
+            else
+                hash_move = 0;
+        }
+    }
 
     uint32 best_move=0;
     Killer& killer=killers[ply];
@@ -267,6 +282,7 @@ int Engine::mini(int depth, int beta, bool allow_null)
     if (ply == LIMIT_DEPTH)
         return value();    int extended = 0;
     //将军伸延
+    //if (trace_flag(m_traces[m_ply]) || trace_dst(m_traces[m_ply]) == trace_dst(m_traces[m_ply-1]))
     if (trace_flag(m_traces[m_ply]))
     {
         ++depth;
