@@ -402,7 +402,7 @@ void Plugin ()
 			else
 			{
 				int newlevel = atoi (arg);
-				if (newlevel >= 6 && newlevel <= 9)
+				if (newlevel >= 6 && newlevel <= 15)
 				{
 					level = newlevel;
 					REPLY1 ("OK - Set AI level to %d\n", level);
@@ -650,11 +650,17 @@ int main (int argc, char **argv)
 		// AI engine name
 		printf ("folium\n");
 		// levels
-		printf ("LEVELS 4\n");
+		printf ("LEVELS 10\n");
 		printf ("6  - Default\n");
 		printf ("7\n");
 		printf ("8\n");
 		printf ("9\n");
+        printf ("10\n");
+        printf ("11\n");
+        printf ("12\n");
+        printf ("13\n");
+        printf ("14\n");
+        printf ("15\n");
 		// undo support (0 for no, 1 for yes)
 		printf ("UNDO 1\n");
 		// hint support (0 for no, 1 for yes)
