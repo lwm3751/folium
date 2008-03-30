@@ -5,7 +5,7 @@ qhsrc = ['qianhong.cpp']
 qianhong = env.Program(
     'folium',
     qhsrc,
-    LIBS=['folium'],
+    LIBS=['folium', 'boost_thread'],
     CPPDEFINES = defines,
     CCFLAGS = ccflag)
 env.Install('#bin', qianhong)

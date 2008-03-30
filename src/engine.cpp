@@ -225,16 +225,16 @@ uint32 Engine::search(int depth, set<uint> ban)
             int score;
             if (best_value != -WINSCORE)
             {
-                score = - full(i, -1-best_value, 1-best_value);
+                score = - full(i, -1-best_value, -best_value);
                 if (score > best_value)
-                    score = - full(i, -WINSCORE, -1-best_value);
+                    score = - full(i, -WINSCORE, -best_value);
             }
             else
             {
                 score = - full(i, -WINSCORE, WINSCORE);
             }
             unmake_move();
-            if (score >= best_value)
+            if (score > best_value)
             {
                 if (score > best_value)
                     bests.clear();

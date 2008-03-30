@@ -1,29 +1,21 @@
-#include <windows.h>
-#include <process.h>
-#include <stdio.h>
-#include <string.h>
-#include <direct.h>
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <set>
 using namespace std;
+#include <boost/thread.hpp>
+
 #include "engine.h"
 
 #define VERSION  "0.1"
-
-// globals (shaRed between main thread and AI thread)
+//#define strcmp strcmp
 Engine *pEngine;
 int level = 6;
-
-HANDLE hBGThread = NULL;
-
 bool bAIThreadRunning = false;
 bool bBGThreadRunning = false;
 bool bEnableBGThinking = true;
 bool bAbort = false;
 bool bDebug = false;
-
-//int numbannedMoves = 0;
-//uint32 bannedMoves[128];
 set<uint> ban;
 
 int bg_ply;
@@ -43,12 +35,6 @@ char message[80];
 #define REPLY1(f,a)     { printf (f,a);     DEBUG1(f,a); }
 #define REPLY2(f,a,b)   { printf (f,a,b);   DEBUG2(f,a,b); }
 #define REPLY3(f,a,b,c) { printf (f,a,b,c); DEBUG3(f,a,b,c); }
-
-
-//------------------------------------------------------------------------------
-// This screen-display stuff is just to help in debugging
-// (Qianhong does not send a "SCR" command -- except at the end of a failed test,
-// but you can ignore that if you want...)
 
 const char *ColorStr(int color)
 {
@@ -219,77 +205,9 @@ bool LoadFEN (const char *str)
 	return true;
 }
 
-
-//------------------------------------------------------------------------------
-// The BG thread is used for background AI thinking between "AI" commands.
-//
-// This thread is a slave of the AI thread, and the AI thread guarantees that it
-// will not touch pEngine (except stop_thinking) while this thread is running.
-//------------------------------------------------------------------------------
-/*
-void BGThread (void *arg)
+void AIThread ()
 {
-	bBGThreadRunning = true;
-
-	// play guessed move, then start AI thinking on next move
-	if (pEngine->make_move(guessed_move)
-	{
-		bg_ply = pEngine->_ply();
-		char str[10];
-		DEBUG2 ("[BG] Thinking for ply %d, guessed move = %s\n", bg_ply, movestr (str, guessed_move));
-
-		_pvline[0] = 0;
-		pEngine->search(level, 0);
-	}
-	else
-	{
-		bg_ply = -1;
-		char str[10];
-		DEBUG1 ("[BG] Cannot play guessed move! (%s)\n", movestr (str, guessed_move));
-	}
-
-	bBGThreadRunning = false;
-	_endthread();
-}//*/
-
-//*
-void Kill_BG_Thread ()
-{
-	if (bAIThreadRunning)
-	{
-		DEBUG ("Killing BG thread...\n");
-
-		pEngine->stop();
-
-		if (WaitForSingleObject (hBGThread, 5000) != WAIT_OBJECT_0)
-		{
-			REPLY ("ERROR - BG Thread not responding\n");
-		}
-		// NOTE: no need to close the handle (_endthread does it)
-
-		DEBUG ("Done killing BG thread\n");
-	}
-
-	bg_ply = -1;
-	while (pEngine->_ply() > game_ply)
-	{
-		pEngine->unmake_move();
-	}
-}//*/
-
-
-//------------------------------------------------------------------------------
-// The AI thread is used for "AI" and "HINTS" commands.
-//
-// It is aborted when a interrupting command is received by the main thread.
-// The main thread sets pEngine->stop_thinking to cause the AI to break,
-// and sets bAbort so this thread knows it was aborted.
-//------------------------------------------------------------------------------
-void AIThread (void *arg)
-{
-
 	bAIThreadRunning = true;
-	int hints = (int)arg;
     uint move;
     move = pEngine->search(level, ban);
     ban.clear();//thread safe???
@@ -298,17 +216,11 @@ void AIThread (void *arg)
     REPLY1 ("%s\n", movestr (str, move))
     fflush (stdout);
     bAIThreadRunning = false;
-	_endthread();
 }
 
-
-//------------------------------------------------------------------------------
-// The plugin.
-// (See jcraner.com/qianhong for the plugin specification.)
-//------------------------------------------------------------------------------
 void Plugin ()
 {
-	HANDLE hThread;
+	boost::thread *pThread = NULL;
 
 	char line[80];
 	char cmd[80];
@@ -326,61 +238,40 @@ void Plugin ()
 		if (sscanf (line, "%s %s", cmd, arg) < 1)
 			continue;
 
-		// Stop the AI thread if it is running. It will send
-		// an ABORTED reply to Qianhong.
 		if (bAIThreadRunning)
 		{
-         // abort for all commands except "TIMEOUT",
-         // which causes a result to be returned
-            if (stricmp (cmd, "timeout") != 0)
+            if (strcmp (cmd, "timeout") != 0)
             {
                 bAbort = true;
             }
-			if (WaitForSingleObject (hThread, 1000) != WAIT_OBJECT_0)
-			{
-				REPLY ("ERROR - AI Thread not responding\n");
-				break;
-			}
-			// NOTE: no need to close the handle (_endthread does it)
 		}
 
-		// Echo command to stderr (for debug mode)
 		DEBUG2 ("%s %s\n", cmd, arg);
 
-		if (stricmp (cmd, "quit") == 0)
+		if (strcmp (cmd, "quit") == 0)
 			break;
-		if (stricmp (cmd, "exit") == 0)
+		if (strcmp (cmd, "exit") == 0)
 			break;
 
-		if (stricmp (cmd, "timeout") == 0)
+		if (strcmp (cmd, "timeout") == 0)
 		{
-			// Do nothing; we have already set stop_thinking (without setting bAbort),
-			// so any AI or HINTS command in progress should quickly reply with a move
 		}
-		else if (stricmp (cmd, "abort") == 0)
+		else if (strcmp (cmd, "abort") == 0)
 		{
-			//Kill_BG_Thread();
-
-			// This will have caused the thread to abort (if running).
-			// The only reply should be from any pending "AI" or "HINTS"
-			// command that this may have aborted, so do nothing else here.
 		}
-		else if (stricmp (cmd, "scr") == 0)
+		else if (strcmp (cmd, "scr") == 0)
 		{
-			// This is just a debugging command
 			strcpy (message, "Peeking...");
 			PrintScr (false);
 		}
-
-		// BGTHINK command
-		else if (stricmp (cmd, "bgthink") == 0)
+		else if (strcmp (cmd, "bgthink") == 0)
 		{
-			if (stricmp (arg, "off") == 0)
+			if (strcmp (arg, "off") == 0)
 			{
 				bEnableBGThinking = false;
 				REPLY ("OK - Disabled BG thinking\n");
 			}
-			else if (stricmp (arg, "on") == 0)
+			else if (strcmp (arg, "on") == 0)
 			{
 				bEnableBGThinking = true;
 				REPLY ("OK - Enabled BG thinking\n");
@@ -390,11 +281,8 @@ void Plugin ()
 				REPLY1 ("ERROR - Bad param: %s\n", arg);
 			}
 		}
-
-		// LEVEL command
-		else if (stricmp (cmd, "level") == 0)
+		else if (strcmp (cmd, "level") == 0)
 		{
-			// If no arg, print current level, else set new level
 			if (arg[0] == 0)
 			{
 				REPLY1 ("%d\n", level);
@@ -402,7 +290,7 @@ void Plugin ()
 			else
 			{
 				int newlevel = atoi (arg);
-				if (newlevel >= 6 && newlevel <= 15)
+				if (newlevel >= 6 && newlevel <= 32)
 				{
 					level = newlevel;
 					REPLY1 ("OK - Set AI level to %d\n", level);
@@ -414,11 +302,8 @@ void Plugin ()
 				}
 			}
 		}
-
-		// FEN command
-		else if (stricmp (cmd, "fen") == 0)
+		else if (strcmp (cmd, "fen") == 0)
 		{
-			//Kill_BG_Thread();
 			if (LoadFEN (line+4))
 			{
 				REPLY ("OK\n");
@@ -428,13 +313,8 @@ void Plugin ()
 				REPLY1 ("ERROR - %s\n", arg);
 			}
 		}
-
-		// ban command
-		else if (stricmp (cmd, "ban") == 0)
+		else if (strcmp (cmd, "ban") == 0)
 		{
-			//Kill_BG_Thread();
-
-			// Read 'arg' number of moves from stdin and add to banned list
 			int moves = atoi (arg);
 			int error = 0;
 			int i = 0;
@@ -471,49 +351,17 @@ void Plugin ()
 				REPLY ("OK\n");
 			}
 		}
-
-		// AI command
-		else if (stricmp (cmd, "ai") == 0)
+		else if (strcmp (cmd, "ai") == 0)
 		{
-            //Kill_BG_Thread();
-			// Reset local banned move count
-			// Start AI thinking in separate thread
-			hThread = (HANDLE)_beginthread (AIThread, 0, (void*)0);
-			if (hThread == (HANDLE)-1)
-			{
-				REPLY ("ERROR - Error creating thread\n");
-			}
+            if (pThread != NULL)
+                delete pThread;
+            pThread = new boost::thread(AIThread);
 		}
-
-		// HINTS command
-		else if (stricmp (cmd, "hints") == 0)
+		else if (strcmp (cmd, "hints") == 0)
 		{
-            /*
-			Kill_BG_Thread();
-
-			// Copy banned moves list
-			pEngine->num_banned_moves = numbannedMoves;
-			memcpy (pEngine->banned_moves, bannedMoves, sizeof(pEngine->banned_moves));
-
-			// Reset local banned move count
-			numbannedMoves = 0;
-
-			// Start AI thinking in separate thread with arg 1 for hint mode
-			hThread = (HANDLE)_beginthread (AIThread, 0, (void*)1);
-			if (hThread == (HANDLE)-1)
-			{
-				REPLY ("ERROR - Error creating thread\n");
-			}//*/
 		}
-
-		// LOAD command
-		else if (stricmp (cmd, "load") == 0)
+		else if (strcmp (cmd, "load") == 0)
 		{
-			//Kill_BG_Thread();
-
-			// Read 'arg' number of moves from stdin and play each one
-			// On error, keep reading the moves but don't play any more of them
-
 			int moves = atoi (arg);
 			int error = 0;
 			int i = 0;
@@ -540,14 +388,10 @@ void Plugin ()
 				REPLY ("OK\n");
 			}
 		}
-
-		// PLAY command
-		else if (stricmp (cmd, "play") == 0)
+		else if (strcmp (cmd, "play") == 0)
 		{
 			uint move;
 			ICCStoPos (arg, move);
-
-			// If BG thread has already played this move then just increment game_ply
 			if (bg_ply == game_ply + 1 &&
 				 guessed_move == move)
 			{
@@ -556,9 +400,6 @@ void Plugin ()
 			}
 			else
 			{
-				//Kill_BG_Thread();
-
-				// Play move
 				if (!pEngine->make_move(move))
 				{
 					game_ply = pEngine->_ply();
@@ -571,13 +412,8 @@ void Plugin ()
 				}
 			}
 		}
-
-		// UNDO command
-		else if (stricmp (cmd, "undo") == 0)
+		else if (strcmp (cmd, "undo") == 0)
 		{
-			//Kill_BG_Thread();
-
-			// Undo last move
 			if (pEngine->_ply())
 			{
                 pEngine->unmake_move();
@@ -590,23 +426,13 @@ void Plugin ()
 				REPLY ("ERROR\n");
 			}
 		}
-
-		// bad commands
 		else
 		{
 			REPLY1 ("ERROR - Bad command: %s\n", cmd);
 		}
-
-		// IMPORTANT! The output must be flushed for Qianhong to
-		// be able to read it from the pipe. Failure to do so will
-		// result in it hanging...
 		fflush (stdout);
 	}
-
-	//Kill_BG_Thread();
-
 	delete pEngine;
-	// Qianhong doesn't actually read this, but it's part of the protocol
 	REPLY ("BYE\n");
 }
 
@@ -635,16 +461,12 @@ int main (int argc, char **argv)
 {
 	if (argc > 1 && strcmp (argv[1], "-plugin") == 0)
 	{
-		// Set optional debug mode
 		if (argc > 2 && strcmp (argv[2], "debug") == 0)
 			bDebug = true;
-		// Run the plugin
 		Plugin ();
 	}
 	else if (argc > 1 && strcmp (argv[1], "-info") == 0)
 	{
-		// Output the plugin info using protocol "QHPLUGIN V1.3"
-
 		// plugin protocol version
 		printf ("QHPLUGIN V1.3\n");
 		// AI engine name
@@ -661,17 +483,11 @@ int main (int argc, char **argv)
         printf ("13\n");
         printf ("14\n");
         printf ("15\n");
-		// undo support (0 for no, 1 for yes)
 		printf ("UNDO 1\n");
-		// hint support (0 for no, 1 for yes)
 		printf ("HINTS 0\n");
-		// rules support (0 for no, 1 for yes)
 		printf ("RULES 1\n");
-		// BG think support (0 for no, 1 for yes)
 		printf ("BGTHINK 0\n");
-		// time limit support (0 for no, 1 for yes)
 		printf ("TIMEOUT 0\n");
-		// additional info (goes until the ENDINFO line)
 		PrintInfo ();
 		printf ("ENDINFO\n");
 	}
