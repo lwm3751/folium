@@ -5,9 +5,9 @@
 
 const int HALPHA = 1;
 
-const int WINSCORE = 10000;
-const int MATEVALUE = 9000;
-const int INVAILDVALUE = 20000;
+const int WINSCORE = 1000;
+const int MATEVALUE = 900;
+const int INVAILDVALUE = 2000;
 
 const int ALPHA = 1;
 const int BETA = 2;

@@ -1,5 +1,5 @@
 import sys
-cpp_path = ['#include']
+cpp_path = ['#include', '/usr/include']
 lib_path = ['#bin']
 env = Environment(CPPPATH=cpp_path, LIBPATH=lib_path)
 
