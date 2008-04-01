@@ -1,32 +1,11 @@
 #include "engine.h"
+#include "killer.h"
 #include <iostream>
 using namespace std;
 
 const int LIMIT_DEPTH = 64;
 const int NULL_DEPTH = 2;
 
-class Killer
-{
-public:
-    void clear()
-    {
-        moves[0] = moves[1] = 0;
-    }
-    void push(uint move)
-    {
-        assert(move < 0x4000);
-        if (move==moves[0])
-            return;
-        moves[1] = moves[0];
-        moves[0] = move;
-    }
-    uint killer(uint i)
-    {
-        return moves[i];
-    }
-private:
-    uint16 moves[2];
-};
 static Killer killers[LIMIT_DEPTH+1];
 int Engine::full(int depth, int alpha, int beta)
 {
@@ -69,19 +48,11 @@ int Engine::full(int depth, int alpha, int beta)
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
     {
-        int score = record.probe(depth, ply, beta-1, beta, hash_move, m_locks[m_ply]);
-        if (hash_move)
+        int score = record.probe(m_xq, depth, ply, beta-1, beta, hash_move, m_locks[m_ply]);
+        if (hash_move && score != INVAILDVALUE)
         {
-            if (m_xq.is_legal_move(hash_move))
-            {
-                if (score != INVAILDVALUE)
-                {
-                    m_hash_hit_nodes++;
-                    return score;
-                }
-            }
-            else
-                hash_move = 0;
+            m_hash_hit_nodes++;
+            return score;
         }
     }
 
