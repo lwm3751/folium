@@ -38,97 +38,97 @@ char message[80];
 
 const char *ColorStr(int color)
 {
-	switch (color)
-	{
-	case Red: return "Red";
-	case Black: return "Black";
-	}
-	return "BadColor";
+    switch (color)
+    {
+    case Red: return "Red";
+    case Black: return "Black";
+    }
+    return "BadColor";
 }
 
 
 void WriteDiagram()
 {
-	const char guychar[] = "KAAEERRHHCCPPPPPkaaeerrhhccppppp";
-	const char *pszGrid[20] =
-	{
-	" .-----------------------. ",
-	" |  |  |  | \\|/ |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  | /|\\ |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  |  |  |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  |  |  |  |  |  | ",
-	" |-----------------------| ",
-	" |                       | ",
-	" |-----------------------| ",
-	" |  |  |  |  |  |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  |  |  |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  | \\|/ |  |  |  | ",
-	" |--+--+--+--+--+--+--+--| ",
-	" |  |  |  | /|\\ |  |  |  | ",
-	" .-----------------------. ",
-	""
-	};
+    const char guychar[] = "KAAEERRHHCCPPPPPkaaeerrhhccppppp";
+    const char *pszGrid[20] =
+    {
+    " .-----------------------. ",
+    " |  |  |  | \\|/ |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  | /|\\ |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  |  |  |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  |  |  |  |  |  | ",
+    " |-----------------------| ",
+    " |                       | ",
+    " |-----------------------| ",
+    " |  |  |  |  |  |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  |  |  |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  | \\|/ |  |  |  | ",
+    " |--+--+--+--+--+--+--+--| ",
+    " |  |  |  | /|\\ |  |  |  | ",
+    " .-----------------------. ",
+    ""
+    };
 
-	for (int y = 9; y >= 0; y--)
-	{
-		char line[32];
-		strcpy (line, pszGrid[(9 - y) * 2]);
+    for (int y = 9; y >= 0; y--)
+    {
+        char line[32];
+        strcpy (line, pszGrid[(9 - y) * 2]);
 
-		for (int x = 0; x < 9; x++)
-		{
-			int px = x * 3;
-			int piece = pEngine->_square(xy_square(x, y));
+        for (int x = 0; x < 9; x++)
+        {
+            int px = x * 3;
+            int piece = pEngine->_square(xy_square(x, y));
 
-			if (piece != EmptyIndex)
-			{
+            if (piece != EmptyIndex)
+            {
                 uint color = piece_color(piece);
-				char c = guychar[piece];
-				if (color == Black)
-				{
-					line[px]   = '[';
-					line[px+1] = c | 0x20;
-					line[px+2] = ']';
-				}
-				else
-				{
-					line[px]   = '(';
-					line[px+1] = c;
-					line[px+2] = ')';
-				}
-			}
-		}
+                char c = guychar[piece];
+                if (color == Black)
+                {
+                    line[px]   = '[';
+                    line[px+1] = c | 0x20;
+                    line[px+2] = ']';
+                }
+                else
+                {
+                    line[px]   = '(';
+                    line[px+1] = c;
+                    line[px+2] = ')';
+                }
+            }
+        }
 
-		fprintf (stderr, "\t%s\n", line);
-		fprintf (stderr, "\t%s\n", pszGrid[(9 - y) * 2 + 1]);
-	}
+        fprintf (stderr, "\t%s\n", line);
+        fprintf (stderr, "\t%s\n", pszGrid[(9 - y) * 2 + 1]);
+    }
 
-	fprintf (stderr, "\t\t%s do next move\n", ColorStr(pEngine->_player()));
+    fprintf (stderr, "\t\t%s do next move\n", ColorStr(pEngine->_player()));
 }
 
 void PrintScr (bool skipscr)
 {
-	if (!skipscr)
-	{
-		fprintf (stderr, "%s\n\n", message);
+    if (!skipscr)
+    {
+        fprintf (stderr, "%s\n\n", message);
 
-		WriteDiagram();
+        WriteDiagram();
 
-		if (pEngine->_in_checked())
-		{
-			fprintf (stderr, "check\n");
-		}
-		else
-		{
-			fprintf (stderr, "\n");
-		}
-	}
+        if (pEngine->_in_checked())
+        {
+            fprintf (stderr, "check\n");
+        }
+        else
+        {
+            fprintf (stderr, "\n");
+        }
+    }
 
-	fprintf (stderr, "Move %d> ", (game_ply>>1) + 1);
+    fprintf (stderr, "Move %d> ", (game_ply>>1) + 1);
 }
 
 // end of screen-display stuff
@@ -141,51 +141,51 @@ char *movestr(char *str, int pos)
     src = move_src(pos);
     dst = move_dst(pos);
 
-	str[0]=square_x(src)+'A';
-	str[1]=square_y(src)+'0';
-	str[2]='-';
-	str[3]=square_x(dst)+'A';
-	str[4]=square_y(dst)+'0';
-	str[5]=0;
-	return str;
+    str[0]=square_x(src)+'A';
+    str[1]=square_y(src)+'0';
+    str[2]='-';
+    str[3]=square_x(dst)+'A';
+    str[4]=square_y(dst)+'0';
+    str[5]=0;
+    return str;
 }
 
 
 bool ICCStoPos (char *str, uint& move)
 {
     fprintf (stderr, "^_^Move <%s> \n", str);
-	int sx, sy, dx, dy;
-	sx = (str[0] & 0xDF) - 'A';
-	sy = (str[1]) - '0';
-	dx = (str[3] & 0xDF) - 'A';
-	dy = (str[4]) - '0';
+    int sx, sy, dx, dy;
+    sx = (str[0] & 0xDF) - 'A';
+    sy = (str[1]) - '0';
+    dx = (str[3] & 0xDF) - 'A';
+    dy = (str[4]) - '0';
     fprintf (stderr, "@@Move <%d><%d><%d><%d> \n", sx, sy, dx, dy);
 fflush(stderr);
-	if (sx < 0 || sx > 8 || dx < 0 || dx > 8 ||
-		sy < 0 || sy > 9 || dy < 0 || dy > 9)
-	{
-		return false;
-	}
+    if (sx < 0 || sx > 8 || dx < 0 || dx > 8 ||
+        sy < 0 || sy > 9 || dy < 0 || dy > 9)
+    {
+        return false;
+    }
     move = create_move(xy_square(sx, sy), xy_square(dx, dy));
-	return true;
+    return true;
 }
 
 
 bool ICCSMove (char *str)
 {
-	uint move;
+    uint move;
 
-	if (!ICCStoPos (str, move))
-	{
-		return false;
-	}
+    if (!ICCStoPos (str, move))
+    {
+        return false;
+    }
 
-	if (!pEngine->make_move(move))
-	{
-		return false;
-	}
+    if (!pEngine->make_move(move))
+    {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 
@@ -202,12 +202,12 @@ bool LoadFEN (const char *str)
     pEngine->reset(xq);
     game_ply = pEngine->_ply();
     bg_ply = -1;
-	return true;
+    return true;
 }
 
 void AIThread ()
 {
-	bAIThreadRunning = true;
+    bAIThreadRunning = true;
     uint move;
     move = pEngine->search(level, ban);
     ban.clear();//thread safe???
@@ -220,228 +220,228 @@ void AIThread ()
 
 void Plugin ()
 {
-	boost::thread *pThread = NULL;
+    boost::thread *pThread = NULL;
 
-	char line[80];
-	char cmd[80];
-	char arg[80];
+    char line[80];
+    char cmd[80];
+    char arg[80];
 
-	pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 23);
+    pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 23);
 
-	while (1)
-	{
-		while (fgets (line, 79, stdin) == NULL)
-		{
-		}
-		cmd[0] = 0;
-		arg[0] = 0;
-		if (sscanf (line, "%s %s", cmd, arg) < 1)
-			continue;
+    while (1)
+    {
+        while (fgets (line, 79, stdin) == NULL)
+        {
+        }
+        cmd[0] = 0;
+        arg[0] = 0;
+        if (sscanf (line, "%s %s", cmd, arg) < 1)
+            continue;
 
-		if (bAIThreadRunning)
-		{
+        if (bAIThreadRunning)
+        {
             if(boost::algorithm::iequals(cmd, "timeout"))
             {
                 bAbort = true;
             }
-		}
+        }
 
-		DEBUG2 ("%s %s\n", cmd, arg);
+        DEBUG2 ("%s %s\n", cmd, arg);
 
         if(boost::algorithm::iequals(cmd, "quit"))
-			break;
-		if(boost::algorithm::iequals(cmd, "exit"))
-			break;
+            break;
+        if(boost::algorithm::iequals(cmd, "exit"))
+            break;
 
-		if(boost::algorithm::iequals(cmd, "timeout"))
-		{
-		}
-		else if(boost::algorithm::iequals(cmd, "abort"))
-		{
-		}
+        if(boost::algorithm::iequals(cmd, "timeout"))
+        {
+        }
+        else if(boost::algorithm::iequals(cmd, "abort"))
+        {
+        }
         else if(boost::algorithm::iequals(cmd, "scr"))
-		{
-			strcpy (message, "Peeking...");
-			PrintScr (false);
-		}
+        {
+            strcpy (message, "Peeking...");
+            PrintScr (false);
+        }
         else if(boost::algorithm::iequals(cmd, "bgthink"))
-		{
+        {
             if(boost::algorithm::iequals(cmd, "off"))
-			{
-				bEnableBGThinking = false;
-				REPLY ("OK - Disabled BG thinking\n");
-			}
-			else if(boost::algorithm::iequals(cmd, "on"))
-			{
-				bEnableBGThinking = true;
-				REPLY ("OK - Enabled BG thinking\n");
-			}
-			else
-			{
-				REPLY1 ("ERROR - Bad param: %s\n", arg);
-			}
-		}
+            {
+                bEnableBGThinking = false;
+                REPLY ("OK - Disabled BG thinking\n");
+            }
+            else if(boost::algorithm::iequals(cmd, "on"))
+            {
+                bEnableBGThinking = true;
+                REPLY ("OK - Enabled BG thinking\n");
+            }
+            else
+            {
+                REPLY1 ("ERROR - Bad param: %s\n", arg);
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "level"))
-		{
-			if (arg[0] == 0)
-			{
-				REPLY1 ("%d\n", level);
-			}
-			else
-			{
-				int newlevel = atoi (arg);
-				if (newlevel >= 6 && newlevel <= 32)
-				{
-					level = newlevel;
-					REPLY1 ("OK - Set AI level to %d\n", level);
-				}
-				else
-				{
-					REPLY3 ("ERROR - Bad level %s (use %d to %d)\n",
-						arg, 6, 9);
-				}
-			}
-		}
+        {
+            if (arg[0] == 0)
+            {
+                REPLY1 ("%d\n", level);
+            }
+            else
+            {
+                int newlevel = atoi (arg);
+                if (newlevel >= 6 && newlevel <= 32)
+                {
+                    level = newlevel;
+                    REPLY1 ("OK - Set AI level to %d\n", level);
+                }
+                else
+                {
+                    REPLY3 ("ERROR - Bad level %s (use %d to %d)\n",
+                        arg, 6, 9);
+                }
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "fen"))
-		{
-			if (LoadFEN (line+4))
-			{
-				REPLY ("OK\n");
-			}
-			else
-			{
-				REPLY1 ("ERROR - %s\n", arg);
-			}
-		}
+        {
+            if (LoadFEN (line+4))
+            {
+                REPLY ("OK\n");
+            }
+            else
+            {
+                REPLY1 ("ERROR - %s\n", arg);
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "ban"))
-		{
-			int moves = atoi (arg);
-			int error = 0;
-			int i = 0;
+        {
+            int moves = atoi (arg);
+            int error = 0;
+            int i = 0;
 
-			ban.clear();
+            ban.clear();
 
-			while (i < moves)
-			{
-				arg[0] = 0;
-				fgets (line, 79, stdin);
-				sscanf (line, "%s", arg);
-				DEBUG1("%s\n", arg);
+            while (i < moves)
+            {
+                arg[0] = 0;
+                fgets (line, 79, stdin);
+                sscanf (line, "%s", arg);
+                DEBUG1("%s\n", arg);
 
-				if (!error)
-				{
-					uint move;
+                if (!error)
+                {
+                    uint move;
 
-					if (ICCStoPos (arg, move))
-					{
+                    if (ICCStoPos (arg, move))
+                    {
                         ban.insert(move);
-					}
-					else
-					{
-						REPLY2 ("ERROR - Bad move (%d): %s\n", i+1, arg);
-						error = 1;
-					}
-				}
+                    }
+                    else
+                    {
+                        REPLY2 ("ERROR - Bad move (%d): %s\n", i+1, arg);
+                        error = 1;
+                    }
+                }
 
-				++i;
-			}
+                ++i;
+            }
 
-			if (!error)
-			{
-				REPLY ("OK\n");
-			}
-		}
+            if (!error)
+            {
+                REPLY ("OK\n");
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "ai"))
-		{
+        {
             if (pThread != NULL)
                 delete pThread;
             pThread = new boost::thread(AIThread);
-		}
+        }
         else if(boost::algorithm::iequals(cmd, "hints"))
-		{
-		}
+        {
+        }
         else if(boost::algorithm::iequals(cmd, "load"))
-		{
-			int moves = atoi (arg);
-			int error = 0;
-			int i = 0;
+        {
+            int moves = atoi (arg);
+            int error = 0;
+            int i = 0;
 
-			while (i < moves)
-			{
-				arg[0] = 0;
-				fgets (line, 79, stdin);
-				sscanf (line, "%s", arg);
+            while (i < moves)
+            {
+                arg[0] = 0;
+                fgets (line, 79, stdin);
+                sscanf (line, "%s", arg);
 
-				if (!error && !ICCSMove (arg))
-				{
-					REPLY2 ("ERROR - Bad move (%d): %s\n", i+1, arg);
-					error = 1;
-				}
+                if (!error && !ICCSMove (arg))
+                {
+                    REPLY2 ("ERROR - Bad move (%d): %s\n", i+1, arg);
+                    error = 1;
+                }
 
-				++i;
-			}
+                ++i;
+            }
 
-			game_ply = pEngine->_ply();
+            game_ply = pEngine->_ply();
 
-			if (!error)
-			{
-				REPLY ("OK\n");
-			}
-		}
+            if (!error)
+            {
+                REPLY ("OK\n");
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "play"))
-		{
-			uint move;
-			ICCStoPos (arg, move);
-			if (bg_ply == game_ply + 1 &&
-				 guessed_move == move)
-			{
-				game_ply = bg_ply;
-				REPLY ("OK\n");
-			}
-			else
-			{
-				if (!pEngine->make_move(move))
-				{
-					game_ply = pEngine->_ply();
-					REPLY1 ("ERROR - Bad move: %s\n", arg);
-				}
-				else
-				{
-					game_ply = pEngine->_ply();
-					REPLY ("OK\n");
-				}
-			}
-		}
+        {
+            uint move;
+            ICCStoPos (arg, move);
+            if (bg_ply == game_ply + 1 &&
+                 guessed_move == move)
+            {
+                game_ply = bg_ply;
+                REPLY ("OK\n");
+            }
+            else
+            {
+                if (!pEngine->make_move(move))
+                {
+                    game_ply = pEngine->_ply();
+                    REPLY1 ("ERROR - Bad move: %s\n", arg);
+                }
+                else
+                {
+                    game_ply = pEngine->_ply();
+                    REPLY ("OK\n");
+                }
+            }
+        }
         else if(boost::algorithm::iequals(cmd, "undo"))
-		{
-			if (pEngine->_ply())
-			{
+        {
+            if (pEngine->_ply())
+            {
                 pEngine->unmake_move();
-				game_ply = pEngine->_ply();
-				REPLY ("OK\n");
-			}
-			else
-			{
-				game_ply = pEngine->_ply();
-				REPLY ("ERROR\n");
-			}
-		}
-		else
-		{
-			REPLY1 ("ERROR - Bad command: %s\n", cmd);
-		}
-		fflush (stdout);
-	}
-	delete pEngine;
-	REPLY ("BYE\n");
+                game_ply = pEngine->_ply();
+                REPLY ("OK\n");
+            }
+            else
+            {
+                game_ply = pEngine->_ply();
+                REPLY ("ERROR\n");
+            }
+        }
+        else
+        {
+            REPLY1 ("ERROR - Bad command: %s\n", cmd);
+        }
+        fflush (stdout);
+    }
+    delete pEngine;
+    REPLY ("BYE\n");
 }
 
 
 void PrintInfo ()
 {
-	printf ("folium AI Plugin for Qianhong\n");
-	printf ("\n");
-	printf ("folium engine is Copyright 2007(C) Wangmao Lin\n");
+    printf ("folium AI Plugin for Qianhong\n");
+    printf ("\n");
+    printf ("folium engine is Copyright 2007(C) Wangmao Lin\n");
 }
 
 
@@ -459,44 +459,44 @@ void PrintInfo ()
 //------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
-	if (argc > 1 && boost::algorithm::iequals(argv[1], "-plugin"))
-	{
-		if (argc > 2 && boost::algorithm::iequals(argv[1], "debug"))
-			bDebug = true;
-		Plugin ();
-	}
-	else if (argc > 1 && boost::algorithm::iequals(argv[1], "-info"))
-	{
-		// plugin protocol version
-		printf ("QHPLUGIN V1.3\n");
-		// AI engine name
-		printf ("folium\n");
-		// levels
-		printf ("LEVELS 10\n");
-		printf ("6  - Default\n");
-		printf ("7\n");
-		printf ("8\n");
-		printf ("9\n");
+    if (argc > 1 && boost::algorithm::iequals(argv[1], "-plugin"))
+    {
+        if (argc > 2 && boost::algorithm::iequals(argv[1], "debug"))
+            bDebug = true;
+        Plugin ();
+    }
+    else if (argc > 1 && boost::algorithm::iequals(argv[1], "-info"))
+    {
+        // plugin protocol version
+        printf ("QHPLUGIN V1.3\n");
+        // AI engine name
+        printf ("folium\n");
+        // levels
+        printf ("LEVELS 10\n");
+        printf ("6  - Default\n");
+        printf ("7\n");
+        printf ("8\n");
+        printf ("9\n");
         printf ("10\n");
         printf ("11\n");
         printf ("12\n");
         printf ("13\n");
         printf ("14\n");
         printf ("15\n");
-		printf ("UNDO 1\n");
-		printf ("HINTS 0\n");
-		printf ("RULES 1\n");
-		printf ("BGTHINK 0\n");
-		printf ("TIMEOUT 0\n");
-		PrintInfo ();
-		printf ("ENDINFO\n");
-	}
-	else
-	{
-		PrintInfo ();
-		printf ("See www.jcraner.com/qianhong/ for details\n");
-	}
+        printf ("UNDO 1\n");
+        printf ("HINTS 0\n");
+        printf ("RULES 1\n");
+        printf ("BGTHINK 0\n");
+        printf ("TIMEOUT 0\n");
+        PrintInfo ();
+        printf ("ENDINFO\n");
+    }
+    else
+    {
+        PrintInfo ();
+        printf ("See www.jcraner.com/qianhong/ for details\n");
+    }
 
-	return 0;
+    return 0;
 }
 

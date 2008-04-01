@@ -2,6 +2,7 @@
 #define _HASH_H_
 
 #include "defines.h"
+#include "xq.h"
 
 const int HALPHA = 1;
 
@@ -18,7 +19,7 @@ class Record
 public:
     Record();
     void clear();
-    int probe(int depth, int ply, int alpha, int beta, uint32& move, const uint64& lock);
+    int probe(XQ& xq, int depth, int ply, int alpha, int beta, uint32& move, const uint64& lock);
     void store_beta(int depth, int ply, int score, uint32 move, const uint64 &lock);
     void store_alpha(int depth, int ply, int score, uint32 move, const uint64 &lock);
     void store_pv(int depth, int ply, int score, uint32 move, const uint64 &lock);
@@ -37,9 +38,9 @@ inline void Record::clear()
 {
     m_flag = m_flag > PV ? m_flag & PV : 0;
 }
-inline int Record::probe(int depth, int ply, int alpha, int beta, uint32& move, const uint64& lock)
+inline int Record::probe(XQ& xq, int depth, int ply, int alpha, int beta, uint32& move, const uint64& lock)
 {
-    if ((m_flag & PV) != 0 && m_lock == lock)
+    if ((m_flag & PV) != 0 && m_lock == lock && xq.is_legal_move(m_move))
     {
         move = m_move;
         if (m_score == INVAILDVALUE)
