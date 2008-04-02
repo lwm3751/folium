@@ -48,8 +48,8 @@ int Engine::full(int depth, int alpha, int beta)
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
     {
-        int score = record.probe(m_xq, depth, ply, beta-1, beta, hash_move, m_locks[m_ply]);
-        if (hash_move && score != INVAILDVALUE)
+        int score = record.probe(m_xq, depth, ply, alpha, beta, hash_move, m_locks[m_ply]);
+        if (score != INVAILDVALUE)
         {
             m_hash_hit_nodes++;
             return score;
