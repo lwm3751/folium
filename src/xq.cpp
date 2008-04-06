@@ -95,7 +95,7 @@ void XQ::clear()
 XQ::XQ(string const &fen)
 {
     clear();
-    uint idx = 0UL, len = fen.size();
+    uint idx = 0UL, len = (uint)fen.size();
     uint y = 9UL, x = 0UL;
     while(idx < len)
     {
