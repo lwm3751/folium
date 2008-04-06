@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 
 bool Engine::make_move(uint32 move)
@@ -13,7 +14,7 @@ bool Engine::make_move(uint32 move)
     assert(m_xq.is_legal_move(src, dst));
     src_piece = m_xq.square(src);
     dst_piece = m_xq.square(dst);
-    assert(dst_piece != RedKingIndex && dst_piece != RedKingIndex);
+    assert(dst_piece != RedKingIndex && dst_piece != BlackKingIndex);
 
     m_xq.do_move(src, dst);
     if (m_xq.is_win())
@@ -163,7 +164,9 @@ uint32 Engine::search(int depth, set<uint> ban)
     vector<uint> bests;
     clock_t start;
     start = clock();
-    for (sint i = 1; i <= depth; ++i)
+    for (sint i = 1; 
+        i <= depth  || (i <= depth*2 && float(clock()-start)/CLOCKS_PER_SEC < 2.0);
+        ++i)
     {
         if (m_stop)
             break;

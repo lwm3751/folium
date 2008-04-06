@@ -4,7 +4,6 @@
 #include <set>
 using namespace std;
 #include <boost/thread.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include "engine.h"
 
@@ -24,6 +23,11 @@ uint guessed_move;
 
 char message[80];
 
+#if defined(_WIN32) || defined(_WIN64)
+#define STRIEQUALS(a, b) (0 == stricmp((a),(b)))
+#else
+#define STRIEQUALS(a, b) (0 == strcasecmp((a),(b)))
+#endif
 
 // plugin output macros
 #define DEBUG(f)        { if (bDebug) fprintf (stderr,"(%2d:%2d) "f,game_ply,bg_ply); }
@@ -240,7 +244,7 @@ void Plugin ()
 
         if (bAIThreadRunning)
         {
-            if(boost::algorithm::iequals(cmd, "timeout"))
+            if(STRIEQUALS(cmd, "timeout"))
             {
                 bAbort = true;
             }
@@ -248,30 +252,30 @@ void Plugin ()
 
         DEBUG2 ("%s %s\n", cmd, arg);
 
-        if(boost::algorithm::iequals(cmd, "quit"))
+        if(STRIEQUALS(cmd, "quit"))
             break;
-        if(boost::algorithm::iequals(cmd, "exit"))
+        if(STRIEQUALS(cmd, "exit"))
             break;
 
-        if(boost::algorithm::iequals(cmd, "timeout"))
+        if(STRIEQUALS(cmd, "timeout"))
         {
         }
-        else if(boost::algorithm::iequals(cmd, "abort"))
+        else if(STRIEQUALS(cmd, "abort"))
         {
         }
-        else if(boost::algorithm::iequals(cmd, "scr"))
+        else if(STRIEQUALS(cmd, "scr"))
         {
             strcpy (message, "Peeking...");
             PrintScr (false);
         }
-        else if(boost::algorithm::iequals(cmd, "bgthink"))
+        else if(STRIEQUALS(cmd, "bgthink"))
         {
-            if(boost::algorithm::iequals(cmd, "off"))
+            if(STRIEQUALS(cmd, "off"))
             {
                 bEnableBGThinking = false;
                 REPLY ("OK - Disabled BG thinking\n");
             }
-            else if(boost::algorithm::iequals(cmd, "on"))
+            else if(STRIEQUALS(cmd, "on"))
             {
                 bEnableBGThinking = true;
                 REPLY ("OK - Enabled BG thinking\n");
@@ -281,7 +285,7 @@ void Plugin ()
                 REPLY1 ("ERROR - Bad param: %s\n", arg);
             }
         }
-        else if(boost::algorithm::iequals(cmd, "level"))
+        else if(STRIEQUALS(cmd, "level"))
         {
             if (arg[0] == 0)
             {
@@ -302,7 +306,7 @@ void Plugin ()
                 }
             }
         }
-        else if(boost::algorithm::iequals(cmd, "fen"))
+        else if(STRIEQUALS(cmd, "fen"))
         {
             if (LoadFEN (line+4))
             {
@@ -313,7 +317,7 @@ void Plugin ()
                 REPLY1 ("ERROR - %s\n", arg);
             }
         }
-        else if(boost::algorithm::iequals(cmd, "ban"))
+        else if(STRIEQUALS(cmd, "ban"))
         {
             int moves = atoi (arg);
             int error = 0;
@@ -351,16 +355,16 @@ void Plugin ()
                 REPLY ("OK\n");
             }
         }
-        else if(boost::algorithm::iequals(cmd, "ai"))
+        else if(STRIEQUALS(cmd, "ai"))
         {
             if (pThread != NULL)
                 delete pThread;
             pThread = new boost::thread(AIThread);
         }
-        else if(boost::algorithm::iequals(cmd, "hints"))
+        else if(STRIEQUALS(cmd, "hints"))
         {
         }
-        else if(boost::algorithm::iequals(cmd, "load"))
+        else if(STRIEQUALS(cmd, "load"))
         {
             int moves = atoi (arg);
             int error = 0;
@@ -388,7 +392,7 @@ void Plugin ()
                 REPLY ("OK\n");
             }
         }
-        else if(boost::algorithm::iequals(cmd, "play"))
+        else if(STRIEQUALS(cmd, "play"))
         {
             uint move;
             ICCStoPos (arg, move);
@@ -412,7 +416,7 @@ void Plugin ()
                 }
             }
         }
-        else if(boost::algorithm::iequals(cmd, "undo"))
+        else if(STRIEQUALS(cmd, "undo"))
         {
             if (pEngine->_ply())
             {
@@ -459,13 +463,13 @@ void PrintInfo ()
 //------------------------------------------------------------------------------
 int main (int argc, char **argv)
 {
-    if (argc > 1 && boost::algorithm::iequals(argv[1], "-plugin"))
+    if (argc > 1 && STRIEQUALS(argv[1], "-plugin"))
     {
-        if (argc > 2 && boost::algorithm::iequals(argv[1], "debug"))
+        if (argc > 2 && STRIEQUALS(argv[1], "debug"))
             bDebug = true;
         Plugin ();
     }
-    else if (argc > 1 && boost::algorithm::iequals(argv[1], "-info"))
+    else if (argc > 1 && STRIEQUALS(argv[1], "-info"))
     {
         // plugin protocol version
         printf ("QHPLUGIN V1.3\n");
@@ -494,7 +498,7 @@ int main (int argc, char **argv)
     else
     {
         PrintInfo ();
-        printf ("See www.jcraner.com/qianhong/ for details\n");
+        printf ("Mail lwm3751@gmail.com for details\n");
     }
 
     return 0;
