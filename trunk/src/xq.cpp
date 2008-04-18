@@ -1,6 +1,6 @@
 #include <string.h>
 #include "xq.h"
-/*´óĞ´±íÊ¾ºì·½£¬Ğ¡Ğ´±íÊ¾ºÚ·½*/
+/*å¤§å†™è¡¨ç¤ºçº¢æ–¹ï¼Œå°å†™è¡¨ç¤ºé»‘æ–¹*/
 inline uint char_type(sint32 c)
 {
     switch(c)
@@ -232,7 +232,7 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     if (src > 90 || dst > 90)
         return false;
     uint32 src_piece = square(src);
-    //ÕâÀïÍ¬Ê±ÅÅ³ıÁËsrc == dst
+    //è¿™é‡ŒåŒæ—¶æ’é™¤äº†src == dst
     if (piece_color(src_piece) == square_color(dst))
         return false;
     if (!(g_move_flags[dst][src] & piece_flag(src_piece)))
