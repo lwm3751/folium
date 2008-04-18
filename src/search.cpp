@@ -13,20 +13,20 @@ int Engine::full(int depth, int alpha, int beta)
     if (m_stop)
         return - WINSCORE;
     const int ply = m_ply - m_start_ply;
-    //Ñ­»·Ì½²â
+    //å¾ªçŽ¯æŽ¢æµ‹
     {
         int score = loop_value(ply);
         if (score != INVAILDVALUE)
             return score;
     }
     int best_value = ply - WINSCORE;
-    //É±Æå¼ô²Ã
+    //æ€æ£‹å‰ªè£
     if (best_value >= beta)
         return best_value;
     if (ply == LIMIT_DEPTH)
         return value();
     int extended = 0;
-    //½«¾üÉìÑÓ
+    //å°†å†›ä¼¸å»¶
     //if (trace_flag(m_traces[m_ply]) || trace_dst(m_traces[m_ply]) == trace_dst(m_traces[m_ply-1]))
     if (trace_flag(m_traces[m_ply]))
     {
@@ -35,17 +35,16 @@ int Engine::full(int depth, int alpha, int beta)
         if (depth < 1)
             depth = 1;
     }
-    //Ò¶×Ó½Úµã
+    //å¶å­èŠ‚ç‚¹
     if (depth <= 0)
     {
         int score = value();
         if (score >= beta)
             return score;
-        ++m_leaf_nodes;
         return leaf(alpha, beta);
     }
     ++m_tree_nodes;
-    //hashÌ½²â
+    //hashæŽ¢æµ‹
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
     {
@@ -62,7 +61,7 @@ int Engine::full(int depth, int alpha, int beta)
     killers[ply+1].clear();
     MoveList ml;
 
-    //null¼ô²Ã
+    //nullå‰ªè£
     if (depth >= 2 && !extended && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
     {
         if (full(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, beta-1, beta) > beta)
@@ -175,7 +174,7 @@ int Engine::quies(int alpha, int beta)
     const int ply = m_ply - m_start_ply;
     const int flag = trace_flag(m_traces[m_ply]);
 
-    //Ñ­»·Ì½²â
+    //å¾ªçŽ¯æŽ¢æµ‹
     {
         int score = loop_value(ply);
         if (score != INVAILDVALUE)

@@ -268,8 +268,7 @@ uint32 Engine::search(int depth, set<uint> ban)
         file << "move:\t" << move_src(bests[i]) << "\t" << move_dst(bests[i]) << endl;
     }
     file << m_tree_nodes << "\t"<<m_leaf_nodes << "\t" << m_quiet_nodes << endl;
-    file << m_hash_hit_nodes << "\t" << m_hash_move_cuts << "\t" << m_kill_cuts_1 << "\t" << m_kill_cuts_2 << endl;
-    file << m_null_nodes << "\t" <<  m_null_cuts << endl;
+    file << m_hash_hit_nodes << "\t" << m_null_nodes << "\t" <<  m_null_cuts << endl;
     file << "-------------------------------------------------------------" << endl;
     file.close();
     if (bests.empty())
