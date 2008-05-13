@@ -96,14 +96,14 @@ inline void Engine::do_null()
     m_keys[np] = m_keys[op];
     m_locks[np] = m_locks[op];
     m_values[np] = m_values[op];
-    m_traces[np] = m_null_ply << 16;
+    m_traces[np] = m_null_ply << 20;
     m_null_ply = m_ply = np;
     m_xq.do_null();
 }
 
 inline void Engine::undo_null()
 {
-    m_null_ply = m_traces[m_ply--] >> 16;
+    m_null_ply = m_traces[m_ply--] >> 20;
     m_xq.undo_null();
 }
 

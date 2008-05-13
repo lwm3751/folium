@@ -110,6 +110,7 @@ void Engine::reset(const XQ& xq)
 }
 static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
 {
+    vector<uint> r;
     vector<uint> ml = xq.generate_moves();
     for (uint i = 0; i < ml.size(); ++i)
     {
@@ -117,27 +118,18 @@ static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
         uint dst_piece = xq.square(move_dst(move));
         if (dst_piece == RedKingIndex || dst_piece == BlackKingIndex)
         {
-            ml.clear();
-            ml.push_back(move);
-            return ml;
+            r.clear();
+            r.push_back(move);
+            return r;
         }
-        bool remove = false;
         if (ban.find(move) != ban.end())
-            remove = true;
-        else
-        {
-            xq.do_move(move_src(move), move_dst(move));
-            if (xq.is_win())
-                remove = true;
-            xq.undo_move(move_src(move), move_dst(move), dst_piece);
-        }
-        if (remove)
-        {
-            ml.erase(ml.begin()+i);
-            --i;
-        }
+            continue;
+        xq.do_move(move_src(move), move_dst(move));
+        if (!xq.is_win())
+            r.push_back(move);
+        xq.undo_move(move_src(move), move_dst(move), dst_piece);
     }
-    return ml;
+    return r;
 }
 uint32 Engine::search(int depth, set<uint> ban)
 {
@@ -164,7 +156,7 @@ uint32 Engine::search(int depth, set<uint> ban)
     vector<uint> bests;
     clock_t start;
     start = clock();
-    for (sint i = 1; 
+    for (sint i = 1;
         i <= depth  || (i <= depth*2 && float(clock()-start)/CLOCKS_PER_SEC < 2.0);
         ++i)
     {

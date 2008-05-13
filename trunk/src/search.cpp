@@ -68,7 +68,7 @@ int Engine::full(int depth, int alpha, int beta)
         {
             ++m_null_nodes;
             do_null();
-            int score = - full(depth - NULL_DEPTH, -beta, -beta+1);
+            int score = - full(depth - NULL_DEPTH -1, -beta, -beta+1);
             undo_null();
             if (score >= beta)
             {
