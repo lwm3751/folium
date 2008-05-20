@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "defines.h"
+#include "move.h"
 
 extern const uint32 g_capture_scores[33][32];
 

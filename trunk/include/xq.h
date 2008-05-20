@@ -7,6 +7,7 @@ using std::vector;
 using std::string;
 
 #include "defines.h"
+#include "move.h"
 #include "bitmap.h"
 #include "xq_data.h"
 
