@@ -1,6 +1,6 @@
 import sys
-cpp_path = ['#include', '/usr/include']
-lib_path = ['#bin']
+cpp_path = [r'D:\toolbox\boost_1_35_0']
+lib_path = ['#bin', r'D:\toolbox\boost_1_35_0\stage\lib']
 env = Environment(CPPPATH=cpp_path, LIBPATH=lib_path)
 
 if sys.platform == "win32":
