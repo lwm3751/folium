@@ -446,6 +446,7 @@ void PrintInfo ()
     printf ("folium AI Plugin for Qianhong\n");
     printf ("\n");
     printf ("folium engine is Copyright 2007(C) Wangmao Lin\n");
+    printf ("Mail lwm3751@gmail.com for details\n");
 }
 
 
