@@ -5,7 +5,7 @@
 using namespace std;
 #include <boost/thread.hpp>
 
-#include "engine.h"
+#include "../src/engine.h"
 
 #define VERSION  "0.1"
 Engine *pEngine;
