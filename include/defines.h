@@ -4,7 +4,6 @@
 #include <cassert>
 
 #include "int.h"
-#include "move.h"
 
 const uint Red = 0UL;
 const uint Black = 1UL;

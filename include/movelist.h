@@ -2,6 +2,7 @@
 #define _MOVELIST_H_
 
 #include "defines.h"
+#include "move.h"
 
 const uint32 MaxMoveNumber = 128;
 class MoveList

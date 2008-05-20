@@ -18,6 +18,7 @@ inline uint32 create_move(uint src, uint dst)
 #define trace_dst move_dst
 inline uint trace_dst_piece(uint32 trace){return (trace >> 14) & 0x3f;}
 inline uint trace_flag(uint32 trace){return trace >> 20;}
+inline uint32 trace_move(uint32 trace){return trace & 0x3fff;}
 inline uint32 create_trace(uint flag, uint dst_piece, uint32 move)
 {
     assert (flag < 16);//4bits

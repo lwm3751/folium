@@ -13,29 +13,28 @@ int Engine::full(int depth, int alpha, int beta)
     if (m_stop)
         return - WINSCORE;
     const int ply = m_ply - m_start_ply;
-    //循环探测
+    
     {
         int score = loop_value(ply);
         if (score != INVAILDVALUE)
             return score;
     }
     int best_value = ply - WINSCORE;
-    //杀棋剪裁
+    
     if (best_value >= beta)
         return best_value;
     if (ply == LIMIT_DEPTH)
         return value();
     int extended = 0;
-    //将军伸延
-    //if (trace_flag(m_traces[m_ply]) || trace_dst(m_traces[m_ply]) == trace_dst(m_traces[m_ply-1]))
-    if (trace_flag(m_traces[m_ply]))
+    
+    if (trace_move(m_traces[m_ply]) && trace_flag(m_traces[m_ply]))
     {
         ++depth;
         extended = 1;
         if (depth < 1)
             depth = 1;
     }
-    //叶子节点
+    
     if (depth <= 0)
     {
         int score = value();
@@ -44,7 +43,7 @@ int Engine::full(int depth, int alpha, int beta)
         return leaf(alpha, beta);
     }
     ++m_tree_nodes;
-    //hash探测
+    
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
     {
@@ -61,14 +60,14 @@ int Engine::full(int depth, int alpha, int beta)
     killers[ply+1].clear();
     MoveList ml;
 
-    //null剪裁
-    if (depth >= 2 && !extended && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
+    
+    if (depth >= 2 && trace_move(m_traces[m_ply]) && !extended && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
     {
         if (full(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, beta-1, beta) > beta)
         {
             ++m_null_nodes;
             do_null();
-            int score = - full(depth - NULL_DEPTH -1, -beta, -beta+1);
+            int score = - full(depth - NULL_DEPTH, -beta, -beta+1);
             undo_null();
             if (score >= beta)
             {
