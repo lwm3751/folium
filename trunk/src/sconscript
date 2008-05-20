@@ -10,7 +10,8 @@ src = ['engine_data.cpp',
     'search.cpp',
     'engine.cpp',
     'history_data.cpp',
-    'xq.cpp']
+    'xq.cpp',
+    'move.cpp']
 folium = env.StaticLibrary(
     'folium',
     src,

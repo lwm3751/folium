@@ -3,18 +3,8 @@
 
 #include <cassert>
 
-typedef char sint8;
-typedef unsigned char uint8;
-typedef short sint16;
-typedef unsigned short uint16;
-typedef int sint32;
-typedef unsigned int uint32;
-typedef long long sint64;
-typedef unsigned long long uint64;
-
-typedef int sint;
-typedef unsigned int uint;
-
+#include "int.h"
+#include "move.h"
 
 const uint Red = 0UL;
 const uint Black = 1UL;
@@ -123,26 +113,6 @@ const uint EmptyIndex = 32UL;
 const uint InvaildIndex = 33UL;
  
 const uint InvaildSquare = 90UL;
-
-inline uint move_src(uint32 move){return move & 0x7f;}
-inline uint move_dst(uint32 move){return (move >> 7) & 0x7f;}
-inline uint32 create_move(uint src, uint dst)
-{
-    assert(src < 90);
-    assert(dst < 90);
-    return src | (dst << 7);
-}
-
-#define trace_src move_src
-#define trace_dst move_dst
-inline uint trace_dst_piece(uint32 trace){return (trace >> 14) & 0x3f;}
-inline uint trace_flag(uint32 trace){return trace >> 20;}
-inline uint32 create_trace(uint flag, uint dst_piece, uint32 move)
-{
-    assert (flag < 16);//4bits
-    assert (dst_piece < 33);//6bits
-    return (flag << 20) | (dst_piece << 14) | (move & 0x3fff);
-}
 
 #endif //_DEFINES_H_
 
