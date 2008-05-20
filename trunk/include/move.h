@@ -1,6 +1,8 @@
 #ifndef MOVE_H
 #define MOVE_H
 
+#include <cassert>
+
 #include "int.h"
 
 inline uint move_src(uint32 move) {return move & 0x7f;}
@@ -23,7 +25,7 @@ inline uint32 create_trace(uint flag, uint dst_piece, uint32 move)
     return (flag << 20) | (dst_piece << 14) | (move & 0x3fff);
 }
 
-extern uint32_t ucci2move(char* iccs);
-extern char* move2ucci(uint32_t move, char* iccs);
+extern uint32 ucci2move(char* iccs);
+extern char* move2ucci(uint32 move, char* iccs);
 
 #endif //MOVE_H
