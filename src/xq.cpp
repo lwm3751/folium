@@ -1,6 +1,6 @@
 #include <string.h>
 #include "xq.h"
-/*大写表示红方，小写表示黑方*/
+
 inline uint char_type(sint32 c)
 {
     switch(c)
