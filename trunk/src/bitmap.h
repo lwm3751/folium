@@ -23,6 +23,8 @@ public:
 
     uint mask(uint, uint)const;
     uint distance(uint, uint)const;
+    bool distance_is_0(uint, uint)const;
+    bool distance_is_1(uint, uint)const;
     
     void reset ();
     void setbit(uint);
@@ -155,6 +157,17 @@ inline uint Bitmap::mask(uint src, uint dst)const
 inline uint Bitmap::distance(uint src, uint dst)const
 {
     return s_bit_counts[mask(src, dst)];
+}
+
+inline bool Bitmap::distance_is_0(uint src, uint dst)const
+{
+    return mask(src, dst) == 0;
+}
+
+inline bool Bitmap::distance_is_1(uint src, uint dst)const
+{
+    register uint m = mask(src, dst);
+    return m&(m-1) == 0;
 }
 
 inline Bitmap::Bitmap()

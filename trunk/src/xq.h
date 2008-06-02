@@ -14,15 +14,6 @@ using std::string;
 #include <iostream>
 using namespace std;
 
-inline uint count32(uint32 v)
-{
-    v = ((v >> 1) & 0x55555555) + (v & 0x55555555);
-    v = ((v >> 2) & 0x33333333) + (v & 0x33333333);
-    v = ((v >> 4) & 0x0f0f0f0f) + (v & 0x0f0f0f0f);
-    v = ((v >> 8) & 0x00ff00ff) + (v & 0x00ff00ff);
-    return (v >> 16) + (v & 0x0000ffff);
-}
-
 class MoveList;
 class History;
 class XQ
@@ -47,13 +38,13 @@ public:
     bool is_legal_move(uint, uint)const;
     bool is_legal_move(uint32)const;
 
-    uint check_status()const;
-    uint is_win()const;
+    uint status()const;
     bool is_good_cap(uint move)const;
 
-    vector<uint> generate_moves()const;
     void generate_moves(MoveList&, const History&)const;
     void generate_capture_moves(MoveList&, const History&)const;
+
+    uint player_in_check(uint player) const;
 
     uint nonempty_up_1(uint)const;
     uint nonempty_down_1(uint)const;
@@ -63,7 +54,9 @@ public:
     uint nonempty_down_2(uint)const;
     uint nonempty_left_2(uint)const;
     uint nonempty_right_2(uint)const;
-
+    uint distance(uint, uint)const;
+    uint distance_is_0(uint, uint)const;
+    uint distance_is_1(uint, uint)const;
 private:
     void clear();
 private:
@@ -72,6 +65,7 @@ private:
     uint8 m_squares[91];
     uint8 m_player;
 };
+
 inline XQ::XQ()
 {
     clear();
@@ -151,6 +145,18 @@ inline uint XQ::nonempty_left_1(uint sq)const
 inline uint XQ::nonempty_left_2(uint sq)const
 {
     return m_bitmap.nonempty_left_2(sq);
+}
+inline uint XQ::distance(uint src, uint dst)const
+{
+    return m_bitmap.distance(src, dst);
+}
+inline uint XQ::distance_is_0(uint src, uint dst)const
+{
+    return m_bitmap.distance_is_0(src, dst);
+}
+inline uint XQ::distance_is_1(uint src, uint dst)const
+{
+    return m_bitmap.distance_is_1(src, dst);
 }
 
 #endif    //_XQ_H_
