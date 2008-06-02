@@ -5,7 +5,6 @@
 #include <fstream>
 #include <algorithm>
 using namespace std;
-
 bool Engine::make_move(uint32 move)
 {
     uint src, dst, src_piece, dst_piece;
@@ -17,13 +16,13 @@ bool Engine::make_move(uint32 move)
     assert(dst_piece != RedKingIndex && dst_piece != BlackKingIndex);
 
     m_xq.do_move(src, dst);
-    if (m_xq.is_win())
+    if (m_xq.player_in_check(1-m_xq.player()))
     {
         m_xq.undo_move(src, dst, dst_piece);
         return false;
     }
     ++m_ply;
-    m_traces[m_ply] = create_trace(m_xq.check_status(), dst_piece, move);
+    m_traces[m_ply] = create_trace(m_xq.status(), dst_piece, move);
     if (dst_piece == EmptyIndex)
     {
         m_keys[m_ply] = m_keys[m_ply-1]\
@@ -65,7 +64,7 @@ Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
 {
     assert(!xq.is_win());
 
-    m_traces[0] = create_trace(xq.check_status(), EmptyIndex, 0);
+    m_traces[0] = create_trace(xq.status(), EmptyIndex, 0);
     m_ply = 0;
     m_start_ply = -1;
     m_keys[0] = 0UL;
@@ -90,7 +89,7 @@ void Engine::reset(const XQ& xq)
 
     m_xq = xq;
 
-    m_traces[0] = create_trace(xq.check_status(), EmptyIndex, 0);
+    m_traces[0] = create_trace(xq.status(), EmptyIndex, 0);
     m_ply = 0;
     m_start_ply = -1;
     m_keys[0] = 0UL;
@@ -108,10 +107,201 @@ void Engine::reset(const XQ& xq)
         m_values[0] += piece_value(i, square);
     }
 }
+static vector<uint> generate_moves(const XQ& xq)
+{
+    vector<uint> ml;
+    uint own = xq.player();
+    uint opp = 1 - own;
+    uint idx;
+    uint src, dst;
+    if (own == Red)
+    {
+        idx = RedKingIndex;
+        //red king
+        src = xq.piece(RedKingIndex);
+        const uint8 *pm = g_red_king_pawn_moves[src];
+        dst = *pm++;
+        while (dst != InvaildSquare)
+        {
+            if (xq.square_color(dst) != own)
+                ml.push_back(create_move(src, dst));
+            dst = *pm++;
+        }
+        //red pawn
+        for (uint i = RedPawnIndex1; i <= RedPawnIndex5; ++i)
+        {
+            src = xq.piece(i);
+            if (src == InvaildSquare)
+                continue;
+            pm = g_red_king_pawn_moves[src];
+            dst = *pm++;
+            while (dst != InvaildSquare)
+            {
+                if (xq.square_color(dst) != own)
+                    ml.push_back(create_move(src, dst));
+                dst = *pm++;
+            }
+        }
+    }
+    else
+    {
+        idx = BlackKingIndex;
+        //black king
+        src = xq.piece(BlackKingIndex);
+        const uint8 *pm = g_black_king_pawn_moves[src];
+        dst = *pm++;
+        while (dst != InvaildSquare)
+        {
+            if (xq.square_color(dst) != own)
+                ml.push_back(create_move(src, dst));
+            dst = *pm++;
+        }
+        //black pawn
+        for (uint i = BlackPawnIndex1; i <= BlackPawnIndex5; ++i)
+        {
+            src = xq.piece(i);
+            if (src == InvaildSquare)
+                continue;
+            pm = g_black_king_pawn_moves[src];
+            dst = *pm++;
+            while (dst != InvaildSquare)
+            {
+                if (xq.square_color(dst) != own)
+                    ml.push_back(create_move(src, dst));
+                dst = *pm++;
+            }
+        }
+    }
+    //advisor
+    for(uint i = 0; i < 2; ++i)
+    {
+        ++idx;
+        src = xq.piece(idx);
+        if (src == InvaildSquare)
+            continue;
+        const uint8 *pm = g_advisor_bishop_moves[src];
+        dst = *pm++;
+        while (dst != InvaildSquare)
+        {
+            if (xq.square_color(dst) != own)
+                ml.push_back(create_move(src, dst));
+            dst = *pm++;
+        }
+    }
+    //bishop
+    for(uint i = 0; i < 2; ++i)
+    {
+        ++idx;
+        src = xq.piece(idx);
+        if (src == InvaildSquare)
+            continue;
+        const uint8 *pm = g_advisor_bishop_moves[src];
+        dst = *pm++;
+        while (dst != InvaildSquare)
+        {
+            if (xq.square_color(dst) != own && xq.square((dst + src) >> 1) == EmptyIndex)
+                ml.push_back(create_move(src, dst));
+            dst = *pm++;
+        }
+    }
+    //rook
+    for(uint i = 0; i < 2; ++i)
+    {
+        uint dst;
+        src = xq.piece(++idx);
+        if (src == InvaildSquare)
+            continue;
+        dst = xq.nonempty_left_1(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_right_1(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_up_1(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_down_1(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_left_1(src), dst = square_left(src);
+            dst != tmp;
+            dst = square_left(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_right_1(src), dst = square_right(src);
+            dst != tmp;
+            dst = square_right(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
+            dst != tmp;
+            dst = square_up(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
+            dst != tmp;
+            dst = square_down(dst))
+            ml.push_back(create_move(src, dst));
+    }
+    //knight
+    for(uint i = 0; i < 2; ++i)
+    {
+        ++idx;
+        src = xq.piece(idx);
+        if (src == InvaildSquare)
+            continue;
+        const uint16 *pm = g_kinght_moves[src];
+        dst = *pm++;
+        //23130 = ((InvaildSquare << 8) | InvaildSquare)
+        while (dst != 23130UL)
+        {
+            uint leg = (dst & 0xff00) >> 8;
+            dst &= 0xff;
+            if (xq.square(leg) == EmptyIndex && xq.square_color(dst) != own)
+                ml.push_back(create_move(src, dst));
+            dst = *pm++;
+        }
+    }
+    //cannon
+    for(uint i = 0; i < 2; ++i)
+    {
+        uint dst;
+        src = xq.piece(++idx);
+        if (src == InvaildSquare)
+            continue;
+        dst = xq.nonempty_left_2(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_right_2(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_up_2(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        dst = xq.nonempty_down_2(src);
+        if (xq.square_color(dst) == opp)
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_left_1(src), dst = square_left(src);
+            dst != tmp;
+            dst = square_left(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_right_1(src), dst = square_right(src);
+            dst != tmp;
+            dst = square_right(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
+            dst != tmp;
+            dst = square_up(dst))
+            ml.push_back(create_move(src, dst));
+        for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
+            dst != tmp;
+            dst = square_down(dst))
+            ml.push_back(create_move(src, dst));
+    }
+    return ml;
+}
+
 static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
 {
     vector<uint> r;
-    vector<uint> ml = xq.generate_moves();
+    vector<uint> ml = generate_moves(xq);
     for (uint i = 0; i < ml.size(); ++i)
     {
         uint move = ml[i];
@@ -125,7 +315,7 @@ static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
         if (ban.find(move) != ban.end())
             continue;
         xq.do_move(move_src(move), move_dst(move));
-        if (!xq.is_win())
+        if (!xq.player_in_check(1-xq.player()))
             r.push_back(move);
         xq.undo_move(move_src(move), move_dst(move), dst_piece);
     }

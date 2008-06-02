@@ -242,11 +242,11 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
     case RedKing:
         if (g_move_flags[dst][src] & RedPawnFlag)
             return true;
-        return (square_flag(dst) & BlackKingFlag) && m_bitmap.distance(src, dst) == 0;
+        return (square_flag(dst) & BlackKingFlag) && distance(src, dst) == 0;
     case BlackKing:
         if (g_move_flags[dst][src] & BlackPawnFlag)
             return true;
-        return (square_flag(dst) & RedKingFlag) && m_bitmap.distance(src, dst) == 0;
+        return (square_flag(dst) & RedKingFlag) && distance(src, dst) == 0;
     case RedAdvisor:
     case BlackAdvisor:
         return true;
@@ -255,13 +255,13 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
         return square(bishop_eye(src, dst)) == EmptyIndex;
     case RedRook:
     case BlackRook:
-        return m_bitmap.distance(src, dst) == 0;
+        return distance_is_0(src, dst) == 0;
     case RedKnight:
     case BlackKnight:
         return square(knight_leg(src, dst)) == EmptyIndex;
     case RedCannon:
     case BlackCannon:
-        return (m_bitmap.distance(src, dst) + (square(dst) >> 5)) == 1;
+        return (distance(src, dst) + (square(dst) >> 5)) == 1;
     case RedPawn:
     case BlackPawn:
         return true;
@@ -269,55 +269,16 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
         return false;
     }
 }
-uint XQ::check_status()const
+uint XQ::status() const
 {
-    const uint ksq = piece(m_player == Red ? RedKingIndex : BlackKingIndex);
-    const uint pawn_flag = (m_player == Red ? BlackPawnFlag : RedPawnFlag);
-    uint idx = (m_player == Red ? BlackRookIndex1 : RedRookIndex1);
-
-    for (uint i = 0; i < 2; ++i)
-    {
-        uint sq = piece(idx);
-        if (g_move_flags[ksq][sq] & RookFlag)
-        {
-            if (m_bitmap.distance(sq, ksq) == 0)
-                return 1;
-        }
-        ++idx;
-    }
-    for (uint i = 0; i < 2; ++i)
-    {
-        uint sq = piece(idx);
-        if (g_move_flags[ksq][sq] & KnightFlag)
-        {
-            if (square(knight_leg(sq, ksq)) == EmptyIndex)
-                return 2;
-        }
-        ++idx;
-    }
-    for (uint i = 0; i < 2; ++i)
-    {
-        uint sq = piece(idx);
-        if (g_move_flags[ksq][sq] & RookFlag)
-        {
-            if (m_bitmap.distance(sq, ksq) == 1)
-                return 3;
-        }
-        ++idx;
-    }
-    for (uint i = 0; i < 5; ++i)
-    {
-        uint sq = piece(idx);
-        if (g_move_flags[ksq][sq] & pawn_flag)
-            return 4;
-        ++idx;
-    }
+    if (player_in_check(player()))
+        return 1;
     return 0;
 }
-uint XQ::is_win()const
+uint XQ::player_in_check(uint player) const
 {
-    uint flag;
-    if (m_player == Black)
+    register uint flag;
+    if (player == Red)
     {
         uint kp = piece(RedKingIndex);
         assert(kp != InvaildSquare);
@@ -328,16 +289,16 @@ uint XQ::is_win()const
             | square_flag(square_right(kp)))
             & BlackPawnFlag)
             //rook
-            | ((square_flag(m_bitmap.nonempty_up_1(kp))
-            | square_flag(m_bitmap.nonempty_down_1(kp))
-            | square_flag(m_bitmap.nonempty_left_1(kp))
-            | square_flag(m_bitmap.nonempty_right_1(kp)))
+            | ((square_flag(nonempty_up_1(kp))
+            | square_flag(nonempty_down_1(kp))
+            | square_flag(nonempty_left_1(kp))
+            | square_flag(nonempty_right_1(kp)))
             & (BlackRookFlag | BlackKingFlag))
             //cannon
-            | ((square_flag(m_bitmap.nonempty_up_2(kp))
-            | square_flag(m_bitmap.nonempty_down_2(kp))
-            | square_flag(m_bitmap.nonempty_left_2(kp))
-            | square_flag(m_bitmap.nonempty_right_2(kp)))
+            | ((square_flag(nonempty_up_2(kp))
+            | square_flag(nonempty_down_2(kp))
+            | square_flag(nonempty_left_2(kp))
+            | square_flag(nonempty_right_2(kp)))
             & BlackCannonFlag)
             //knight
             | ((square_flag(knight_leg(piece(BlackKnightIndex1), kp))
@@ -355,16 +316,16 @@ uint XQ::is_win()const
             | square_flag(square_right(kp)))
             & RedPawnFlag)
             //rook
-            | ((square_flag(m_bitmap.nonempty_up_1(kp))
-            | square_flag(m_bitmap.nonempty_down_1(kp))
-            | square_flag(m_bitmap.nonempty_left_1(kp))
-            | square_flag(m_bitmap.nonempty_right_1(kp)))
+            | ((square_flag(nonempty_up_1(kp))
+            | square_flag(nonempty_down_1(kp))
+            | square_flag(nonempty_left_1(kp))
+            | square_flag(nonempty_right_1(kp)))
             & (RedRookFlag | RedKingFlag))
             //cannon
-            | ((square_flag(m_bitmap.nonempty_up_2(kp))
-            | square_flag(m_bitmap.nonempty_down_2(kp))
-            | square_flag(m_bitmap.nonempty_left_2(kp))
-            | square_flag(m_bitmap.nonempty_right_2(kp)))
+            | ((square_flag(nonempty_up_2(kp))
+            | square_flag(nonempty_down_2(kp))
+            | square_flag(nonempty_left_2(kp))
+            | square_flag(nonempty_right_2(kp)))
             & RedCannonFlag)
             //knight
             | ((square_flag(knight_leg(piece(RedKnightIndex1), kp))
@@ -411,12 +372,12 @@ bool XQ::is_good_cap(uint move)const
             uint src = piece(idx);
             if (g_move_flags[dst][src] & BlackRookFlag)
             {
-                switch(m_bitmap.distance(src, dst))
+                switch(distance(src, dst))
                 {
                 case 0:
                     return false;
                 case 1:
-                    if (m_bitmap.distance(src, move_src(move)) == 0)
+                    if (distance(src, move_src(move)) == 0)
                         return false;
                 }
             }
@@ -435,14 +396,14 @@ bool XQ::is_good_cap(uint move)const
             uint src = piece(idx);
             if (g_move_flags[dst][src] & BlackCannonFlag)
             {
-                switch(m_bitmap.distance(src, dst))
+                switch(distance(src, dst))
                 {
                 case 1:
-                    if (m_bitmap.distance(src, move_src(move)) != 0)
+                    if (distance(src, move_src(move)) != 0)
                         return false;
                     break;
                 case 2:
-                    if (m_bitmap.distance(src, move_src(move)) < 2)
+                    if (distance(src, move_src(move)) < 2)
                         return false;
                 }
             }
@@ -484,12 +445,12 @@ bool XQ::is_good_cap(uint move)const
             uint src = piece(idx);
             if (g_move_flags[dst][src] & RedRookFlag)
             {
-                switch(m_bitmap.distance(src, dst))
+                switch(distance(src, dst))
                 {
                 case 0:
                     return false;
                 case 1:
-                    if (m_bitmap.distance(src, move_src(move)) == 0)
+                    if (distance(src, move_src(move)) == 0)
                         return false;
                 }
             }
@@ -508,14 +469,14 @@ bool XQ::is_good_cap(uint move)const
             uint src = piece(idx);
             if (g_move_flags[dst][src] & RedCannonFlag)
             {
-                switch(m_bitmap.distance(src, dst))
+                switch(distance(src, dst))
                 {
                 case 1:
-                    if (m_bitmap.distance(src, move_src(move)) != 0)
+                    if (distance(src, move_src(move)) != 0)
                         return false;
                     break;
                 case 2:
-                    if (m_bitmap.distance(src, move_src(move)) < 2)
+                    if (distance(src, move_src(move)) < 2)
                         return false;
                 }
             }
@@ -563,195 +524,4 @@ void XQ::undo_move(uint src, uint dst, uint dst_piece)
 
     assert (piece_color(src_piece) == m_player);
     assert (is_legal_move(src, dst));
-}
-
-vector<uint> XQ::generate_moves() const
-{
-    vector<uint> ml;
-    uint own = player();
-    uint opp = 1 - own;
-    uint idx;
-    uint src, dst;
-    if (own == Red)
-    {
-        idx = RedKingIndex;
-        //red king
-        src = piece(RedKingIndex);
-        const uint8 *pm = g_red_king_pawn_moves[src];
-        dst = *pm++;
-        while (dst != InvaildSquare)
-        {
-            if (square_color(dst) != own)
-                ml.push_back(create_move(src, dst));
-            dst = *pm++;
-        }
-        //red pawn
-        for (uint i = RedPawnIndex1; i <= RedPawnIndex5; ++i)
-        {
-            src = piece(i);
-            if (src == InvaildSquare)
-                continue;
-            pm = g_red_king_pawn_moves[src];
-            dst = *pm++;
-            while (dst != InvaildSquare)
-            {
-                if (square_color(dst) != own)
-                    ml.push_back(create_move(src, dst));
-                dst = *pm++;
-            }
-        }
-    }
-    else
-    {
-        idx = BlackKingIndex;
-        //black king
-        src = piece(BlackKingIndex);
-        const uint8 *pm = g_black_king_pawn_moves[src];
-        dst = *pm++;
-        while (dst != InvaildSquare)
-        {
-            if (square_color(dst) != own)
-                ml.push_back(create_move(src, dst));
-            dst = *pm++;
-        }
-        //black pawn
-        for (uint i = BlackPawnIndex1; i <= BlackPawnIndex5; ++i)
-        {
-            src = piece(i);
-            if (src == InvaildSquare)
-                continue;
-            pm = g_black_king_pawn_moves[src];
-            dst = *pm++;
-            while (dst != InvaildSquare)
-            {
-                if (square_color(dst) != own)
-                    ml.push_back(create_move(src, dst));
-                dst = *pm++;
-            }
-        }
-    }
-    //advisor
-    for(uint i = 0; i < 2; ++i)
-    {
-        ++idx;
-        src = piece(idx);
-        if (src == InvaildSquare)
-            continue;
-        const uint8 *pm = g_advisor_bishop_moves[src];
-        dst = *pm++;
-        while (dst != InvaildSquare)
-        {
-            if (square_color(dst) != own)
-                ml.push_back(create_move(src, dst));
-            dst = *pm++;
-        }
-    }
-    //bishop
-    for(uint i = 0; i < 2; ++i)
-    {
-        ++idx;
-        src = piece(idx);
-        if (src == InvaildSquare)
-            continue;
-        const uint8 *pm = g_advisor_bishop_moves[src];
-        dst = *pm++;
-        while (dst != InvaildSquare)
-        {
-            if (square_color(dst) != own && square((dst + src) >> 1) == EmptyIndex)
-                ml.push_back(create_move(src, dst));
-            dst = *pm++;
-        }
-    }
-    //rook
-    for(uint i = 0; i < 2; ++i)
-    {
-        uint dst;
-        src = piece(++idx);
-        if (src == InvaildSquare)
-            continue;
-        dst = nonempty_left_1(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_right_1(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_up_1(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_down_1(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_left_1(src), dst = square_left(src);
-            dst != tmp;
-            dst = square_left(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_right_1(src), dst = square_right(src);
-            dst != tmp;
-            dst = square_right(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_up_1(src), dst = square_up(src);
-            dst != tmp;
-            dst = square_up(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_down_1(src), dst = square_down(src);
-            dst != tmp;
-            dst = square_down(dst))
-            ml.push_back(create_move(src, dst));
-    }
-    //knight
-    for(uint i = 0; i < 2; ++i)
-    {
-        ++idx;
-        src = piece(idx);
-        if (src == InvaildSquare)
-            continue;
-        const uint16 *pm = g_kinght_moves[src];
-        dst = *pm++;
-        //23130 = ((InvaildSquare << 8) | InvaildSquare)
-        while (dst != 23130UL)
-        {
-            uint leg = (dst & 0xff00) >> 8;
-            dst &= 0xff;
-            if (square(leg) == EmptyIndex && square_color(dst) != own)
-                ml.push_back(create_move(src, dst));
-            dst = *pm++;
-        }
-    }
-    //cannon
-    for(uint i = 0; i < 2; ++i)
-    {
-        uint dst;
-        src = piece(++idx);
-        if (src == InvaildSquare)
-            continue;
-        dst = nonempty_left_2(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_right_2(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_up_2(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        dst = nonempty_down_2(src);
-        if (square_color(dst) == opp)
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_left_1(src), dst = square_left(src);
-            dst != tmp;
-            dst = square_left(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_right_1(src), dst = square_right(src);
-            dst != tmp;
-            dst = square_right(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_up_1(src), dst = square_up(src);
-            dst != tmp;
-            dst = square_up(dst))
-            ml.push_back(create_move(src, dst));
-        for (uint tmp = nonempty_down_1(src), dst = square_down(src);
-            dst != tmp;
-            dst = square_down(dst))
-            ml.push_back(create_move(src, dst));
-    }
-    return ml;
 }
