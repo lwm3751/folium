@@ -1,5 +1,6 @@
 #include "engine.h"
 #include <ctime>
+#include <vector>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -15,12 +16,11 @@ bool Engine::make_move(uint32 move)
     dst_piece = m_xq.square(dst);
     assert(dst_piece != RedKingIndex && dst_piece != BlackKingIndex);
 
-    m_xq.do_move(src, dst);
-    if (m_xq.player_in_check(1-m_xq.player()))
+    if (!m_xq.do_move(src, dst))
     {
-        m_xq.undo_move(src, dst, dst_piece);
         return false;
     }
+
     ++m_ply;
     m_traces[m_ply] = create_trace(m_xq.status(), dst_piece, move);
     if (dst_piece == EmptyIndex)
@@ -314,10 +314,11 @@ static vector<uint> generate_root_move(XQ& xq, const set<uint>& ban)
         }
         if (ban.find(move) != ban.end())
             continue;
-        xq.do_move(move_src(move), move_dst(move));
-        if (!xq.player_in_check(1-xq.player()))
+        if (xq.do_move(move_src(move), move_dst(move)))
+        {
             r.push_back(move);
-        xq.undo_move(move_src(move), move_dst(move), dst_piece);
+            xq.undo_move(move_src(move), move_dst(move), dst_piece);
+        }
     }
     return r;
 }

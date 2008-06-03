@@ -6,7 +6,8 @@
 #include "xq.h"
 #include "killer.h"
 #include "history.h"
-
+extern void generate_moves(const XQ& xq, MoveList &ml, const History& history);
+extern void generate_capture_moves(const XQ& xq, MoveList &ml, const History& history);
 class Generator
 {
 public:
