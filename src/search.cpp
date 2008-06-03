@@ -13,20 +13,20 @@ int Engine::full(int depth, int alpha, int beta)
     if (m_stop)
         return - WINSCORE;
     const int ply = m_ply - m_start_ply;
-    
+
     {
         int score = loop_value(ply);
         if (score != INVAILDVALUE)
             return score;
     }
     int best_value = ply - WINSCORE;
-    
+
     if (best_value >= beta)
         return best_value;
     if (ply == LIMIT_DEPTH)
         return value();
     int extended = 0;
-    
+
     if (trace_move(m_traces[m_ply]) && trace_flag(m_traces[m_ply]))
     {
         ++depth;
@@ -34,7 +34,7 @@ int Engine::full(int depth, int alpha, int beta)
         if (depth < 1)
             depth = 1;
     }
-    
+
     if (depth <= 0)
     {
         int score = value();
@@ -43,7 +43,7 @@ int Engine::full(int depth, int alpha, int beta)
         return leaf(alpha, beta);
     }
     ++m_tree_nodes;
-    
+
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
     {
@@ -60,7 +60,7 @@ int Engine::full(int depth, int alpha, int beta)
     killers[ply+1].clear();
     MoveList ml;
 
-    
+
     if (depth >= 2 && trace_move(m_traces[m_ply]) && !extended && (value() - beta > 4) && beta < MATEVALUE && beta > -MATEVALUE)
     {
         if (full(depth > NULL_DEPTH ? (depth - NULL_DEPTH) : 1, beta-1, beta) > beta)
@@ -138,7 +138,7 @@ int Engine::leaf(int alpha, int beta)
             best_value = score;
     }
     MoveList ml;
-    m_xq.generate_capture_moves(ml, m_history);
+    generate_capture_moves(m_xq, ml, m_history);
     uint size = ml.size();
     for (uint i = 0; i < size; ++i)
     {
@@ -203,9 +203,9 @@ int Engine::quies(int alpha, int beta)
     m_quiet_nodes++;
     MoveList ml;
     if (flag)
-        m_xq.generate_moves(ml, m_history);
+        generate_moves(m_xq, ml, m_history);
     else
-        m_xq.generate_capture_moves(ml, m_history);
+        generate_capture_moves(m_xq, ml, m_history);
     uint size = ml.size();
     for (uint i = 0; i < size; ++i)
     {

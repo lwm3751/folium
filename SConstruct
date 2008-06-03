@@ -7,19 +7,18 @@ BuildDir('build', 'src', duplicate=0)
 env = Environment(CPPPATH=cpp_path, LIBPATH=lib_path)
 
 if sys.platform == "win32":
-	if 1:
-		env.Tool('mingw')
-		ccflag = '-O3'
-	else:
-		env.Tool('icl')
-		ccflag = '/Ox /MD'
+    if 1:
+        env.Tool('mingw')
+        ccflag = '-O3'
+    else:
+        env.Tool('icl')
+        ccflag = '/Ox /MD'
 else:
-	ccflag = '-O3'
+    ccflag = '-O3'
 
 defines = {'NDEBUG':None}
 
 src = ['build/engine_data.cpp',
-    'build/move_gen.cpp',
     'build/xq_data.cpp',
     'build/bitmap_data.cpp',
     'build/generator.cpp',
@@ -29,7 +28,7 @@ src = ['build/engine_data.cpp',
     'build/history_data.cpp',
     'build/xq.cpp',
     'build/move.cpp',
-	'build/qianhong/qianhong.cpp']
+    'build/qianhong/qianhong.cpp']
 
 folium = env.Program(
     'folium',

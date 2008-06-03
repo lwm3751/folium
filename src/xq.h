@@ -1,8 +1,6 @@
 #ifndef _XQ_H_
 #define _XQ_H_
 
-#include <vector>
-using std::vector;
 #include <string>
 using std::string;
 
@@ -14,8 +12,6 @@ using std::string;
 #include <iostream>
 using namespace std;
 
-class MoveList;
-class History;
 class XQ
 {
 public:
@@ -30,7 +26,7 @@ public:
     uint piece(uint)const;
     uint player()const;
 
-    void do_move(uint, uint);
+    bool do_move(uint, uint);
     void undo_move(uint, uint, uint);
     void do_null();
     void undo_null();
@@ -40,9 +36,6 @@ public:
 
     uint status()const;
     bool is_good_cap(uint move)const;
-
-    void generate_moves(MoveList&, const History&)const;
-    void generate_capture_moves(MoveList&, const History&)const;
 
     uint player_in_check(uint player) const;
 
@@ -88,7 +81,6 @@ inline uint XQ::square_flag(uint sq)const
 {
     return piece_flag(square(sq));
 }
-
 inline uint XQ::piece(uint idx)const
 {
     assert (idx < 34UL);
@@ -157,6 +149,50 @@ inline uint XQ::distance_is_0(uint src, uint dst)const
 inline uint XQ::distance_is_1(uint src, uint dst)const
 {
     return m_bitmap.distance_is_1(src, dst);
+}
+
+inline bool XQ::do_move(uint src, uint dst)
+{
+    uint32 src_piece = square(src);
+    uint32 dst_piece = square(dst);
+    assert (src == piece(src_piece));
+    assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
+
+    m_bitmap.do_move(src, dst);
+    m_squares[src] = EmptyIndex;
+    m_squares[dst] = src_piece;
+    m_pieces[src_piece] = dst;
+    m_pieces[dst_piece] = InvaildSquare;
+    if (player_in_check(m_player))
+    {
+        m_bitmap.undo_move(src, dst, dst_piece);
+        m_squares[src] = src_piece;
+        m_squares[dst] = dst_piece;
+        m_pieces[src_piece] = src;
+        m_pieces[dst_piece] = dst;
+        return false;
+    }
+
+    m_player = 1UL - m_player;
+    return true;
+}
+inline void XQ::undo_move(uint src, uint dst, uint dst_piece)
+{
+    uint32 src_piece = square(dst);
+    assert (square(src) == EmptyIndex);
+    assert (piece(src_piece) == dst);
+
+    m_bitmap.undo_move(src, dst, dst_piece);
+    m_squares[src] = src_piece;
+    m_squares[dst] = dst_piece;
+    m_pieces[src_piece] = src;
+    m_pieces[dst_piece] = dst;
+    m_player = 1UL - m_player;
+
+    assert (piece_color(src_piece) == m_player);
+    assert (is_legal_move(src, dst));
 }
 
 #endif    //_XQ_H_

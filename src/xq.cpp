@@ -1,4 +1,6 @@
-#include <string.h>
+#include <cstring>
+#include <vector>
+using namespace std;
 #include "xq.h"
 
 inline uint char_type(sint32 c)
@@ -277,62 +279,50 @@ uint XQ::status() const
 }
 uint XQ::player_in_check(uint player) const
 {
-    register uint flag;
     if (player == Red)
     {
         uint kp = piece(RedKingIndex);
         assert(kp != InvaildSquare);
-        flag =
-            //pawn
-            ((square_flag(square_down(kp))
+        return ((square_flag(square_down(kp))
             | square_flag(square_left(kp))
             | square_flag(square_right(kp)))
-            & BlackPawnFlag)
-            //rook
+            & BlackPawnFlag)//pawn
             | ((square_flag(nonempty_up_1(kp))
             | square_flag(nonempty_down_1(kp))
             | square_flag(nonempty_left_1(kp))
             | square_flag(nonempty_right_1(kp)))
-            & (BlackRookFlag | BlackKingFlag))
-            //cannon
+            & (BlackRookFlag | BlackKingFlag))//rook
             | ((square_flag(nonempty_up_2(kp))
             | square_flag(nonempty_down_2(kp))
             | square_flag(nonempty_left_2(kp))
             | square_flag(nonempty_right_2(kp)))
-            & BlackCannonFlag)
-            //knight
+            & BlackCannonFlag)//cannon
             | ((square_flag(knight_leg(piece(BlackKnightIndex1), kp))
             | square_flag(knight_leg(piece(BlackKnightIndex2), kp)))
-            & EmptyFlag);
+            & EmptyFlag);//knight
     }
     else
     {
         uint kp = piece(BlackKingIndex);
         assert(kp != InvaildSquare);
-        flag =
-            //pawn
-            ((square_flag(square_up(kp))
+        return ((square_flag(square_up(kp))
             | square_flag(square_left(kp))
             | square_flag(square_right(kp)))
-            & RedPawnFlag)
-            //rook
+            & RedPawnFlag)//pawn
             | ((square_flag(nonempty_up_1(kp))
             | square_flag(nonempty_down_1(kp))
             | square_flag(nonempty_left_1(kp))
             | square_flag(nonempty_right_1(kp)))
-            & (RedRookFlag | RedKingFlag))
-            //cannon
+            & (RedRookFlag | RedKingFlag))//rook
             | ((square_flag(nonempty_up_2(kp))
             | square_flag(nonempty_down_2(kp))
             | square_flag(nonempty_left_2(kp))
             | square_flag(nonempty_right_2(kp)))
-            & RedCannonFlag)
-            //knight
+            & RedCannonFlag)//cannon
             | ((square_flag(knight_leg(piece(RedKnightIndex1), kp))
             | square_flag(knight_leg(piece(RedKnightIndex2), kp)))
-            & EmptyFlag);
+            & EmptyFlag);//knight
     }
-    return flag;
 }
 bool XQ::is_good_cap(uint move)const
 {
@@ -490,38 +480,4 @@ bool XQ::is_good_cap(uint move)const
         }
     }
     return true;
-}
-
-void XQ::do_move(uint src, uint dst)
-{
-    uint32 src_piece = square(src);
-    uint32 dst_piece = square(dst);
-    assert (src == piece(src_piece));
-    assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
-    assert (piece_color(src_piece) == m_player);
-    assert (is_legal_move(src, dst));
-
-    m_bitmap.do_move(src, dst);
-    m_squares[src] = EmptyIndex;
-    m_squares[dst] = src_piece;
-    m_pieces[src_piece] = dst;
-    m_pieces[dst_piece] = InvaildSquare;
-    m_player = 1UL - m_player;
-}
-
-void XQ::undo_move(uint src, uint dst, uint dst_piece)
-{
-    uint32 src_piece = square(dst);
-    assert (square(src) == EmptyIndex);
-    assert (piece(src_piece) == dst);
-
-    m_bitmap.undo_move(src, dst, dst_piece);
-    m_squares[src] = src_piece;
-    m_squares[dst] = dst_piece;
-    m_pieces[src_piece] = src;
-    m_pieces[dst_piece] = dst;
-    m_player = 1UL - m_player;
-
-    assert (piece_color(src_piece) == m_player);
-    assert (is_legal_move(src, dst));
 }
