@@ -12,12 +12,12 @@ public:
     void do_move(uint, uint);
     void undo_move(uint, uint, uint);
 
-    uint nonempty_up_1(uint)const;
-    uint nonempty_down_1(uint)const;
+    uint nonempty_forward_red_1(uint)const;
+    uint nonempty_forward_black_1(uint)const;
     uint nonempty_left_1(uint)const;
     uint nonempty_right_1(uint)const;
-    uint nonempty_up_2(uint)const;
-    uint nonempty_down_2(uint)const;
+    uint nonempty_forward_red_2(uint)const;
+    uint nonempty_forward_black_2(uint)const;
     uint nonempty_left_2(uint)const;
     uint nonempty_right_2(uint)const;
 
@@ -25,13 +25,13 @@ public:
     uint distance(uint, uint)const;
     bool distance_is_0(uint, uint)const;
     bool distance_is_1(uint, uint)const;
-    
+
     void reset ();
     void setbit(uint);
 private:
     uint xinfo(uint, uint)const;
     uint yinfo(uint, uint)const;
-    
+
     void changebit(uint);
 
     static uint prev_1(uint info);
@@ -98,13 +98,13 @@ inline void Bitmap::undo_move(uint src, uint dst, uint dst_piece)
     changebit(src);
 }
 
-inline uint Bitmap::nonempty_up_1(uint sq)const
+inline uint Bitmap::nonempty_forward_red_1(uint sq)const
 {
     uint x = square_x(sq);
     uint y = square_y(sq);
     return xy_square(x, Bitmap::prev_1(yinfo(x, y)));
 }
-inline uint Bitmap::nonempty_down_1(uint sq)const
+inline uint Bitmap::nonempty_forward_black_1(uint sq)const
 {
     uint x = square_x(sq);
     uint y = square_y(sq);
@@ -122,13 +122,13 @@ inline uint Bitmap::nonempty_right_1(uint sq)const
     uint y = square_y(sq);
     return xy_square(Bitmap::next_1(xinfo(x, y)), y);
 }
-inline uint Bitmap::nonempty_up_2(uint sq)const
+inline uint Bitmap::nonempty_forward_red_2(uint sq)const
 {
     uint x = square_x(sq);
     uint y = square_y(sq);
     return xy_square(x, Bitmap::prev_2(yinfo(x, y)));
 }
-inline uint Bitmap::nonempty_down_2(uint sq)const
+inline uint Bitmap::nonempty_forward_black_2(uint sq)const
 {
     uint x = square_x(sq);
     uint y = square_y(sq);

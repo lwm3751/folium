@@ -257,7 +257,7 @@ bool XQ::is_legal_move(uint32 src, uint32 dst) const
         return square(bishop_eye(src, dst)) == EmptyIndex;
     case RedRook:
     case BlackRook:
-        return distance_is_0(src, dst) == 0;
+        return distance_is_0(src, dst);
     case RedKnight:
     case BlackKnight:
         return square(knight_leg(src, dst)) == EmptyIndex;
@@ -283,17 +283,17 @@ uint XQ::player_in_check(uint player) const
     {
         uint kp = piece(RedKingIndex);
         assert(kp != InvaildSquare);
-        return ((square_flag(square_down(kp))
+        return ((square_flag(square_forward_black(kp))
             | square_flag(square_left(kp))
             | square_flag(square_right(kp)))
             & BlackPawnFlag)//pawn
-            | ((square_flag(nonempty_up_1(kp))
-            | square_flag(nonempty_down_1(kp))
+            | ((square_flag(nonempty_forward_red_1(kp))
+            | square_flag(nonempty_forward_black_1(kp))
             | square_flag(nonempty_left_1(kp))
             | square_flag(nonempty_right_1(kp)))
             & (BlackRookFlag | BlackKingFlag))//rook
-            | ((square_flag(nonempty_up_2(kp))
-            | square_flag(nonempty_down_2(kp))
+            | ((square_flag(nonempty_forward_red_2(kp))
+            | square_flag(nonempty_forward_black_2(kp))
             | square_flag(nonempty_left_2(kp))
             | square_flag(nonempty_right_2(kp)))
             & BlackCannonFlag)//cannon
@@ -305,17 +305,17 @@ uint XQ::player_in_check(uint player) const
     {
         uint kp = piece(BlackKingIndex);
         assert(kp != InvaildSquare);
-        return ((square_flag(square_up(kp))
+        return ((square_flag(square_forward_red(kp))
             | square_flag(square_left(kp))
             | square_flag(square_right(kp)))
             & RedPawnFlag)//pawn
-            | ((square_flag(nonempty_up_1(kp))
-            | square_flag(nonempty_down_1(kp))
+            | ((square_flag(nonempty_forward_red_1(kp))
+            | square_flag(nonempty_forward_black_1(kp))
             | square_flag(nonempty_left_1(kp))
             | square_flag(nonempty_right_1(kp)))
             & (RedRookFlag | RedKingFlag))//rook
-            | ((square_flag(nonempty_up_2(kp))
-            | square_flag(nonempty_down_2(kp))
+            | ((square_flag(nonempty_forward_red_2(kp))
+            | square_flag(nonempty_forward_black_2(kp))
             | square_flag(nonempty_left_2(kp))
             | square_flag(nonempty_right_2(kp)))
             & RedCannonFlag)//cannon
