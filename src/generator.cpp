@@ -118,19 +118,19 @@ void generate_moves(const XQ& xq, MoveList &ml, const History& history)
             dst != tmp;
             dst = square_right(dst))
             ml.push(history.move(src, dst));
-        dst = xq.nonempty_up_1(src);
+        dst = xq.nonempty_forward_red_1(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst));
-        for (uint tmp = dst, dst = square_up(src);
+        for (uint tmp = dst, dst = square_forward_red(src);
             dst != tmp;
-            dst = square_up(dst))
+            dst = square_forward_red(dst))
             ml.push(history.move(src, dst));
-        dst = xq.nonempty_down_1(src);
+        dst = xq.nonempty_forward_black_1(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst));
-        for (uint tmp = dst, dst = square_down(src);
+        for (uint tmp = dst, dst = square_forward_black(src);
             dst != tmp;
-            dst = square_down(dst))
+            dst = square_forward_black(dst))
             ml.push(history.move(src, dst));
     }
     //knight
@@ -173,19 +173,19 @@ void generate_moves(const XQ& xq, MoveList &ml, const History& history)
             dst != tmp;
             dst = square_right(dst))
             ml.push(history.move(src, dst));
-        dst = xq.nonempty_up_2(src);
+        dst = xq.nonempty_forward_red_2(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst));
-        for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
+        for (uint tmp = xq.nonempty_forward_red_1(src), dst = square_forward_red(src);
             dst != tmp;
-            dst = square_up(dst))
+            dst = square_forward_red(dst))
             ml.push(history.move(src, dst));
-        dst = xq.nonempty_down_2(src);
+        dst = xq.nonempty_forward_black_2(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst));
-        for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
+        for (uint tmp = xq.nonempty_forward_black_1(src), dst = square_forward_black(src);
             dst != tmp;
-            dst = square_down(dst))
+            dst = square_forward_black(dst))
             ml.push(history.move(src, dst));
     }
 }
@@ -300,10 +300,10 @@ void generate_capture_moves(const XQ& xq, MoveList &ml, const History& history)
         dst = xq.nonempty_right_1(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
-        dst = xq.nonempty_up_1(src);
+        dst = xq.nonempty_forward_red_1(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
-        dst = xq.nonempty_down_1(src);
+        dst = xq.nonempty_forward_black_1(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
     }
@@ -339,10 +339,10 @@ void generate_capture_moves(const XQ& xq, MoveList &ml, const History& history)
         dst = xq.nonempty_right_2(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
-        dst = xq.nonempty_up_2(src);
+        dst = xq.nonempty_forward_red_2(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
-        dst = xq.nonempty_down_2(src);
+        dst = xq.nonempty_forward_black_2(src);
         if (xq.square_color(dst) == opp)
             ml.push(history.move(src, dst, idx, xq.square(dst)));
     }
@@ -379,7 +379,9 @@ uint32 Generator::next()
         {
             uint move = m_killer.killer(m_index);
             m_index++;
-            if (move && m_xq.is_legal_move(move))
+            if (move &&
+                m_xq.square_color(move_src(move)) == m_xq.player() &&
+                m_xq.is_legal_move(move))
                 return move;
         }
         m_stage = 4;

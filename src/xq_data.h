@@ -1,13 +1,14 @@
 #ifndef _XQ_DATA_H_
 #define _XQ_DATA_H_
 
-#include <string.h>
+#include <cstring>
+#include "defines.h"
 
 extern const uint8 g_xs[91];
 extern const uint8 g_ys[91];
 extern const uint8 g_xys[16][16];
-extern const uint8 g_square_ups[91];
-extern const uint8 g_square_downs[91];
+extern const uint8 g_square_forward_reds[91];
+extern const uint8 g_square_forward_blacks[91];
 extern const uint8 g_square_lefts[91];
 extern const uint8 g_square_rights[91];
 extern const uint16 g_square_flags[91];
@@ -41,15 +42,15 @@ inline uint xy_square(uint x, uint y)
     assert (y < 16UL);
     return g_xys[y][x];
 }
-inline uint square_up(uint sq)
+inline uint square_forward_red(uint sq)
 {
     assert (sq < 91UL);
-    return g_square_ups[sq];
+    return g_square_forward_reds[sq];
 }
-inline uint square_down(uint sq)
+inline uint square_forward_black(uint sq)
 {
     assert (sq < 91UL);
-    return g_square_downs[sq];
+    return g_square_forward_blacks[sq];
 }
 inline uint square_left(uint sq)
 {

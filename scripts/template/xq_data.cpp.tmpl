@@ -5,8 +5,8 @@
 const uint8 g_xs[91] = {$xs};
 const uint8 g_ys[91] = {$ys};
 const uint8 g_xys[16][16] = {$xys};
-const uint8 g_square_ups[91] = {$ups};
-const uint8 g_square_downs[91] = {$downs};
+const uint8 g_square_forward_reds[91] = {$ups};
+const uint8 g_square_forward_blacks[91] = {$downs};
 const uint8 g_square_lefts[91] = {$lefts};
 const uint8 g_square_rights[91] = {$rights};
 const uint16 g_square_flags[91] = {$square_flags};
@@ -15,10 +15,10 @@ const uint8 g_piece_types[34] = {$ptypes};
 const uint16 g_piece_flags[34] = {$pflags};
 const uint16 g_piece_colors[34] = {$pcolors};
 
-const uint8 g_simple_values[32] = 
+const uint8 g_simple_values[32] =
 {
-    5,1,1,4,4,3,3,3,3,2,2,2,2,2,
-    5,1,1,4,4,3,3,3,3,2,2,2,2,2
+    5,1,1,1,1,4,4,3,3,3,3,2,2,2,2,2,
+    5,1,1,1,1,4,4,3,3,3,3,2,2,2,2,2,
 };
 
 const uint8 g_type_begin_index[16] = {0UL, 1UL, 3UL, 5UL, 7UL, 9UL, 11UL, 16UL, 17UL, 19UL, 21UL, 23UL, 25UL, 27UL, 32UL, 33UL};
