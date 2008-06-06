@@ -213,10 +213,10 @@ static vector<uint> generate_moves(const XQ& xq)
         dst = xq.nonempty_right_1(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
-        dst = xq.nonempty_forward_red_1(src);
+        dst = xq.nonempty_down_1(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
-        dst = xq.nonempty_forward_black_1(src);
+        dst = xq.nonempty_up_1(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
         for (uint tmp = xq.nonempty_left_1(src), dst = square_left(src);
@@ -227,13 +227,13 @@ static vector<uint> generate_moves(const XQ& xq)
             dst != tmp;
             dst = square_right(dst))
             ml.push_back(create_move(src, dst));
-        for (uint tmp = xq.nonempty_forward_red_1(src), dst = square_forward_red(src);
+        for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
             dst != tmp;
-            dst = square_forward_red(dst))
+            dst = square_down(dst))
             ml.push_back(create_move(src, dst));
-        for (uint tmp = xq.nonempty_forward_black_1(src), dst = square_forward_black(src);
+        for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
             dst != tmp;
-            dst = square_forward_black(dst))
+            dst = square_up(dst))
             ml.push_back(create_move(src, dst));
     }
     //knight
@@ -268,10 +268,10 @@ static vector<uint> generate_moves(const XQ& xq)
         dst = xq.nonempty_right_2(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
-        dst = xq.nonempty_forward_red_2(src);
+        dst = xq.nonempty_down_2(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
-        dst = xq.nonempty_forward_black_2(src);
+        dst = xq.nonempty_up_2(src);
         if (xq.square_color(dst) == opp)
             ml.push_back(create_move(src, dst));
         for (uint tmp = xq.nonempty_left_1(src), dst = square_left(src);
@@ -282,13 +282,13 @@ static vector<uint> generate_moves(const XQ& xq)
             dst != tmp;
             dst = square_right(dst))
             ml.push_back(create_move(src, dst));
-        for (uint tmp = xq.nonempty_forward_red_1(src), dst = square_forward_red(src);
+        for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
             dst != tmp;
-            dst = square_forward_red(dst))
+            dst = square_down(dst))
             ml.push_back(create_move(src, dst));
-        for (uint tmp = xq.nonempty_forward_black_1(src), dst = square_forward_black(src);
+        for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
             dst != tmp;
-            dst = square_forward_black(dst))
+            dst = square_up(dst))
             ml.push_back(create_move(src, dst));
     }
     return ml;
