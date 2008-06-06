@@ -4,13 +4,13 @@ import os
 import string
 from consts import *
 
-def u(x): return SquareUps[x]
-def d(x): return SquareDowns[x]
+def u(x): return SquareDowns[x]
+def d(x): return SquareUps[x]
 def l(x): return SquareLefts[x]
 def r(x): return SquareRights[x]
 
-SquareUps = [0]*91
 SquareDowns = [0]*91
+SquareUps = [0]*91
 SquareLefts = [0]*91
 SquareRights = [0]*91
 Xs = [9]*91
@@ -28,22 +28,22 @@ def info():
     for sq in range(90):
         #x, y = sq % 9, sq / 9
         y, x = divmod(sq, 9)
-        SquareUps[sq] = _(x, y - 1)
-        SquareDowns[sq] = _(x, y + 1)
+        SquareDowns[sq] = _(x, y - 1)
+        SquareUps[sq] = _(x, y + 1)
         SquareLefts[sq] = _(x - 1, y)
         SquareRights[sq] = _(x + 1, y)
         Xs[sq] = x
         Ys[sq] = y
         XYs[y][x] = sq
-    SquareUps[90] = 90
     SquareDowns[90] = 90
+    SquareUps[90] = 90
     SquareLefts[90] = 90
     SquareRights[90] = 90
 info()
 
 def leg():
-    u = lambda s:SquareUps[s]
-    d = lambda s:SquareDowns[s]
+    u = lambda s:SquareDowns[s]
+    d = lambda s:SquareUps[s]
     l = lambda s:SquareLefts[s]
     r = lambda s:SquareRights[s]
     for src in range(90):
@@ -83,8 +83,8 @@ PT = [RedKing]+[RedAdvisor]*2+[RedBishop]*2+[RedRook]*2+[RedKnight]*2+[RedCannon
 PC = [0]*16 + [1]*16 + [2] + [3]
 
 def MoveFlags():
-    u = lambda s:SquareUps[s]
-    d = lambda s:SquareDowns[s]
+    u = lambda s:SquareDowns[s]
+    d = lambda s:SquareUps[s]
     l = lambda s:SquareLefts[s]
     r = lambda s:SquareRights[s]
     MoveFlags = [[0]*128 for i in range(91)]
@@ -223,8 +223,8 @@ def main():
     dict['xs'] = d1a_str(Xs, u32)
     dict['ys'] = d1a_str(Ys, u32)
     dict['xys'] = d2a_str(XYs, u32)
-    dict['ups'] = d1a_str(SquareUps, u32)
     dict['downs'] = d1a_str(SquareDowns, u32)
+    dict['ups'] = d1a_str(SquareUps, u32)
     dict['lefts'] = d1a_str(SquareLefts, u32)
     dict['rights'] = d1a_str(SquareRights, u32)
     dict['square_flags'] = d1a_str(SquareFlags, u32)

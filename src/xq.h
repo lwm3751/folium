@@ -39,12 +39,12 @@ public:
 
     uint player_in_check(uint player) const;
 
-    uint nonempty_forward_red_1(uint)const;
-    uint nonempty_forward_black_1(uint)const;
+    uint nonempty_up_1(uint)const;
+    uint nonempty_down_1(uint)const;
     uint nonempty_left_1(uint)const;
     uint nonempty_right_1(uint)const;
-    uint nonempty_forward_red_2(uint)const;
-    uint nonempty_forward_black_2(uint)const;
+    uint nonempty_down_2(uint)const;
+    uint nonempty_up_2(uint)const;
     uint nonempty_left_2(uint)const;
     uint nonempty_right_2(uint)const;
     uint distance(uint, uint)const;
@@ -106,21 +106,21 @@ inline bool XQ::is_legal_move(uint32 move)const
     return is_legal_move(move_src(move), move_dst(move));
 }
 
-inline uint XQ::nonempty_forward_red_1(uint sq)const
+inline uint XQ::nonempty_up_1(uint sq)const
 {
-    return m_bitmap.nonempty_forward_red_1(sq);
+    return m_bitmap.nonempty_up_1(sq);
 }
-inline uint XQ::nonempty_forward_red_2(uint sq)const
+inline uint XQ::nonempty_up_2(uint sq)const
 {
-    return m_bitmap.nonempty_forward_red_2(sq);
+    return m_bitmap.nonempty_up_2(sq);
 }
-inline uint XQ::nonempty_forward_black_1(uint sq)const
+inline uint XQ::nonempty_down_1(uint sq)const
 {
-    return m_bitmap.nonempty_forward_black_1(sq);
+    return m_bitmap.nonempty_down_1(sq);
 }
-inline uint XQ::nonempty_forward_black_2(uint sq)const
+inline uint XQ::nonempty_down_2(uint sq)const
 {
-    return m_bitmap.nonempty_forward_black_2(sq);
+    return m_bitmap.nonempty_down_2(sq);
 }
 inline uint XQ::nonempty_right_1(uint sq)const
 {
