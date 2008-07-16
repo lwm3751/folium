@@ -10,6 +10,7 @@ const int NULL_DEPTH = 2;
 static Killer killers[LIMIT_DEPTH+1];
 int Engine::full(int depth, int alpha, int beta)
 {
+    ++m_tree_nodes;
     if (m_stop)
         return - WINSCORE;
     const int ply = m_ply - m_start_ply;
@@ -42,7 +43,6 @@ int Engine::full(int depth, int alpha, int beta)
             return score;
         return leaf(alpha, beta);
     }
-    ++m_tree_nodes;
 
     Record& record = m_hash.record(m_keys[m_ply], m_xq.player());
     uint32 hash_move;
@@ -129,7 +129,8 @@ int Engine::full(int depth, int alpha, int beta)
 }
 int Engine::leaf(int alpha, int beta)
 {
-    const int ply = m_ply - m_start_ply;
+    const int ply = m_ply - m_start_ply;	
+	m_tree_nodes--;
     m_leaf_nodes++;
     int best_value = ply - WINSCORE;
     {
@@ -170,6 +171,7 @@ int Engine::leaf(int alpha, int beta)
 }
 int Engine::quies(int alpha, int beta)
 {
+    m_quiet_nodes++;
     const int ply = m_ply - m_start_ply;
     const int flag = trace_flag(m_traces[m_ply]);
 
@@ -200,7 +202,6 @@ int Engine::quies(int alpha, int beta)
                 alpha = score;
         }
     }
-    m_quiet_nodes++;
     MoveList ml;
     if (flag)
         generate_moves(m_xq, ml, m_history);

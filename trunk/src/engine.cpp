@@ -434,8 +434,8 @@ uint32 Engine::search(int depth, set<uint> ban)
         }
 
         float t = float(clock()-start)/CLOCKS_PER_SEC;
-        if (t > 0.01)
-            file << "nps:\t" << int((m_tree_nodes+m_leaf_nodes)/t) << "\ttime:"<<t<<endl;
+        if (t > 0.1)
+            file << "nps:\t" << int((m_tree_nodes+m_leaf_nodes+m_quiet_nodes)/t) << "\ttime:"<<t<<endl;
 
         if (best_value > MATEVALUE || best_value < -MATEVALUE)
             break;
