@@ -2,6 +2,8 @@
 #include "defines.h"
 #include "engine_data.h"
 
+namespace folium {
+
 static const uint64 s_red_king_pawn_locks[91] = {$rkpl};
 static const uint64 s_black_king_pawn_locks[91] = {$bkpl};
 static const uint64 s_advisor_bishop_locks[91] = {$abl};
@@ -39,3 +41,5 @@ const sint32 * const g_piece_values[32] = {$pvalues};
 const uint64 * const g_type_locks[14] = {$tlocks};
 const uint32 * const g_type_keys[14] = {$tkeys};
 const sint32 * const g_type_values[14] = {$tvalues};
+
+}//namespace folium

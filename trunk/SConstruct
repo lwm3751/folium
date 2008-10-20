@@ -1,6 +1,6 @@
 import sys
-cpp_path = [r'D:\toolbox\boost_1_35_0']
-lib_path = ['#bin', r'D:\toolbox\boost_1_35_0\stage\lib']
+cpp_path = [r'D:\toolbox\boost_1_36_0']
+lib_path = ['#bin', r'D:\toolbox\boost_1_36_0\lib_x86\lib']
 
 BuildDir('build', 'src', duplicate=0)
 
@@ -21,14 +21,16 @@ defines = {'NDEBUG':None}
 src = ['build/engine_data.cpp',
     'build/xq_data.cpp',
     'build/bitmap_data.cpp',
+    'build/history_data.cpp',
     'build/generator.cpp',
     'build/hash.cpp',
     'build/search.cpp',
     'build/engine.cpp',
-    'build/history_data.cpp',
     'build/xq.cpp',
+    'build/fen.cpp',
     'build/move.cpp',
-    'build/qianhong/qianhong.cpp']
+    'build/qianhong/qianhong.cpp'
+]
 
 folium = env.Program(
     'folium',

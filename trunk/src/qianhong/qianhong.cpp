@@ -6,6 +6,7 @@ using namespace std;
 #include <boost/thread.hpp>
 
 #include "../engine.h"
+using namespace folium;
 
 #define VERSION  "0.1"
 Engine *pEngine;
@@ -200,8 +201,8 @@ bool ICCSMove (char *str)
 bool LoadFEN (const char *str)
 {
     string fen(str);
-    XQ xq(fen);
-    if (xq.piece(0) == InvaildSquare)
+    XQ xq;
+    if (!xq.set_fen(fen))
         return false;
     pEngine->reset(xq);
     game_ply = pEngine->_ply();
@@ -230,7 +231,9 @@ void Plugin ()
     char cmd[80];
     char arg[80];
 
-    pEngine = new Engine(XQ("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1"), 23);
+    XQ xq;
+    xq.set_fen("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR r");
+    pEngine = new Engine(xq, 23);
 
     while (1)
     {
