@@ -9,11 +9,9 @@
 #include "xq.h"
 #include "history.h"
 #include "hash.h"
-#include "engine_data.h"
 
 namespace folium
 {
-
     using std::set;
 
     class Engine

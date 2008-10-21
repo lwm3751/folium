@@ -1,5 +1,5 @@
-#ifndef _ENGINE_DATA_H_
-#define _ENGINE_DATA_H_
+#ifndef _XQ_POSITION_DATA_H_
+#define _XQ_POSITION_DATA_H_
 
 #include <cstring>
 
@@ -52,4 +52,4 @@ namespace folium
 
 }//namespace folium
 
-#endif //_ENGINE_DATA_H_
+#endif //_XQ_POSITION_DATA_H_

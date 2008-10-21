@@ -18,8 +18,8 @@ else:
 
 defines = {'NDEBUG':None}
 
-src = ['build/engine_data.cpp',
-    'build/xq_data.cpp',
+src = ['build/xq_data.cpp',
+    'build/xq_position_data.cpp',
     'build/bitmap_data.cpp',
     'build/history_data.cpp',
     'build/generator.cpp',

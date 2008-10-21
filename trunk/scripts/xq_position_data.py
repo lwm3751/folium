@@ -235,9 +235,9 @@ def main():
     dict['tvalues'] = d1a_str(TV, lambda x: x)
 
     #template = string.Template(template)
-    template = open(os.path.join(template_path, 'engine_data.cpp.tmpl'), 'rb').read()
+    template = open(os.path.join(template_path, 'xq_position_data.cpp.tmpl'), 'rb').read()
     template = string.Template(template)
-    path = os.path.join(folium_path, 'engine_data.cpp')
+    path = os.path.join(folium_path, 'xq_position_data.cpp')
     open(path, 'wb').write(str(template.safe_substitute(dict)))
 if __name__ == "__main__":
     main()
