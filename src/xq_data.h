@@ -3,7 +3,6 @@
 
 #include <cstring>
 #include "defines.h"
-#include "xq_position_data.h"
 namespace folium
 {
     extern const uint8 g_xs[91];

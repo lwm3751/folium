@@ -1,4 +1,5 @@
 #include "engine.h"
+#include "xq_position_data.h"
 #include <ctime>
 #include <vector>
 #include <string>
