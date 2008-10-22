@@ -21,10 +21,6 @@ namespace folium
         string get_fen()const;
         bool set_fen(const string&);
 
-        uint32 key()const;
-        uint64 lock()const;
-        sint32 value()const;
-
         uint square(uint)const;
         uint square_color(uint)const;
         uint square_flag(uint)const;
@@ -41,7 +37,7 @@ namespace folium
 
         bool is_good_cap(uint move)const;
         uint status()const;
-        uint player_in_check(uint player) const;
+        uint player_in_check(uint player)const;
 
         uint nonempty_up_1(uint)const;
         uint nonempty_down_1(uint)const;
