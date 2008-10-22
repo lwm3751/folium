@@ -282,28 +282,4 @@ namespace folium
         m_squares[90] = InvaildIndex;
         m_player = Empty;
     }
-
-    uint32 XQ::key()const
-    {
-        uint32 _key = 0;
-        for (uint p = 0; p < 32; ++p)
-            _key ^= piece_key(p, piece(p));
-        return _key;
-    }
-
-    uint64 XQ::lock()const
-    {
-        uint32 _lock = 0;
-        for (uint p = 0; p < 32; ++p)
-            _lock ^= piece_lock(p, piece(p));
-        return _lock;
-    }
-
-    sint32 XQ::value()const
-    {
-        sint32 _value = 0;
-        for (uint p = 0; p < 32; ++p)
-            _value ^= piece_value(p, piece(p));
-        return _value;
-    }
 }//namespace folium
