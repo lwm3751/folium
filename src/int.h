@@ -16,7 +16,6 @@ namespace folium
 
     typedef boost::int_fast32_t sint;
     typedef boost::uint_fast32_t uint;
-
 }//namespace folium
 
 #endif //INT_H
