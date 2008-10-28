@@ -24,6 +24,7 @@ namespace folium
         uint square(uint)const;
         uint square_color(uint)const;
         uint square_flag(uint)const;
+        bool square_is_empty(uint)const;
         uint piece(uint)const;
         uint player()const;
 
@@ -33,7 +34,6 @@ namespace folium
         void undo_null();
 
         bool is_legal_move(uint, uint)const;
-        bool is_legal_move(uint32)const;
 
         bool is_good_cap(uint move)const;
         uint status()const;
@@ -72,6 +72,10 @@ namespace folium
     {
         return piece_flag(square(sq));
     }
+    inline bool XQ::square_is_empty(uint sq)const
+    {
+        return square(sq) == EmptyIndex;
+    }
     inline uint XQ::piece(uint idx)const
     {
         assert (idx < 34UL);
@@ -90,11 +94,6 @@ namespace folium
     inline void XQ::undo_null()
     {
         m_player = 1 - m_player;
-    }
-
-    inline bool XQ::is_legal_move(uint32 move)const
-    {
-        return is_legal_move(move_src(move), move_dst(move));
     }
 
     inline uint XQ::nonempty_up_1(uint sq)const
@@ -172,7 +171,7 @@ namespace folium
     inline void XQ::undo_move(uint src, uint dst, uint dst_piece)
     {
         uint32 src_piece = square(dst);
-        assert (square(src) == EmptyIndex);
+        assert (square_is_empty(src));
         assert (piece(src_piece) == dst);
 
         m_bitmap.undo_move(src, dst, dst_piece);

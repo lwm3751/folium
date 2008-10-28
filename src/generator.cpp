@@ -94,7 +94,7 @@ namespace folium
             dst = *pm++;
             while (dst != InvaildSquare)
             {
-                if (xq.square_color(dst) != own && xq.square((dst + src) >> 1) == EmptyIndex)
+                if (xq.square_color(dst) != own && xq.square_is_empty((dst + src) >> 1))
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -149,7 +149,7 @@ namespace folium
             {
                 uint leg = (dst & 0xff00) >> 8;
                 dst &= 0xff;
-                if (xq.square(leg) == EmptyIndex && xq.square_color(dst) != own)
+                if (xq.square_is_empty(leg) && xq.square_color(dst) != own)
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -284,7 +284,7 @@ namespace folium
             dst = *pm++;
             while (dst != InvaildSquare)
             {
-                if (xq.square_color(dst) == opp && xq.square((dst + src) >> 1) == EmptyIndex)
+                if (xq.square_color(dst) == opp && xq.square_is_empty((dst + src) >> 1))
                     ml.push(history.move(src, dst, idx, xq.square(dst)));
                 dst = *pm++;
             }
@@ -323,7 +323,7 @@ namespace folium
             {
                 uint leg = (dst & 0xff00) >> 8;
                 dst &= 0xff;
-                if (xq.square(leg) == EmptyIndex && xq.square_color(dst) == opp)
+                if (xq.square_is_empty(leg) && xq.square_color(dst) == opp)
                     ml.push(history.move(src, dst, idx, xq.square(dst)));
                 dst = *pm++;
             }
@@ -383,7 +383,7 @@ namespace folium
                 m_index++;
                 if (move &&
                         m_xq.square_color(move_src(move)) == m_xq.player() &&
-                        m_xq.is_legal_move(move))
+                        m_xq.is_legal_move(move_src(move), move_dst(move)))
                     return move;
             }
             m_stage = 4;

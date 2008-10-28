@@ -198,7 +198,7 @@ namespace folium
             dst = *pm++;
             while (dst != InvaildSquare)
             {
-                if (xq.square_color(dst) != own && xq.square((dst + src) >> 1) == EmptyIndex)
+                if (xq.square_color(dst) != own && xq.square_is_empty((dst + src) >> 1))
                     ml.push_back(create_move(src, dst));
                 dst = *pm++;
             }
@@ -253,7 +253,7 @@ namespace folium
             {
                 uint leg = (dst & 0xff00) >> 8;
                 dst &= 0xff;
-                if (xq.square(leg) == EmptyIndex && xq.square_color(dst) != own)
+                if (xq.square_is_empty(leg) && xq.square_color(dst) != own)
                     ml.push_back(create_move(src, dst));
                 dst = *pm++;
             }
