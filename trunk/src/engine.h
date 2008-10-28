@@ -104,7 +104,7 @@ namespace folium
 
     inline bool Engine::is_legal_move(uint move)
     {
-        return move &&  m_xq.is_legal_move(move) && m_xq.player() == m_xq.square_color(move_src(move));
+        return move &&  m_xq.is_legal_move(move_src(move), move_dst(move)) && m_xq.player() == m_xq.square_color(move_src(move));
     }
 
     inline void Engine::do_null()

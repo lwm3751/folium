@@ -43,13 +43,13 @@ namespace folium
             return true;
         case RedBishop:
         case BlackBishop:
-            return square(bishop_eye(src, dst)) == EmptyIndex;
+            return square_is_empty(bishop_eye(src, dst));
         case RedRook:
         case BlackRook:
             return distance_is_0(src, dst);
         case RedKnight:
         case BlackKnight:
-            return square(knight_leg(src, dst)) == EmptyIndex;
+            return square_is_empty(knight_leg(src, dst));
         case RedCannon:
         case BlackCannon:
             return (distance(src, dst) + (square(dst) >> 5)) == 1;
@@ -145,7 +145,7 @@ namespace folium
             {
                 uint src = piece(idx);
                 if (g_move_flags[dst][src] & BlackBishopFlag)
-                    if (square(bishop_eye(src, dst)) == EmptyIndex)
+                    if (square_is_empty(bishop_eye(src, dst)))
                         return false;
             }
             //rook
@@ -169,7 +169,7 @@ namespace folium
             {
                 uint src = piece(idx);
                 if (g_move_flags[dst][src] & BlackKnightFlag)
-                    if (square(knight_leg(src, dst)) == EmptyIndex)
+                    if (square_is_empty(knight_leg(src, dst)))
                         return false;
             }
             //cannon
@@ -218,7 +218,7 @@ namespace folium
             {
                 uint src = piece(idx);
                 if (g_move_flags[dst][src] & RedBishopFlag)
-                    if (square(bishop_eye(src, dst)) == EmptyIndex)
+                    if (square_is_empty(bishop_eye(src, dst)))
                         return false;
             }
             //rook
@@ -242,7 +242,7 @@ namespace folium
             {
                 uint src = piece(idx);
                 if (g_move_flags[dst][src] & RedKnightFlag)
-                    if (square(knight_leg(src, dst)) == EmptyIndex)
+                    if (square_is_empty(knight_leg(src, dst)))
                         return false;
             }
             //cannon
