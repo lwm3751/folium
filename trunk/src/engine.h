@@ -45,7 +45,7 @@ namespace folium
         }
         uint _in_checked()const
         {
-            return m_xq.status();
+            return helper::status(m_xq);
         }
         uint _ply()const
         {
@@ -104,7 +104,7 @@ namespace folium
 
     inline bool Engine::is_legal_move(uint move)
     {
-        return move &&  m_xq.is_legal_move(move_src(move), move_dst(move)) && m_xq.player() == m_xq.square_color(move_src(move));
+        return move &&  helper::is_legal_move(m_xq, move_src(move), move_dst(move)) && m_xq.player() == m_xq.square_color(move_src(move));
     }
 
     inline void Engine::do_null()

@@ -25,19 +25,15 @@ namespace folium
         uint square_color(uint)const;
         uint square_flag(uint)const;
         bool square_is_empty(uint)const;
+
         uint piece(uint)const;
+
         uint player()const;
 
         bool do_move(uint, uint);
         void undo_move(uint, uint, uint);
         void do_null();
         void undo_null();
-
-        bool is_legal_move(uint, uint)const;
-
-        bool is_good_cap(uint move)const;
-        uint status()const;
-        uint player_in_check(uint player)const;
 
         uint nonempty_up_1(uint)const;
         uint nonempty_down_1(uint)const;
@@ -58,6 +54,13 @@ namespace folium
         uint8 m_squares[91];
         uint8 m_player;
     };
+    namespace helper
+    {
+        uint player_in_check(const XQ& xq, uint player);
+        uint status(const XQ& xq);
+        bool is_good_cap(const XQ& xq, uint move);
+        bool is_legal_move(const XQ& xq, uint32 src, uint32 dst);
+    }
 
     inline uint XQ::square(uint idx)const
     {
@@ -148,14 +151,13 @@ namespace folium
         assert (src == piece(src_piece));
         assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
         assert (piece_color(src_piece) == m_player);
-        assert (is_legal_move(src, dst));
 
         m_bitmap.do_move(src, dst);
         m_squares[src] = EmptyIndex;
         m_squares[dst] = src_piece;
         m_pieces[src_piece] = dst;
         m_pieces[dst_piece] = InvaildSquare;
-        if (player_in_check(m_player))
+        if (helper::player_in_check(*this, m_player))
         {
             m_bitmap.undo_move(src, dst, dst_piece);
             m_squares[src] = src_piece;

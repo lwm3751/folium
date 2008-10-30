@@ -25,7 +25,7 @@ namespace folium
         }
 
         ++m_ply;
-        m_traces[m_ply] = create_trace(m_xq.status(), dst_piece, move);
+        m_traces[m_ply] = create_trace(helper::status(m_xq), dst_piece, move);
         if (dst_piece == EmptyIndex)
         {
             m_keys[m_ply] = m_keys[m_ply-1]\
@@ -65,7 +65,7 @@ namespace folium
 
     Engine::Engine(const XQ& xq, uint hash):m_xq(xq), m_ply(0), m_hash(hash)
     {
-        m_traces[0] = create_trace(xq.status(), EmptyIndex, 0);
+        m_traces[0] = create_trace(helper::status(xq), EmptyIndex, 0);
         m_ply = 0;
         m_start_ply = -1;
         m_keys[0] = 0UL;
@@ -88,7 +88,7 @@ namespace folium
     {
         m_xq = xq;
 
-        m_traces[0] = create_trace(xq.status(), EmptyIndex, 0);
+        m_traces[0] = create_trace(helper::status(m_xq), EmptyIndex, 0);
         m_ply = 0;
         m_start_ply = -1;
         m_keys[0] = 0UL;
