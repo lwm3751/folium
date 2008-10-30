@@ -27,7 +27,7 @@ src = ['build/xq_data.cpp',
     'build/search.cpp',
     'build/engine.cpp',
     'build/xq.cpp',
-    'build/fen.cpp',
+    'build/xq_helper.cpp',
     'build/move.cpp',
     'build/qianhong/qianhong.cpp'
 ]

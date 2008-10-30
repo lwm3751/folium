@@ -42,7 +42,7 @@ namespace folium
     }
     inline int Record::probe(XQ& xq, int depth, int ply, int alpha, int beta, uint32& move, const uint64& lock)
     {
-        if ((m_flag & PV) != 0 && m_lock == lock && xq.is_legal_move(move_src(m_move), move_dst(m_move)))
+        if ((m_flag & PV) != 0 && m_lock == lock && helper::is_legal_move(xq, move_src(m_move), move_dst(m_move)))
         {
             move = m_move;
             if (m_score == INVAILDVALUE)

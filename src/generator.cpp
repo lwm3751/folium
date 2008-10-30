@@ -366,7 +366,7 @@ namespace folium
             while (m_index < m_ml.size())
             {
                 uint32 move = m_ml[m_index];
-                if (m_xq.is_good_cap(move))
+                if (helper::is_good_cap(m_xq, move))
                 {
                     m_ml[m_index] = 0;
                     m_index++;
@@ -383,7 +383,7 @@ namespace folium
                 m_index++;
                 if (move &&
                         m_xq.square_color(move_src(move)) == m_xq.player() &&
-                        m_xq.is_legal_move(move_src(move), move_dst(move)))
+                        helper::is_legal_move(m_xq, move_src(move), move_dst(move)))
                     return move;
             }
             m_stage = 4;
