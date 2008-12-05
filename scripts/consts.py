@@ -98,7 +98,7 @@ def d2a_str(array_2d, func):
 import os
 script_path = os.path.abspath(os.path.dirname(__file__))
 work_path = os.path.dirname(script_path)
-folium_path = os.path.join(work_path, 'src')
+folium_path = os.path.join(work_path, 'cpp', 'folium')
 template_path = os.path.join(script_path, 'template')
 if not os.path.exists(template_path):
     os.mkdir(template_path)
