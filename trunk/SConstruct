@@ -1,41 +1,27 @@
+import os
 import sys
-cpp_path = [r'D:\toolbox\boost_1_36_0']
-lib_path = ['#bin', r'D:\toolbox\boost_1_36_0\lib_x86\lib']
-
-BuildDir('build', 'src', duplicate=0)
-
-env = Environment(CPPPATH=cpp_path, LIBPATH=lib_path)
 
 if sys.platform == "win32":
-    if 1:
-        env.Tool('mingw')
-        ccflag = '-O3'
-    else:
-        env.Tool('icl')
-        ccflag = '/Ox /MD'
+    CPPPATH = [r'D:\toolbox\boost_1_36_0']
+    LIBPATH = [r'D:\toolbox\boost_1_36_0\lib_x86\lib']
+    env = Environment(tools=['mingw'], CPPPATH=CPPPATH, LIBPATH=LIBPATH)
+    CCFLAGS = '-O3'
+    LIBS=['boost_thread-mgw34-mt']
 else:
-    ccflag = '-O3'
+    env = Environment()
+    CCFLAGS = '-O3'
 
-defines = {'NDEBUG':None}
+CPPDEFINES = {'NDEBUG':None}
 
-src = ['build/xq_data.cpp',
-    'build/xq_position_data.cpp',
-    'build/bitmap_data.cpp',
-    'build/history_data.cpp',
-    'build/generator.cpp',
-    'build/hash.cpp',
-    'build/search.cpp',
-    'build/engine.cpp',
-    'build/xq.cpp',
-    'build/xq_helper.cpp',
-    'build/move.cpp',
-    'build/qianhong/qianhong.cpp'
-]
+src = []
+for root, dirs, files in os.walk('cpp'):
+    for file in files:
+        if file.endswith('.cpp'):
+            src.append(os.path.join(root, file))
 
 folium = env.Program(
     'folium',
     src,
-    LIBS=['boost_thread-mgw34-mt'],
-    CPPDEFINES = defines,
-    CCFLAGS = ccflag)
-
+    LIBS=LIBS,
+    CPPDEFINES = CPPDEFINES,
+    CCFLAGS = CCFLAGS)
