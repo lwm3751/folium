@@ -363,8 +363,6 @@ namespace folium
     }
     uint32 Engine::search(set<uint> ban)
     {
-        //writeline(str( boost::format("info depth %d mintime %f maxtime %f") % m_depth % m_mintime % m_maxtime ));
-
         m_interrupt = 0;
 
         m_tree_nodes = 0;
@@ -385,92 +383,57 @@ namespace folium
 
         int best_value;
         vector<uint> ml = generate_root_move(m_xq, ban);
-        vector<uint> bests;
-        for (sint i = 1;
-            !m_stop && i < m_depth  && now_real() < m_mintime;
-            ++i)
+        uint best_move = 0;
+        for (sint depth = 1;
+            !m_stop && depth < m_depth  && now_real() < m_mintime;
+            ++depth)
         {
-            if (ml.size() < 2)
-            {
-                bests = ml;
-                break;
-            }
+            if (ml.size() == 1)
+                return ml[0];
+            else if (ml.size() ==0)
+                return 0;
+
+            vector<uint>::iterator itr = find(ml.begin(), ml.end(), best_move);
+            if (itr != ml.begin() && itr != ml.end())
+                swap(*ml.begin(), *itr);
+
             best_value = -INVAILDVALUE;
-            vector<uint> olds;
-            bests.swap(olds);
-            for (uint j = 0; j < olds.size(); ++j)
+            for (vector<uint>::iterator itr = ml.begin(); itr != ml.end(); ++itr)
             {
-                int score;
-                uint32 move = olds[j];
-                make_move(move);
-                if (best_value != -INVAILDVALUE)
+                if (!make_move(*itr))
                 {
-                    score = - full(i, -1-best_value, -best_value);
-                    if (score > best_value)
-                        score = - full(i, -WINSCORE, -1-best_value);
-                }
-                else
-                {
-                    score = - full(i, -WINSCORE, WINSCORE);
-                }
-                unmake_move();
-                writeline(str( boost::format("info move %s depth %d score %d") % move2ucci(move) %i % score));
-                if (score >= best_value)
-                {
-                    if (score > best_value)
-                        bests.clear();
-                    if (find(bests.begin(), bests.end(), move) == bests.end())
-                    {
-                        bests.push_back(move);
-                    }
-                    best_value = score;
-                }
-            }
-            for (uint j = 0; j < ml.size(); ++j)
-            {
-                uint32 move = ml[j];
-                if (!make_move(move))
-                {
-                    ml[j] = 0;
+                    *itr = 0;
                     continue;
                 }
                 int score;
                 if (best_value != -INVAILDVALUE)
                 {
-                    score = - full(i, -1-best_value, -best_value);
+                    score = - full(depth, -1-best_value, -best_value);
                     if (score > best_value)
-                        score = - full(i, -WINSCORE, -best_value);
+                        score = - full(depth, -WINSCORE, -best_value);
                 }
                 else
-                {
-                    score = - full(i, -WINSCORE, WINSCORE);
-                }
+                    score = - full(depth, -WINSCORE, WINSCORE);
                 unmake_move();
                 if (m_stop)
                     break;
                 if (score > best_value)
                 {
-                    writeline(str( boost::format("info move %s depth %d score %d") % move2ucci(move) %i % score));
+                    writeline(str( boost::format("info move %s depth %d score %d") % move2ucci(*itr) % depth % score));
                     if (score > best_value)
-                        bests.clear();
-                    if (find(bests.begin(), bests.end(), move) == bests.end())
                     {
-                        bests.push_back(move);
+                        best_move = *itr;
+                        best_value = score;
                     }
-                    best_value = score;
                 }
                 else if (score < -MATEVALUE)
-                {
-                    ml[j] = 0;
-                }
+                    *itr = 0;
             }
 
             if (best_value > MATEVALUE || best_value < -MATEVALUE)
                 break;
             ml.erase(remove(ml.begin(), ml.end(), 0), ml.end());
         }
-        if (bests.empty())
-            return 0;
-        return bests[clock()%bests.size()];
+        return best_move;
     }
 }

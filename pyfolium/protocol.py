@@ -1,5 +1,6 @@
 import os
 import sys
+import datetime
 import time
 
 import folium
@@ -13,17 +14,23 @@ class Engine(folium.Engine):
         self.book = pyfolium.book.reader.Reader()
 
         self.logfile = None
-        filename = os.path.join(os.path.dirname(sys.argv[0]), 'snake.txt')
-        self.logfile = open(filename, 'w')
+        logdir = os.path.join(os.path.dirname(sys.argv[0]), 'log')
+        if not os.path.exists(logdir):
+            os.mkdir(logdir)
+        for i in range(0, 256):
+            filename = os.path.join(logdir, '%s_%d.txt'%(datetime.date.today(), i))
+            if not os.path.exists(filename):
+                self.logfile = open(filename, 'w')
+                break
 
     def writeline(self, line):
         folium.Engine.writeline(self, line)
-        self.log("write line:%s" % `line`)
+        self.log("write line:%s" % line)
     def readline(self):
         if not self.readable():
             return
         line = folium.Engine.readline(self)
-        self.log("read line:%s" % `line`)
+        self.log("read line:%s" % line)
         return line
     def log(self, s):
         if not self.logfile:
