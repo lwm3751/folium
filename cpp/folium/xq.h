@@ -18,7 +18,7 @@ namespace folium
         XQ();
         XQ(XQ const &);
 
-        string get_fen()const;
+        string get()const;
         bool set_fen(const string&);
 
         uint square(uint)const;

@@ -2,16 +2,16 @@ import os
 import sys
 
 if sys.platform == "win32":
-    CPPPATH = [r'D:\toolbox\boost_1_36_0']
-    LIBPATH = [r'D:\toolbox\boost_1_36_0\lib_x86\lib']
-    env = Environment(tools=['mingw'], CPPPATH=CPPPATH, LIBPATH=LIBPATH)
-    CCFLAGS = '-O3'
-    LIBS=['boost_thread-mgw34-mt']
+    cpppath = [r'D:\toolbox\boost_1_36_0', r'D:\Python26\include']
+    libpath = [r'D:\toolbox\boost_1_36_0\lib_x86\lib', r'D:\Python26\libs']
+    env = Environment(tools=['mingw'], CPPPATH=cpppath, LIBPATH=libpath)
+    ccflags = '-O3'
+    libs=['boost_python-mgw34-mt', 'python26']
 else:
     env = Environment()
-    CCFLAGS = '-O3'
+    ccflags = '-O3'
 
-CPPDEFINES = {'NDEBUG':None}
+cppdefines = {'NDEBUG':None}
 
 src = []
 for root, dirs, files in os.walk('cpp'):
@@ -22,6 +22,6 @@ for root, dirs, files in os.walk('cpp'):
 folium = env.Program(
     'folium',
     src,
-    LIBS=LIBS,
-    CPPDEFINES = CPPDEFINES,
-    CCFLAGS = CCFLAGS)
+    LIBS=libs,
+    CPPDEFINES = cppdefines,
+    CCFLAGS = ccflags)
