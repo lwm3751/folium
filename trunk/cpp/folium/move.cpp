@@ -2,7 +2,7 @@
 #include "xq_data.h"
 namespace folium
 {
-    uint32 ucci2move(char* ucci)
+    uint32 ucci2move(const string& ucci)
     {
         int sx, sy, dx, dy;
         sx = ucci[0] - 'a';
@@ -17,15 +17,15 @@ namespace folium
         return create_move(xy_square(sx, sy), xy_square(dx, dy));
     }
 
-    char* move2ucci(uint32 move, char* ucci)
+    string move2ucci(uint32 move)
     {
+        string ucci;
         uint src = move_src(move);
         uint dst = move_dst(move);
-        ucci[0]=square_x(src)+'a';
-        ucci[1]=square_y(src)+'0';
-        ucci[2]=square_x(dst)+'b';
-        ucci[3]=square_y(dst)+'0';
-        ucci[4]=0;
+        ucci.push_back(square_x(src)+'a');
+        ucci.push_back(square_y(src)+'0');
+        ucci.push_back(square_x(dst)+'a');
+        ucci.push_back(square_y(dst)+'0');
         return ucci;
     }
 

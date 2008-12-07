@@ -12,7 +12,7 @@ namespace folium
     int Engine::full(int depth, int alpha, int beta)
     {
         ++m_tree_nodes;
-        if (m_stop)
+        if (is_stop())
             return - WINSCORE;
         const int ply = m_ply - m_start_ply;
 
@@ -100,7 +100,7 @@ namespace folium
                 best_move = move & 0x3fff;
                 if (score >= beta)
                 {
-                    if (m_stop)
+                    if (is_stop())
                         return - WINSCORE;
                     m_history.update_history(best_move, depth);
                     record.store_beta(depth, ply, score, best_move, m_locks[m_ply]);
@@ -115,7 +115,7 @@ namespace folium
                 }
             }
         }
-        if (m_stop)
+        if (is_stop())
             return - WINSCORE;
         if (best_move)
         {

@@ -2,10 +2,12 @@
 #define MOVE_H
 
 #include <cassert>
+#include <string>
 
 #include "int.h"
 namespace folium
 {
+    using std::string;
     inline uint move_src(uint32 move)
     {
         return move & 0x7f;
@@ -42,8 +44,8 @@ namespace folium
         return (flag << 20) | (dst_piece << 14) | (move & 0x3fff);
     }
 
-    extern uint32 ucci2move(char* iccs);
-    extern char* move2ucci(uint32 move, char* iccs);
+    extern uint32 ucci2move(const string& ucci);
+    extern string move2ucci(uint32 move);
 
 }//namespace folium
 

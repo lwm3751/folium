@@ -201,7 +201,7 @@ namespace folium
         return false;
     }
 
-    string XQ::get_fen()const
+    string XQ::get()const
     {
         if (m_player == Empty)
             return string();

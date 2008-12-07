@@ -2,6 +2,7 @@
 #define _ENGINE_H_
 
 #include <set>
+#include <string>
 
 #include "defines.h"
 #include "movelist.h"
@@ -10,48 +11,44 @@
 #include "history.h"
 #include "hash.h"
 
+#include "utility/io.h"
+#include "utility/time.h"
+
 namespace folium
 {
     using std::set;
-
+    using std::string;
     class Engine
     {
     public:
-        Engine(const XQ&, uint hash);
-        void reset(const XQ&);
+        Engine();
+        void setxq(const XQ&);
+        bool load(const string& fen);
+        string fen(){return m_xq.get();}
+
+        bool readable();
+        string readline();
+        void writeline(const string& str);
+
         bool make_move(uint32 move);
         void unmake_move();
+
+        uint32 search(set<uint>);
+
+        bool m_debug;
+        bool m_stop;
+        bool m_ponder;
+        int m_depth;
+        double m_starttime;
+        double m_mintime;
+        double m_maxtime;
+        shared_ptr<io> m_io;
+    private:
+        void interrupt();
         void do_null();
         void undo_null();
-        uint32 search(int, set<uint>);
         bool is_legal_move(uint move);
-    public:
-        // for plugin
-        void stop()
-        {
-            m_stop = true;
-        }
-        uint _square(uint s)const
-        {
-            return m_xq.square(s);
-        }
-        uint _piece(uint p)const
-        {
-            return m_xq.piece(p);
-        }
-        uint _player()const
-        {
-            return m_xq.player();
-        }
-        uint _in_checked()const
-        {
-            return helper::status(m_xq);
-        }
-        uint _ply()const
-        {
-            return m_ply;
-        }
-    private:
+        bool is_stop();
         int value()const;
         int loop_value(int)const;
         int full(int, int, int);
@@ -67,7 +64,7 @@ namespace folium
         uint32 m_traces[512];
         History m_history;
         HashTable m_hash;
-        volatile bool m_stop;
+        volatile uint m_interrupt;
     private:
         uint m_tree_nodes;
         uint m_leaf_nodes;
@@ -78,6 +75,7 @@ namespace folium
         uint m_kill_cuts_2;
         uint m_null_nodes;
         uint m_null_cuts;
+
     };
 
     inline int Engine::value()const
@@ -127,6 +125,13 @@ namespace folium
         m_xq.undo_null();
     }
 
+    inline bool Engine::is_stop()
+    {
+        m_interrupt = (m_interrupt + 1) & 8191;
+        if (m_interrupt == 8191)
+            interrupt();
+        return m_stop;
+    }
 }//namespace folium
 
 #endif //_ENGINE_H_
