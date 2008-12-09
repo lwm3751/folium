@@ -22,10 +22,10 @@ namespace folium
         string ucci;
         uint src = move_src(move);
         uint dst = move_dst(move);
-        ucci.push_back(square_x(src)+'a');
-        ucci.push_back(square_y(src)+'0');
-        ucci.push_back(square_x(dst)+'a');
-        ucci.push_back(square_y(dst)+'0');
+        ucci.push_back(static_cast<char>(square_x(src)+'a'));
+        ucci.push_back(static_cast<char>(square_y(src)+'0'));
+        ucci.push_back(static_cast<char>(square_x(dst)+'a'));
+        ucci.push_back(static_cast<char>(square_y(dst)+'0'));
         return ucci;
     }
 

@@ -23,7 +23,7 @@ namespace folium
         History& m_history;
         MoveList m_ml;
         int m_stage;
-        int m_index;
+        uint m_index;
     };
     inline Generator::Generator(XQ& xq, uint32 hash_move, Killer& killer, History& history):
             m_xq(xq), m_hash_move(hash_move), m_killer(killer), m_history(history), m_stage(0), m_index(0)

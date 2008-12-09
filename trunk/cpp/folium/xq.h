@@ -153,17 +153,17 @@ namespace folium
         assert (piece_color(src_piece) == m_player);
 
         m_bitmap.do_move(src, dst);
-        m_squares[src] = EmptyIndex;
-        m_squares[dst] = src_piece;
-        m_pieces[src_piece] = dst;
-        m_pieces[dst_piece] = InvaildSquare;
+        m_squares[src] = static_cast<uint8>(EmptyIndex);
+        m_squares[dst] = static_cast<uint8>(src_piece);
+        m_pieces[src_piece] = static_cast<uint8>(dst);
+        m_pieces[dst_piece] = static_cast<uint8>(InvaildSquare);
         if (helper::player_in_check(*this, m_player))
         {
             m_bitmap.undo_move(src, dst, dst_piece);
-            m_squares[src] = src_piece;
-            m_squares[dst] = dst_piece;
-            m_pieces[src_piece] = src;
-            m_pieces[dst_piece] = dst;
+            m_squares[src] = static_cast<uint8>(src_piece);
+            m_squares[dst] = static_cast<uint8>(dst_piece);
+            m_pieces[src_piece] = static_cast<uint8>(src);
+            m_pieces[dst_piece] = static_cast<uint8>(dst);
             return false;
         }
 
@@ -177,14 +177,14 @@ namespace folium
         assert (piece(src_piece) == dst);
 
         m_bitmap.undo_move(src, dst, dst_piece);
-        m_squares[src] = src_piece;
-        m_squares[dst] = dst_piece;
-        m_pieces[src_piece] = src;
-        m_pieces[dst_piece] = dst;
+        m_squares[src] = static_cast<uint8>(src_piece);
+        m_squares[dst] = static_cast<uint8>(dst_piece);
+        m_pieces[src_piece] = static_cast<uint8>(src);
+        m_pieces[dst_piece] = static_cast<uint8>(dst);
         m_player = 1UL - m_player;
 
         assert (piece_color(src_piece) == m_player);
-        assert (is_legal_move(src, dst));
+		assert (helper::is_legal_move(*this, src, dst));
     }
 
 }//namespace folium

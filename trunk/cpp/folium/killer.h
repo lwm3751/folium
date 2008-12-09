@@ -15,7 +15,7 @@ namespace folium
             if (move==moves[0])
                 return;
             moves[1] = moves[0];
-            moves[0] = move;
+            moves[0] = static_cast<uint16>(move);
         }
         uint killer(uint i)
         {
