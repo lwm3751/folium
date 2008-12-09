@@ -95,7 +95,7 @@ namespace folium
         uint src, dst, src_piece, dst_piece;
         src = move_src(move);
         dst = move_dst(move);
-        assert(m_xq.is_legal_move(src, dst));
+        assert(helper::is_legal_move(m_xq, src, dst));
         src_piece = m_xq.square(src);
         dst_piece = m_xq.square(dst);
         assert(dst_piece != RedKingIndex && dst_piece != BlackKingIndex);

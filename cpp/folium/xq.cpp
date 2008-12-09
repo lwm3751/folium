@@ -144,8 +144,8 @@ namespace folium
                     return false;
                 }
                 uint32 sq = xy_square(x++, y);
-                m_squares[sq] = begin;
-                m_pieces[begin] = sq;
+                m_squares[sq] = static_cast<uint8>(begin);
+                m_pieces[begin] = static_cast<uint8>(sq);
             }
             else if (c == ' ')
             {
@@ -219,10 +219,10 @@ namespace folium
                 {
                     if (empty_count)
                     {
-                        chars.push_back('0' + empty_count);
+                        chars.push_back(static_cast<char>('0' + empty_count));
                         empty_count = 0;
                     }
-                    chars.push_back(c);
+                    chars.push_back(static_cast<char>(c));
                 }
                 else
                 {
@@ -231,7 +231,7 @@ namespace folium
             }
             if (empty_count)
             {
-                chars.push_back('0' + empty_count);
+                chars.push_back(static_cast<char>('0' + empty_count));
             }
         }
         chars.push_back(' ');
