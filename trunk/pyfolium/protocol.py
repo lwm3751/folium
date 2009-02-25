@@ -6,13 +6,11 @@ import time
 import folium
 
 import pyfolium.book.dictbook
-#import pyfolium.book.bsdbook
 
 class Engine(folium.Engine):
     def __init__(self):
         folium.Engine.__init__(self)
         self.book = pyfolium.book.dictbook.dictbook()
-        #self.book = pyfolium.book.bsdbook.bsdbook()
 
         self.logfile = None
         logdir = os.path.join(os.path.dirname(sys.argv[0]), 'log')
