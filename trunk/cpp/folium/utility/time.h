@@ -3,7 +3,7 @@
 
 namespace folium
 {
-    double now_real();
+    double now_time();
 }
 
 #endif //FOLIUM_TIME_H

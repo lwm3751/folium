@@ -1,8 +1,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
-#include "../folium/xq.h"
-#include "../folium/move.h"
+#include "../xq.h"
+#include "../move_helper.h"
 
 using namespace std;
 using namespace boost;
@@ -21,11 +21,11 @@ shared_ptr<XQ> XQ__init__(const string& fen)
 
 bool XQ_is_legal_move(XQ& xq, uint32 move)
 {
-    if (xq.square_color(move_src(move)) != xq.player())
+    if (xq.coordinate_color(move_src(move)) != xq.player())
         return false;
-    if (!helper::is_legal_move(xq, move_src(move), move_dst(move)))
+    if (!is_legal_move(xq, move_src(move), move_dst(move)))
         return false;
-    uint dst_piece = xq.square(move_dst(move));
+    uint dst_piece = xq.coordinate(move_dst(move));
     if (!xq.do_move(move_src(move), move_dst(move)))
         return false;
     xq.undo_move(move_src(move), move_dst(move), dst_piece);
@@ -37,20 +37,20 @@ void init_xq()
     //XQ
     class_<XQ, shared_ptr<XQ>, noncopyable>("XQ", no_init)
         .def("is_legal_move", &XQ_is_legal_move)
-        .def("player_in_check", &helper::player_in_check)
+        .def("player_in_check", &player_in_check)
 
         .def("player", &XQ::player)
 
         .def("piece", &XQ::piece)
 
-        .def("coordinate", &XQ::square)
-        .def("coordinate_color", &XQ::square_color)
-        .def("coordinate_is_empty", &XQ::square_is_empty)
+        .def("coordinate", &XQ::coordinate)
+        .def("coordinate_color", &XQ::coordinate_color)
+        .def("coordinate_is_empty", &XQ::coordinate_is_empty)
 
         .def("make_move", &XQ::do_move)
         .def("unmake_move", &XQ::undo_move)
 
-        .def("__str__", &XQ::get)
+        .def("__str__", &XQ::get_fen)
     ;
     def("XQ", &XQ__init__);
 }
@@ -108,11 +108,11 @@ BOOST_PYTHON_MODULE(folium)
     scope().attr("invaildpieceflag") = InvaildFlag;
 
     //coordinate
-    scope().attr("invaild_coordinate") = InvaildSquare;
+    scope().attr("invaild_coordinate") = InvaildCoordinate;
 
-    def("coordinate_x", &folium::square_x);
-    def("coordinate_y", &folium::square_y);
-    def("xy_coordinate", &folium::xy_square);
+    def("coordinate_x", &folium::coordinate_x);
+    def("coordinate_y", &folium::coordinate_y);
+    def("xy_coordinate", &folium::xy_coordinate);
 
     def("move_src", &folium::move_src);
     def("move_dst", &folium::move_dst);
@@ -120,4 +120,7 @@ BOOST_PYTHON_MODULE(folium)
 
     def("ucci2move", &folium::ucci2move);
     def("move2ucci", &folium::move2ucci);
+
+    def("mirror4uccimove", &folium::mirror4uccimove);
+    def("mirror4fen", &folium::mirror4fen);
 }

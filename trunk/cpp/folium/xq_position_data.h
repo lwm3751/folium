@@ -12,42 +12,42 @@ namespace folium
     extern const uint32 * const g_piece_keys[32];
     extern const sint32 * const g_piece_values[32];
 
-    inline const uint64& piece_lock(uint piece, uint square)
+    inline const uint64& piece_lock(uint piece, uint coordinate)
     {
         assert (piece < 32UL);
-        assert (square < 91UL);
-        return g_piece_locks[piece][square];
+        assert (coordinate < 91UL);
+        return g_piece_locks[piece][coordinate];
     }
-    inline const uint32& piece_key(uint piece, uint square)
+    inline const uint32& piece_key(uint piece, uint coordinate)
     {
         assert (piece < 32UL);
-        assert (square < 91UL);
-        return g_piece_keys[piece][square];
+        assert (coordinate < 91UL);
+        return g_piece_keys[piece][coordinate];
     }
-    inline const sint32& piece_value(uint piece, uint square)
+    inline const sint32& piece_value(uint piece, uint coordinate)
     {
         assert (piece < 32UL);
-        assert (square < 91UL);
-        return g_piece_values[piece][square];
+        assert (coordinate < 91UL);
+        return g_piece_values[piece][coordinate];
     }
 
-    inline const uint64& type_lock(uint type, uint square)
+    inline const uint64& type_lock(uint type, uint coordinate)
     {
         assert (type < 14UL);
-        assert (square < 91UL);
-        return g_type_locks[type][square];
+        assert (coordinate < 91UL);
+        return g_type_locks[type][coordinate];
     }
-    inline const uint32& type_key(uint type, uint square)
+    inline const uint32& type_key(uint type, uint coordinate)
     {
         assert (type < 14UL);
-        assert (square < 91UL);
-        return g_type_keys[type][square];
+        assert (coordinate < 91UL);
+        return g_type_keys[type][coordinate];
     }
-    inline const sint32& type_value(uint type, uint square)
+    inline const sint32& type_value(uint type, uint coordinate)
     {
         assert (type < 14UL);
-        assert (square < 91UL);
-        return g_type_values[type][square];
+        assert (coordinate < 91UL);
+        return g_type_values[type][coordinate];
     }
 
 }//namespace folium

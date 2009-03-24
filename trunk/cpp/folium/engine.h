@@ -11,9 +11,6 @@
 #include "history.h"
 #include "hash.h"
 
-#include "utility/io.h"
-#include "utility/time.h"
-
 namespace folium
 {
     using std::set;
@@ -24,11 +21,11 @@ namespace folium
         Engine();
         void setxq(const XQ&);
         bool load(const string& fen);
-        string fen(){return m_xq.get();}
+        string fen(){return m_xq.get_fen();}
 
-        bool readable();
-        string readline();
-        void writeline(const string& str);
+        virtual bool readable() {return false;};
+        virtual string readline(){return string();};
+        virtual void writeline(const string& str){};
 
         bool make_move(uint32 move);
         void unmake_move();
@@ -42,7 +39,6 @@ namespace folium
         double m_starttime;
         double m_mintime;
         double m_maxtime;
-        shared_ptr<io> m_io;
     private:
         void interrupt();
         void do_null();
@@ -64,17 +60,18 @@ namespace folium
         uint32 m_traces[512];
         History m_history;
         HashTable m_hash;
-        volatile uint m_interrupt;
+		volatile uint m_interrupt;
+
     private:
-        uint m_tree_nodes;
-        uint m_leaf_nodes;
-        uint m_quiet_nodes;
-        uint m_hash_hit_nodes;
-        uint m_hash_move_cuts;
-        uint m_kill_cuts_1;
-        uint m_kill_cuts_2;
-        uint m_null_nodes;
-        uint m_null_cuts;
+		uint m_tree_nodes;
+		uint m_leaf_nodes;
+		uint m_quiet_nodes;
+		uint m_hash_hit_nodes;
+		uint m_hash_move_cuts;
+		uint m_kill_cuts_1;
+		uint m_kill_cuts_2;
+		uint m_null_nodes;
+		uint m_null_cuts;
 
     };
 
@@ -102,7 +99,7 @@ namespace folium
 
     inline bool Engine::is_legal_move(uint move)
     {
-        return move &&  helper::is_legal_move(m_xq, move_src(move), move_dst(move)) && m_xq.player() == m_xq.square_color(move_src(move));
+        return move &&  folium::is_legal_move(m_xq, move_src(move), move_dst(move)) && m_xq.player() == m_xq.coordinate_color(move_src(move));
     }
 
     inline void Engine::do_null()

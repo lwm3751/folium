@@ -58,15 +58,15 @@ namespace folium
     }
     inline void Bitmap::setbit(uint sq)
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
         m_lines[y] |= 1UL << x;
         m_lines[x+10UL] |= 1UL << y;
     }
     inline void Bitmap::changebit(uint sq)
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
         m_lines[y] ^= 1UL << x;
         m_lines[x+10UL] ^= 1UL << y;
     }
@@ -101,51 +101,51 @@ namespace folium
 
     inline uint Bitmap::nonempty_up_1(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(x, Bitmap::next_1(yinfo(x, y)));
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(x, Bitmap::next_1(yinfo(x, y)));
     }
     inline uint Bitmap::nonempty_down_1(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(x, Bitmap::prev_1(yinfo(x, y)));
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(x, Bitmap::prev_1(yinfo(x, y)));
     }
     inline uint Bitmap::nonempty_left_1(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(Bitmap::prev_1(xinfo(x, y)), y);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(Bitmap::prev_1(xinfo(x, y)), y);
     }
     inline uint Bitmap::nonempty_right_1(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(Bitmap::next_1(xinfo(x, y)), y);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(Bitmap::next_1(xinfo(x, y)), y);
     }
     inline uint Bitmap::nonempty_up_2(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(x, Bitmap::next_2(yinfo(x, y)));
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(x, Bitmap::next_2(yinfo(x, y)));
     }
     inline uint Bitmap::nonempty_down_2(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(x, Bitmap::prev_2(yinfo(x, y)));
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(x, Bitmap::prev_2(yinfo(x, y)));
     }
     inline uint Bitmap::nonempty_left_2(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(Bitmap::prev_2(xinfo(x, y)), y);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(Bitmap::prev_2(xinfo(x, y)), y);
     }
     inline uint Bitmap::nonempty_right_2(uint sq)const
     {
-        uint x = square_x(sq);
-        uint y = square_y(sq);
-        return xy_square(Bitmap::next_2(xinfo(x, y)), y);
+        uint x = coordinate_x(sq);
+        uint y = coordinate_y(sq);
+        return xy_coordinate(Bitmap::next_2(xinfo(x, y)), y);
     }
 
     inline uint Bitmap::mask(uint src, uint dst)const

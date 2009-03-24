@@ -1,42 +1,15 @@
-import os
-import sys
-import datetime
 import time
 
 import folium
 
+import pyfolium.pypipe
 import pyfolium.book.dictbook
 
 class Engine(folium.Engine):
     def __init__(self):
         folium.Engine.__init__(self)
+        self.io = pyfolium.pypipe.Pipe()
         self.book = pyfolium.book.dictbook.dictbook()
-
-        self.logfile = None
-        logdir = os.path.join(os.path.dirname(sys.argv[0]), 'log')
-        if not os.path.exists(logdir):
-            os.mkdir(logdir)
-        for i in range(0, 256):
-            filename = os.path.join(logdir, '%s_%d.txt'%(datetime.date.today(), i))
-            if not os.path.exists(filename):
-                self.logfile = open(filename, 'w')
-                break
-
-    def writeline(self, line):
-        folium.Engine.writeline(self, line)
-        self.log("write line:%s" % line)
-    def readline(self):
-        if not self.readable():
-            return
-        line = folium.Engine.readline(self)
-        self.log("read line:%s" % line)
-        return line
-    def log(self, s):
-        if not self.logfile:
-            return
-        self.logfile.write("%s\n"%s)
-    def __del__(self):
-        self.logfile.flush()
 
     def run(self):
         while not self.readable():
@@ -111,13 +84,13 @@ class Engine(folium.Engine):
         self.ponder = False
         self.draw = False
         self.depth = 255
-        self.starttime = folium.time()
+        self.starttime = folium.now()
         self.mintime = self.maxtime = self.starttime + 24*60*60
 
         move = self.book.search(str(self), self.bans) if self.book else None
         if move:
             self.writeline("info book move: %s" % move)
-            self.writeline("info book search time: %f" % (folium.time() - self.starttime))
+            self.writeline("info book search time: %f" % (folium.now() - self.starttime))
             self.writeline("bestmove %s" % move)
             return
 

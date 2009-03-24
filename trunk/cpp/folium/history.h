@@ -4,7 +4,7 @@
 #include <cstring>
 
 #include "defines.h"
-#include "move.h"
+#include "move_helper.h"
 
 namespace folium
 {
