@@ -2,8 +2,8 @@ import os
 import sys
 
 if sys.platform == "win32":
-    cpppath = [r'D:\toolbox\boost_1_36_0', r'D:\Python26\include']
-    libpath = [r'D:\toolbox\boost_1_36_0\lib_x86\lib', r'D:\Python26\libs']
+    cpppath = [r'D:\toolbox\boost_1_38_0', r'D:\Python26\include']
+    libpath = [r'D:\toolbox\boost_1_38_0\lib_x86\lib', r'D:\Python26\libs']
     env = Environment(tools=['mingw'], CPPPATH=cpppath, LIBPATH=libpath)
     ccflags = '-O3'
     libs=['boost_python-mgw34-mt', 'python26']

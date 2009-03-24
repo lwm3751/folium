@@ -1,7 +1,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/python.hpp>
-#include "../folium/engine.h"
+#include "../engine.h"
+#include "../utility/time.h"
 
 using namespace std;
 using namespace boost;
@@ -15,7 +16,30 @@ public:
         set<folium::uint> s;
         return Engine::search(s);
     }
+    virtual bool readable();
+    virtual string readline();
+    virtual void writeline(const string& str);
+    object m_io;
 };
+bool EngineWrap::readable()
+{
+    if (m_io)
+        return extract<bool> (m_io.attr("readable")());
+    return Engine::readable();
+}
+string EngineWrap::readline()
+{
+    if (m_io)
+        return extract<string> (m_io.attr("readline")());
+    return Engine::readline();
+}
+void EngineWrap::writeline(const string& str)
+{
+    if (m_io)
+        m_io.attr("writeline")(str);
+    else
+        Engine::writeline(str);
+}
 
 void init_engine()
 {
@@ -41,8 +65,8 @@ void init_engine()
         .def_readwrite("starttime", &Engine::m_starttime)
         .def_readwrite("mintime", &Engine::m_mintime)
         .def_readwrite("maxtime", &Engine::m_maxtime)
-        .def_readonly("pipe", &Engine::m_io)
+        .def_readwrite("io", &EngineWrap::m_io)
     ;
 
-    def("time", &now_real);
+    def("now", &now_time);
 }

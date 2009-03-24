@@ -104,7 +104,7 @@ namespace folium
                         return - WINSCORE;
                     m_history.update_history(best_move, depth);
                     record.store_beta(depth, ply, score, best_move, m_locks[m_ply]);
-                    if (!helper::is_good_cap(m_xq, best_move))
+                    if (!is_good_cap(m_xq, best_move))
                         killer.push(best_move);
                     return score;
                 }

@@ -16,9 +16,9 @@ namespace folium
             src = xq.piece(RedKingIndex);
             const uint8 *pm = g_red_king_pawn_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) != own)
+                if (xq.coordinate_color(dst) != own)
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -26,13 +26,13 @@ namespace folium
             for (uint i = RedPawnIndex1; i <= RedPawnIndex5; ++i)
             {
                 src = xq.piece(i);
-                if (src == InvaildSquare)
+                if (src == InvaildCoordinate)
                     continue;
                 pm = g_red_king_pawn_moves[src];
                 dst = *pm++;
-                while (dst != InvaildSquare)
+                while (dst != InvaildCoordinate)
                 {
-                    if (xq.square_color(dst) != own)
+                    if (xq.coordinate_color(dst) != own)
                         ml.push(history.move(src, dst));
                     dst = *pm++;
                 }
@@ -45,9 +45,9 @@ namespace folium
             src = xq.piece(BlackKingIndex);
             const uint8 *pm = g_black_king_pawn_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) != own)
+                if (xq.coordinate_color(dst) != own)
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -55,13 +55,13 @@ namespace folium
             for (uint i = BlackPawnIndex1; i <= BlackPawnIndex5; ++i)
             {
                 src = xq.piece(i);
-                if (src == InvaildSquare)
+                if (src == InvaildCoordinate)
                     continue;
                 pm = g_black_king_pawn_moves[src];
                 dst = *pm++;
-                while (dst != InvaildSquare)
+                while (dst != InvaildCoordinate)
                 {
-                    if (xq.square_color(dst) != own)
+                    if (xq.coordinate_color(dst) != own)
                         ml.push(history.move(src, dst));
                     dst = *pm++;
                 }
@@ -72,13 +72,13 @@ namespace folium
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint8 *pm = g_advisor_bishop_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) != own)
+                if (xq.coordinate_color(dst) != own)
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -88,13 +88,13 @@ namespace folium
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint8 *pm = g_advisor_bishop_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) != own && xq.square_is_empty((dst + src) >> 1))
+                if (xq.coordinate_color(dst) != own && xq.coordinate_is_empty((dst + src) >> 1))
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -104,35 +104,35 @@ namespace folium
         {
             uint dst;
             src = xq.piece(++idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             dst = xq.nonempty_left_1(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = dst, dst = square_left(src);
+            for (uint tmp = dst, dst = coordinate_left(src);
                     dst != tmp;
-                    dst = square_left(dst))
+                    dst = coordinate_left(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_right_1(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = dst, dst = square_right(src);
+            for (uint tmp = dst, dst = coordinate_right(src);
                     dst != tmp;
-                    dst = square_right(dst))
+                    dst = coordinate_right(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_down_1(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = dst, dst = square_down(src);
+            for (uint tmp = dst, dst = coordinate_down(src);
                     dst != tmp;
-                    dst = square_down(dst))
+                    dst = coordinate_down(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_up_1(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = dst, dst = square_up(src);
+            for (uint tmp = dst, dst = coordinate_up(src);
                     dst != tmp;
-                    dst = square_up(dst))
+                    dst = coordinate_up(dst))
                 ml.push(history.move(src, dst));
         }
         //knight
@@ -140,16 +140,16 @@ namespace folium
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint16 *pm = g_kinght_moves[src];
             dst = *pm++;
-            //23130 = ((InvaildSquare << 8) | InvaildSquare)
+            //23130 = ((InvaildCoordinate << 8) | InvaildCoordinate)
             while (dst != 23130UL)
             {
                 uint leg = (dst & 0xff00) >> 8;
                 dst &= 0xff;
-                if (xq.square_is_empty(leg) && xq.square_color(dst) != own)
+                if (xq.coordinate_is_empty(leg) && xq.coordinate_color(dst) != own)
                     ml.push(history.move(src, dst));
                 dst = *pm++;
             }
@@ -159,35 +159,35 @@ namespace folium
         {
             uint dst;
             src = xq.piece(++idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             dst = xq.nonempty_left_2(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = xq.nonempty_left_1(src), dst = square_left(src);
+            for (uint tmp = xq.nonempty_left_1(src), dst = coordinate_left(src);
                     dst != tmp;
-                    dst = square_left(dst))
+                    dst = coordinate_left(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_right_2(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = xq.nonempty_right_1(src), dst = square_right(src);
+            for (uint tmp = xq.nonempty_right_1(src), dst = coordinate_right(src);
                     dst != tmp;
-                    dst = square_right(dst))
+                    dst = coordinate_right(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_down_2(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = xq.nonempty_down_1(src), dst = square_down(src);
+            for (uint tmp = xq.nonempty_down_1(src), dst = coordinate_down(src);
                     dst != tmp;
-                    dst = square_down(dst))
+                    dst = coordinate_down(dst))
                 ml.push(history.move(src, dst));
             dst = xq.nonempty_up_2(src);
-            if (xq.square_color(dst) == opp)
+            if (xq.coordinate_color(dst) == opp)
                 ml.push(history.move(src, dst));
-            for (uint tmp = xq.nonempty_up_1(src), dst = square_up(src);
+            for (uint tmp = xq.nonempty_up_1(src), dst = coordinate_up(src);
                     dst != tmp;
-                    dst = square_up(dst))
+                    dst = coordinate_up(dst))
                 ml.push(history.move(src, dst));
         }
     }
@@ -206,24 +206,24 @@ namespace folium
             src = xq.piece(RedKingIndex);
             const uint8 *pm = g_red_king_pawn_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) == opp)
-                    ml.push(history.move(src, dst, RedKingIndex, xq.square(dst)));
+                if (xq.coordinate_color(dst) == opp)
+                    ml.push(history.move(src, dst, RedKingIndex, xq.coordinate(dst)));
                 dst = *pm++;
             }
             //red pawn
             for (uint i = RedPawnIndex1; i <= RedPawnIndex5; ++i)
             {
                 src = xq.piece(i);
-                if (src == InvaildSquare)
+                if (src == InvaildCoordinate)
                     continue;
                 pm = g_red_king_pawn_moves[src];
                 dst = *pm++;
-                while (dst != InvaildSquare)
+                while (dst != InvaildCoordinate)
                 {
-                    if (xq.square_color(dst) == opp)
-                        ml.push(history.move(src, dst, i, xq.square(dst)));
+                    if (xq.coordinate_color(dst) == opp)
+                        ml.push(history.move(src, dst, i, xq.coordinate(dst)));
                     dst = *pm++;
                 }
             }
@@ -235,24 +235,24 @@ namespace folium
             src = xq.piece(BlackKingIndex);
             const uint8 *pm = g_black_king_pawn_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) == opp)
-                    ml.push(history.move(src, dst, idx, xq.square(dst)));
+                if (xq.coordinate_color(dst) == opp)
+                    ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
                 dst = *pm++;
             }
             //black pawn
             for (uint i = BlackPawnIndex1; i <= BlackPawnIndex5; ++i)
             {
                 src = xq.piece(i);
-                if (src == InvaildSquare)
+                if (src == InvaildCoordinate)
                     continue;
                 pm = g_black_king_pawn_moves[src];
                 dst = *pm++;
-                while (dst != InvaildSquare)
+                while (dst != InvaildCoordinate)
                 {
-                    if (xq.square_color(dst) == opp)
-                        ml.push(history.move(src, dst, idx, xq.square(dst)));
+                    if (xq.coordinate_color(dst) == opp)
+                        ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
                     dst = *pm++;
                 }
             }
@@ -262,14 +262,14 @@ namespace folium
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint8 *pm = g_advisor_bishop_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) == opp)
-                    ml.push(history.move(src, dst, idx, xq.square(dst)));
+                if (xq.coordinate_color(dst) == opp)
+                    ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
                 dst = *pm++;
             }
         }
@@ -278,14 +278,14 @@ namespace folium
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint8 *pm = g_advisor_bishop_moves[src];
             dst = *pm++;
-            while (dst != InvaildSquare)
+            while (dst != InvaildCoordinate)
             {
-                if (xq.square_color(dst) == opp && xq.square_is_empty((dst + src) >> 1))
-                    ml.push(history.move(src, dst, idx, xq.square(dst)));
+                if (xq.coordinate_color(dst) == opp && xq.coordinate_is_empty((dst + src) >> 1))
+                    ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
                 dst = *pm++;
             }
         }
@@ -294,37 +294,37 @@ namespace folium
         {
             uint dst;
             src = xq.piece(++idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             dst = xq.nonempty_left_1(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_right_1(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_down_1(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_up_1(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
         }
         //knight
         for (uint i = 0; i < 2; ++i)
         {
             ++idx;
             src = xq.piece(idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             const uint16 *pm = g_kinght_moves[src];
             dst = *pm++;
-            //23130 = ((InvaildSquare << 8) | InvaildSquare)
+            //23130 = ((InvaildCoordinate << 8) | InvaildCoordinate)
             while (dst != 23130UL)
             {
                 uint leg = (dst & 0xff00) >> 8;
                 dst &= 0xff;
-                if (xq.square_is_empty(leg) && xq.square_color(dst) == opp)
-                    ml.push(history.move(src, dst, idx, xq.square(dst)));
+                if (xq.coordinate_is_empty(leg) && xq.coordinate_color(dst) == opp)
+                    ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
                 dst = *pm++;
             }
         }
@@ -333,20 +333,20 @@ namespace folium
         {
             uint dst;
             src = xq.piece(++idx);
-            if (src == InvaildSquare)
+            if (src == InvaildCoordinate)
                 continue;
             dst = xq.nonempty_left_2(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_right_2(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_down_2(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
             dst = xq.nonempty_up_2(src);
-            if (xq.square_color(dst) == opp)
-                ml.push(history.move(src, dst, idx, xq.square(dst)));
+            if (xq.coordinate_color(dst) == opp)
+                ml.push(history.move(src, dst, idx, xq.coordinate(dst)));
         }
     }
 
@@ -366,7 +366,7 @@ namespace folium
             while (m_index < m_ml.size())
             {
                 uint32 move = m_ml[m_index];
-                if (helper::is_good_cap(m_xq, move))
+                if (is_good_cap(m_xq, move))
                 {
                     m_ml[m_index] = 0;
                     m_index++;
@@ -382,8 +382,8 @@ namespace folium
                 uint move = m_killer.killer(m_index);
                 m_index++;
                 if (move &&
-                        m_xq.square_color(move_src(move)) == m_xq.player() &&
-                        helper::is_legal_move(m_xq, move_src(move), move_dst(move)))
+                        m_xq.coordinate_color(move_src(move)) == m_xq.player() &&
+                        is_legal_move(m_xq, move_src(move), move_dst(move)))
                     return move;
             }
             m_stage = 4;

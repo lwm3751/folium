@@ -8,11 +8,11 @@ namespace folium
     extern const uint8 g_xs[91];
     extern const uint8 g_ys[91];
     extern const uint8 g_xys[16][16];
-    extern const uint8 g_square_downs[91];
-    extern const uint8 g_square_ups[91];
-    extern const uint8 g_square_lefts[91];
-    extern const uint8 g_square_rights[91];
-    extern const uint16 g_square_flags[91];
+    extern const uint8 g_coordinate_downs[91];
+    extern const uint8 g_coordinate_ups[91];
+    extern const uint8 g_coordinate_lefts[91];
+    extern const uint8 g_coordinate_rights[91];
+    extern const uint16 g_coordinate_flags[91];
 
     extern const uint8 g_piece_types[34];
     extern const uint16 g_piece_flags[34];
@@ -27,46 +27,46 @@ namespace folium
 
     extern const uint8 g_knight_legs[91][128];
 
-    inline uint square_x(uint sq)
+    inline uint coordinate_x(uint sq)
     {
         assert (sq < 91UL);
         return g_xs[sq];
     }
-    inline uint square_y(uint sq)
+    inline uint coordinate_y(uint sq)
     {
         assert (sq < 91UL);
         return g_ys[sq];
     }
-    inline uint xy_square(uint x, uint y)
+    inline uint xy_coordinate(uint x, uint y)
     {
         assert (x < 16UL);
         assert (y < 16UL);
         return g_xys[y][x];
     }
-    inline uint square_down(uint sq)
+    inline uint coordinate_down(uint sq)
     {
         assert (sq < 91UL);
-        return g_square_downs[sq];
+        return g_coordinate_downs[sq];
     }
-    inline uint square_up(uint sq)
+    inline uint coordinate_up(uint sq)
     {
         assert (sq < 91UL);
-        return g_square_ups[sq];
+        return g_coordinate_ups[sq];
     }
-    inline uint square_left(uint sq)
+    inline uint coordinate_left(uint sq)
     {
         assert (sq < 91UL);
-        return g_square_lefts[sq];
+        return g_coordinate_lefts[sq];
     }
-    inline uint square_right(uint sq)
+    inline uint coordinate_right(uint sq)
     {
         assert (sq < 91UL);
-        return g_square_rights[sq];
+        return g_coordinate_rights[sq];
     }
-    inline uint square_flag(uint sq)
+    inline uint coordinate_flag(uint sq)
     {
         assert (sq < 91UL);
-        return g_square_flags[sq];
+        return g_coordinate_flags[sq];
     }
 
     inline uint piece_type(uint piece)

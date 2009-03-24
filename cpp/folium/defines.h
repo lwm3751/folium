@@ -113,7 +113,7 @@ namespace folium
     const uint EmptyIndex = 32UL;
     const uint InvaildIndex = 33UL;
 
-    const uint InvaildSquare = 90UL;
+    const uint InvaildCoordinate = 90UL;
 
 }//namespace folium
 

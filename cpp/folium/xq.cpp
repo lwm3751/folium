@@ -1,5 +1,6 @@
 #include <cstring>
 #include <vector>
+#include <map>
 using namespace std;
 #include "xq.h"
 
@@ -14,98 +15,76 @@ namespace folium
     {
         m_bitmap = xq.m_bitmap;
         memcpy(m_pieces, xq.m_pieces, 34);
-        memcpy(m_squares, xq.m_squares, 91);
+        memcpy(m_coordinates, xq.m_coordinates, 91);
         m_player = xq.m_player;
     }
 
     void XQ::clear()
     {
         m_bitmap.reset();
-        memset(m_pieces, InvaildSquare, 34);
-        memset(m_squares, EmptyIndex, 90);
-        m_squares[90] = InvaildIndex;
+        memset(m_pieces, InvaildCoordinate, 34);
+        memset(m_coordinates, EmptyIndex, 90);
+        m_coordinates[90] = InvaildIndex;
         m_player = Empty;
     }
 
-    inline uint char_type(sint32 c)
+    static uint char_type(sint32 c)
     {
-        switch (c)
+        static map<sint, uint> _map;
+        if (_map.empty())
         {
-        case 'K':
-            return RedKing;
-        case 'k':
-            return BlackKing;
-        case 'G':
-        case 'A':
-            return RedAdvisor;
-        case 'g':
-        case 'a':
-            return BlackAdvisor;
-        case 'B':
-        case 'E':
-            return RedBishop;
-        case 'b':
-        case 'e':
-            return BlackBishop;
-        case 'R':
-            return RedRook;
-        case 'r':
-            return BlackRook;
-        case 'H':
-        case 'N':
-            return RedKnight;
-        case 'h':
-        case 'n':
-            return BlackKnight;
-        case 'C':
-            return RedCannon;
-        case 'c':
-            return BlackCannon;
-        case 'P':
-            return RedPawn;
-        case 'p':
-            return BlackPawn;
-        default:
-            return InvaildPiece;
+            _map['K'] = RedKing;
+            _map['G'] = RedAdvisor;
+            _map['A'] = RedAdvisor;
+            _map['B'] = RedBishop;
+            _map['E'] = RedBishop;
+            _map['R'] = RedRook;
+            _map['H'] = RedKnight;
+            _map['N'] = RedKnight;
+            _map['C'] = RedCannon;
+            _map['P'] = RedPawn;
+
+            _map['k'] = BlackKing;
+            _map['g'] = BlackAdvisor;
+            _map['a'] = BlackAdvisor;
+            _map['b'] = BlackBishop;
+            _map['e'] = BlackBishop;
+            _map['r'] = BlackRook;
+            _map['h'] = BlackKnight;
+            _map['n'] = BlackKnight;
+            _map['c'] = BlackCannon;
+            _map['p'] = BlackPawn;
         }
+        if (_map.find(c) != _map.end())
+            return _map[c];
+        return InvaildPiece;
     }
-    inline sint type_char(uint32 type)
+    static sint type_char(uint32 t)
     {
-        switch (type)
+        static map<uint, sint> _map;
+        if (_map.empty())
         {
-        case RedKing:
-            return 'K';
-        case BlackKing:
-            return 'k';
-        case RedAdvisor:
-            return 'A';
-        case BlackAdvisor:
-            return 'a';
-        case RedBishop:
-            return 'B';
-        case BlackBishop:
-            return 'b';
-        case RedRook:
-            return 'R';
-        case BlackRook:
-            return 'r';
-        case RedKnight:
-            return 'N';
-        case BlackKnight:
-            return 'n';
-        case RedCannon:
-            return 'C';
-        case BlackCannon:
-            return 'c';
-        case RedPawn:
-            return 'P';
-        case BlackPawn:
-            return 'p';
-        default:
-            return 0;
+            _map[RedKing] = 'K';
+            _map[RedAdvisor] = 'A';
+            _map[RedBishop] = 'B';
+            _map[RedRook] = 'R';
+            _map[RedKnight] = 'N';
+            _map[RedCannon] = 'C';
+            _map[RedPawn] = 'P';
+
+            _map[BlackKing] = 'k';
+            _map[BlackAdvisor] = 'a';
+            _map[BlackBishop] = 'b';
+            _map[BlackRook] = 'r';
+            _map[BlackKnight] = 'n';
+            _map[BlackCannon] = 'c';
+            _map[BlackPawn] = 'p';
         }
+        if (_map.find(t) != _map.end())
+            return _map[t];
+        return 0;
     }
-    inline sint piece_char(uint piece)
+    static sint piece_char(uint piece)
     {
         return type_char(piece_type(piece));
     }
@@ -131,7 +110,7 @@ namespace folium
                 uint32 end = type_end(type);
                 while (end >= begin)
                 {
-                    if (piece(begin) == InvaildSquare)
+                    if (piece(begin) == InvaildCoordinate)
                     {
                         break;
                     }
@@ -143,8 +122,8 @@ namespace folium
                     clear();
                     return false;
                 }
-                uint32 sq = xy_square(x++, y);
-                m_squares[sq] = static_cast<uint8>(begin);
+                uint32 sq = xy_coordinate(x++, y);
+                m_coordinates[sq] = static_cast<uint8>(begin);
                 m_pieces[begin] = static_cast<uint8>(sq);
             }
             else if (c == ' ')
@@ -160,9 +139,9 @@ namespace folium
                 for (int i = 0; i < 32; i++)
                 {
                     uint32 sq = piece(i);
-                    if (sq != InvaildSquare)
+                    if (sq != InvaildCoordinate)
                     {
-                        if (!(square_flag(sq) & piece_flag(i)))
+                        if (!(coordinate_flag(sq) & piece_flag(i)))
                         {
                             //error
                             clear();
@@ -201,7 +180,7 @@ namespace folium
         return false;
     }
 
-    string XQ::get()const
+    string XQ::get_fen()const
     {
         if (m_player == Empty)
             return string();
@@ -213,8 +192,8 @@ namespace folium
             sint32 empty_count = 0;
             for (uint x = 0; x < 9; ++x)
             {
-                uint sq = xy_square(x,y);
-                sint c = piece_char(square(sq));
+                uint sq = xy_coordinate(x,y);
+                sint c = piece_char(coordinate(sq));
                 if (c)
                 {
                     if (empty_count)
