@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 #coding=utf-8
 import os
 import string
@@ -78,7 +78,7 @@ def value():
         2,      2,      0,      -4,     -7,     -4,     0,      2,      2,
         4,      4,      0,      -5,     -6,     -5,     0,      4,      4,]
     for sq in range(90):
-        flag = SquareFlags[sq]
+        flag = CoordinateFlags[sq]
         if flag & RedKingFlag:
             RedKingPawnValues[sq] = KingBaseValue + RedKingPawnPositionValues[sq]
             BlackKingPawnValues[89 - sq] = -RedKingPawnValues[sq]
@@ -122,7 +122,7 @@ def hash():
     from random import randint, seed
     seed(51)
     for sq in range(90):
-        flag = SquareFlags[sq]
+        flag = CoordinateFlags[sq]
         if flag & RedKingPawnFlag:
             RedKingPawnLocks[sq] = randint(0, 0x10000000000000000)
             RedKingPawnKeys[sq] = randint(0, 0x100000000)
