@@ -37,48 +37,48 @@ BishopFlag = RedBishopFlag | BlackBishopFlag
 RedKingPawnFlag = RedKingFlag | RedPawnFlag
 AdvisorBishopFlag = RedAdvisorFlag | RedBishopFlag | BlackAdvisorFlag | BlackBishopFlag
 
-RedKingSquares = [x + y * 9 for x, y in [(3, 0), (4, 0), (5, 0), (3, 1), (4, 1), (5, 1), (3, 2), (4, 2), (5, 2)]]
-RedAdvisorSquares = [x + y * 9 for x, y in [(3,0), (5,0), (4, 1), (3,2), (5,2)]]
-RedBishopSquares = [x + y * 9 for x, y in [(2, 0), (6, 0), (0, 2), (4, 2), (8, 2), (2, 4), (6, 4)]]
-RedRookSquares = range(90)
-RedKnightSquares = range(90)
-RedCannonSquares = range(90)
-RedPawnSquares = [x + y * 9 for x, y in [(0, 3), (2, 3), (4, 3), (6, 3), (8, 3), (0, 4), (2, 4), (4, 4), (6, 4), (8, 4)]]
-RedPawnSquares.extend(range(45, 90))
+RedKingCoordinates = [x + y * 9 for x, y in [(3, 0), (4, 0), (5, 0), (3, 1), (4, 1), (5, 1), (3, 2), (4, 2), (5, 2)]]
+RedAdvisorCoordinates = [x + y * 9 for x, y in [(3,0), (5,0), (4, 1), (3,2), (5,2)]]
+RedBishopCoordinates = [x + y * 9 for x, y in [(2, 0), (6, 0), (0, 2), (4, 2), (8, 2), (2, 4), (6, 4)]]
+RedRookCoordinates = range(90)
+RedKnightCoordinates = range(90)
+RedCannonCoordinates = range(90)
+RedPawnCoordinates = [x + y * 9 for x, y in [(0, 3), (2, 3), (4, 3), (6, 3), (8, 3), (0, 4), (2, 4), (4, 4), (6, 4), (8, 4)]]
+RedPawnCoordinates.extend(range(45, 90))
 
-BlackKingSquares = [89 - sq for sq in RedKingSquares]
-BlackAdvisorSquares = [89 - sq for sq in RedAdvisorSquares]
-BlackBishopSquares = [89 - sq for sq in RedBishopSquares]
-BlackRookSquares = [89 - sq for sq in RedRookSquares]
-BlackKnightSquares = [89 - sq for sq in RedKnightSquares]
-BlackCannonSquares = [89 - sq for sq in RedCannonSquares]
-BlackPawnSquares = [89 - sq for sq in RedPawnSquares]
+BlackKingCoordinates = [89 - sq for sq in RedKingCoordinates]
+BlackAdvisorCoordinates = [89 - sq for sq in RedAdvisorCoordinates]
+BlackBishopCoordinates = [89 - sq for sq in RedBishopCoordinates]
+BlackRookCoordinates = [89 - sq for sq in RedRookCoordinates]
+BlackKnightCoordinates = [89 - sq for sq in RedKnightCoordinates]
+BlackCannonCoordinates = [89 - sq for sq in RedCannonCoordinates]
+BlackPawnCoordinates = [89 - sq for sq in RedPawnCoordinates]
 
-def SquareFlags():
-    SquareFlags = [0]*91
-    for sq in RedKingSquares:
-        SquareFlags[sq] |= RedKingFlag
-        SquareFlags[89 - sq] |= BlackKingFlag
-    for sq in RedAdvisorSquares:
-        SquareFlags[sq] |= RedAdvisorFlag
-        SquareFlags[89 - sq] |= BlackAdvisorFlag
-    for sq in RedBishopSquares:
-        SquareFlags[sq] |= RedBishopFlag
-        SquareFlags[89 - sq] |= BlackBishopFlag
-    for sq in RedPawnSquares:
-        SquareFlags[sq] |= RedPawnFlag
-        SquareFlags[89 - sq] |= BlackPawnFlag
+def CoordinateFlags():
+    CoordinateFlags = [0]*91
+    for sq in RedKingCoordinates:
+        CoordinateFlags[sq] |= RedKingFlag
+        CoordinateFlags[89 - sq] |= BlackKingFlag
+    for sq in RedAdvisorCoordinates:
+        CoordinateFlags[sq] |= RedAdvisorFlag
+        CoordinateFlags[89 - sq] |= BlackAdvisorFlag
+    for sq in RedBishopCoordinates:
+        CoordinateFlags[sq] |= RedBishopFlag
+        CoordinateFlags[89 - sq] |= BlackBishopFlag
+    for sq in RedPawnCoordinates:
+        CoordinateFlags[sq] |= RedPawnFlag
+        CoordinateFlags[89 - sq] |= BlackPawnFlag
     for sq in range(90):
-        SquareFlags[sq] |= RedRookFlag
-        SquareFlags[sq] |= RedKnightFlag
-        SquareFlags[sq] |= RedCannonFlag
-        SquareFlags[sq] |= BlackRookFlag
-        SquareFlags[sq] |= BlackKnightFlag
-        SquareFlags[sq] |= BlackCannonFlag
-        SquareFlags[sq] |= EmptyFlag
-    SquareFlags[90] |= InvaildFlag
-    return SquareFlags
-SquareFlags = SquareFlags()
+        CoordinateFlags[sq] |= RedRookFlag
+        CoordinateFlags[sq] |= RedKnightFlag
+        CoordinateFlags[sq] |= RedCannonFlag
+        CoordinateFlags[sq] |= BlackRookFlag
+        CoordinateFlags[sq] |= BlackKnightFlag
+        CoordinateFlags[sq] |= BlackCannonFlag
+        CoordinateFlags[sq] |= EmptyFlag
+    CoordinateFlags[90] |= InvaildFlag
+    return CoordinateFlags
+CoordinateFlags = CoordinateFlags()
 
 def u64(i):
     return str(i)+'ULL'
