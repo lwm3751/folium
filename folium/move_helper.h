@@ -46,6 +46,8 @@ namespace folium
 
     extern uint32 ucci2move(const string& ucci);
     extern string move2ucci(uint32 move);
+    extern string mirror4uccimove(const string& ucci, uint mirror);
+    extern string mirror4fen(const string& fen, uint mirror);
 
 }//namespace folium
 

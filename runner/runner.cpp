@@ -7,12 +7,10 @@ void run_script()
     entry.attr("main")();
 }
 
-extern "C"  void initfolium();
 int main(int argc, char *argv[])
 {
     Py_Initialize();
     PySys_SetArgv(argc, argv);
-    PyImport_AppendInittab("folium", initfolium);
     if (python::handle_exception(run_script))
         if (PyErr_Occurred())
             PyErr_Print();

@@ -19,6 +19,7 @@ namespace folium
     {
     public:
         Engine();
+        virtual ~Engine() {}
         void setxq(const XQ&);
         bool load(const string& fen);
         string fen(){return m_xq.get_fen();}
