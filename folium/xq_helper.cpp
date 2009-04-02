@@ -244,7 +244,7 @@ namespace folium
             return xq.coordinate_is_empty(bishop_eye(src, dst));
         case RedRook:
         case BlackRook:
-            return xq.distance_is_0(src, dst) == 0;
+            return xq.distance_is_0(src, dst);
         case RedKnight:
         case BlackKnight:
             return xq.coordinate_is_empty(knight_leg(src, dst));
