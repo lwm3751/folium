@@ -3,7 +3,7 @@ namespace python = boost::python;
 
 void run_script()
 {
-    python::object entry = python::import("pyfolium.entry");
+    python::object entry = python::import("entry");
     entry.attr("main")();
 }
 
