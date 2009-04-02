@@ -13,7 +13,7 @@ class Engine(folium.Engine):
 
     def run(self):
         while not self.readable():
-            time.sleep(0.001)
+            pass
         line = self.readline()
         if line != 'ucci':
             return
