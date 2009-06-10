@@ -32,7 +32,7 @@ bool XQ_is_legal_move(XQ& xq, uint32 move)
     return true;
 }
 
-void init_xq()
+void _init_xq()
 {
     //XQ
     class_<XQ, shared_ptr<XQ>, noncopyable>("XQ", no_init)
@@ -56,11 +56,11 @@ void init_xq()
 }
 
 
-extern void init_engine();
-BOOST_PYTHON_MODULE(folium)
+extern void _init_engine();
+BOOST_PYTHON_MODULE(_xq)
 {
-    init_xq();
-    init_engine();
+    _init_xq();
+    _init_engine();
 
     //piece type
     scope().attr("color_red") = Red;

@@ -1,15 +1,15 @@
 import time
 
-import folium
+import _xq
 
-import pyfolium.pypipe
-import pyfolium.book.dictbook
+import snake.pypipe
+import snake.book.dictbook
 
-class Engine(folium.Engine):
+class Engine(_xq.Engine):
     def __init__(self):
-        folium.Engine.__init__(self)
-        self.io = pyfolium.pypipe.Pipe()
-        self.book = pyfolium.book.dictbook.dictbook()
+        _xq.Engine.__init__(self)
+        self.io = snake.pypipe.Pipe()
+        self.book = snake.book.dictbook.dictbook()
 
     def run(self):
         while not self.readable():
@@ -65,7 +65,7 @@ class Engine(folium.Engine):
 
         self.load(fen)
         for move in moves:
-            move = folium.ucci2move(move)
+            move = _xq.ucci2move(move)
             self.makemove(move)
         self.bans = []
 
@@ -84,13 +84,13 @@ class Engine(folium.Engine):
         self.ponder = False
         self.draw = False
         self.depth = 255
-        self.starttime = folium.now()
+        self.starttime = _xq.now()
         self.mintime = self.maxtime = self.starttime + 24*60*60
 
         move = self.book.search(str(self), self.bans) if self.book else None
         if move:
             self.writeline("info book move: %s" % move)
-            self.writeline("info book search time: %f" % (folium.now() - self.starttime))
+            self.writeline("info book search time: %f" % (_xq.now() - self.starttime))
             self.writeline("bestmove %s" % move)
             return
 
@@ -139,9 +139,9 @@ class Engine(folium.Engine):
         self.mintime = self.starttime + propertime
         self.maxtime = self.starttime + limittime
 
-        move = self.search([folium.ucci2move(move) for move in self.bans])
+        move = self.search([_xq.ucci2move(move) for move in self.bans])
 
         if move:
-            self.writeline("bestmove %s" % folium.move2ucci(move))
+            self.writeline("bestmove %s" % _xq.move2ucci(move))
         else:
             self.writeline("nobestmove")

@@ -41,7 +41,7 @@ void EngineWrap::writeline(const string& str)
         Engine::writeline(str);
 }
 
-void init_engine()
+void _init_engine()
 {
     //Engine
     class_<EngineWrap, noncopyable>("Engine")
