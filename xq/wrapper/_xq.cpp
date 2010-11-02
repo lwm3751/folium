@@ -107,6 +107,9 @@ BOOST_PYTHON_MODULE(_xq)
     scope().attr("emptypieceflag") = EmptyFlag;
     scope().attr("invaildpieceflag") = InvaildFlag;
 
+    def("piece_type", &folium::piece_type);
+    def("piece_color", &folium::piece_color);
+
     //coordinate
     scope().attr("invaild_coordinate") = InvaildCoordinate;
 
