@@ -37,13 +37,14 @@ BishopFlag = RedBishopFlag | BlackBishopFlag
 RedKingPawnFlag = RedKingFlag | RedPawnFlag
 AdvisorBishopFlag = RedAdvisorFlag | RedBishopFlag | BlackAdvisorFlag | BlackBishopFlag
 
-RedKingCoordinates = [x + y * 9 for x, y in [(3, 0), (4, 0), (5, 0), (3, 1), (4, 1), (5, 1), (3, 2), (4, 2), (5, 2)]]
-RedAdvisorCoordinates = [x + y * 9 for x, y in [(3,0), (5,0), (4, 1), (3,2), (5,2)]]
-RedBishopCoordinates = [x + y * 9 for x, y in [(2, 0), (6, 0), (0, 2), (4, 2), (8, 2), (2, 4), (6, 4)]]
+def _(x, y): return x + y * 9
+RedKingCoordinates = [_(x, y) for x in [3, 4, 5] for y in [0, 1, 2]]
+RedAdvisorCoordinates = [_(4, 1)] + [_(x, y) for x in [3, 5] for y in [0, 2]]
+RedBishopCoordinates = [_(x, y) for x in [0, 4, 8] for y in [2]] + [_(x, y) for x in [2, 6] for y in [0, 4]]
 RedRookCoordinates = range(90)
 RedKnightCoordinates = range(90)
 RedCannonCoordinates = range(90)
-RedPawnCoordinates = [x + y * 9 for x, y in [(0, 3), (2, 3), (4, 3), (6, 3), (8, 3), (0, 4), (2, 4), (4, 4), (6, 4), (8, 4)]]
+RedPawnCoordinates = [_(x, y) for x in [0, 2, 4, 6, 8] for y in [3, 4]]
 RedPawnCoordinates.extend(range(45, 90))
 
 BlackKingCoordinates = [89 - sq for sq in RedKingCoordinates]
