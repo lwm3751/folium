@@ -12,7 +12,7 @@
 
 namespace folium
 {
-    double now_time()
+    double current_time()
     {
 #if defined(_WIN32) || defined(_WIN64)
         return double(GetTickCount()) / 1000.0;

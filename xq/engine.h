@@ -24,9 +24,9 @@ namespace folium
         bool load(const string& fen);
         string fen(){return m_xq.get_fen();}
 
-        virtual bool readable() {return false;};
-        virtual string readline(){return string();};
         virtual void writeline(const string& str){};
+        virtual void interrupt() = 0;
+        virtual bool searchable(sint depth) = 0;
 
         bool make_move(uint32 move);
         void unmake_move();
@@ -35,13 +35,7 @@ namespace folium
 
         bool m_debug;
         bool m_stop;
-        bool m_ponder;
-        int m_depth;
-        double m_starttime;
-        double m_mintime;
-        double m_maxtime;
     private:
-        void interrupt();
         void do_null();
         void undo_null();
         bool is_legal_move(uint move);
