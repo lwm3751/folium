@@ -1,6 +1,5 @@
 #include "engine.h"
 #include "xq_position_data.h"
-#include "utility/time.h"
 
 #include <boost/format.hpp>
 
@@ -14,11 +13,6 @@ namespace folium
     Engine::Engine():
         m_debug(false),
         m_stop(true),
-        m_ponder(false),
-        m_depth(8),
-        m_starttime(0.0f),
-        m_mintime(0.0f),
-        m_maxtime(0.0f),
         m_hash(22)
     {
         load("rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR r");
@@ -56,22 +50,6 @@ namespace folium
             return true;
         }
         return false;
-    }
-
-    void Engine::interrupt()
-    {
-        if (!m_ponder && now_time() >= m_maxtime)
-            m_stop = true;
-        if (!m_stop && readable())
-        {
-            string line = readline();
-            if (line == "isready")
-                writeline("readyok");
-            else if (line == "stop")
-                m_stop = true;
-            else if (line == "ponderhit")
-                m_ponder = false;
-        }
     }
 
     using namespace std;
@@ -370,7 +348,7 @@ namespace folium
         vector<uint> ml = generate_root_move(m_xq, ban);
         uint best_move = 0;
         for (sint depth = 1;
-            !m_stop && depth < m_depth  && now_time() < m_mintime;
+            searchable(depth);
             ++depth)
         {
             if (ml.size() == 1)
