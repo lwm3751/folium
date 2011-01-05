@@ -347,7 +347,7 @@ namespace folium
         int best_value;
         vector<uint> ml = generate_root_move(m_xq, ban);
         uint best_move = 0;
-        for (sint depth = 1;
+        for (sint depth = 3;
             searchable(depth);
             ++depth)
         {
