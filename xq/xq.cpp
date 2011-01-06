@@ -218,4 +218,112 @@ namespace folium
         return string(chars.begin(), chars.end());
     }
 
+    bool XQ::do_move(uint src, uint dst)
+    {
+        uint32 src_piece = coordinate(src);
+        uint32 dst_piece = coordinate(dst);
+        assert (src == piece(src_piece));
+        assert (dst_piece == EmptyIndex || dst == piece(dst_piece));
+        assert (piece_color(src_piece) == m_player);
+
+        m_bitmap.do_move(src, dst);
+        m_coordinates[src] = static_cast<uint8>(EmptyIndex);
+        m_coordinates[dst] = static_cast<uint8>(src_piece);
+        m_pieces[src_piece] = static_cast<uint8>(dst);
+        m_pieces[dst_piece] = static_cast<uint8>(InvaildCoordinate);
+        uint incheck = 0;
+        switch(src_piece)
+        {
+        case RedKingIndex:
+        {
+            incheck = ((coordinate_flag(coordinate_up(dst))
+                     |coordinate_flag(coordinate_left(dst))
+                     |coordinate_flag(coordinate_right(dst)))
+                    & BlackPawnFlag);
+        }
+        case RedAdvisorIndex1:
+        case RedAdvisorIndex2:
+        case RedBishopIndex1:
+        case RedBishopIndex2:
+        case RedRookIndex1:
+        case RedRookIndex2:
+        case RedKnightIndex1:
+        case RedKnightIndex2:
+        case RedCannonIndex1:
+        case RedCannonIndex2:
+        case RedPawnIndex1:
+        case RedPawnIndex2:
+        case RedPawnIndex3:
+        case RedPawnIndex4:
+        case RedPawnIndex5:
+        {
+            uint kp = piece(RedKingIndex);
+            assert(kp != InvaildCoordinate);
+            incheck |= ((coordinate_flag(nonempty_down_1(kp))
+                       | coordinate_flag(nonempty_up_1(kp))
+                       | coordinate_flag(nonempty_left_1(kp))
+                       | coordinate_flag(nonempty_right_1(kp)))
+                      & (BlackRookFlag | BlackKingFlag))//rook
+                   | ((coordinate_flag(nonempty_down_2(kp))
+                       | coordinate_flag(nonempty_up_2(kp))
+                       | coordinate_flag(nonempty_left_2(kp))
+                       | coordinate_flag(nonempty_right_2(kp)))
+                      & BlackCannonFlag)//cannon
+                   | ((coordinate_flag(knight_leg(piece(BlackKnightIndex1), kp))
+                       | coordinate_flag(knight_leg(piece(BlackKnightIndex2), kp)))
+                      & EmptyFlag);//knight
+            break;
+        }
+        case BlackKingIndex:
+        {
+            incheck = ((coordinate_flag(coordinate_down(dst))
+                     | coordinate_flag(coordinate_left(dst))
+                     | coordinate_flag(coordinate_right(dst)))
+                    & RedPawnFlag);
+        }
+        case BlackAdvisorIndex1:
+        case BlackAdvisorIndex2:
+        case BlackBishopIndex1:
+        case BlackBishopIndex2:
+        case BlackRookIndex1:
+        case BlackRookIndex2:
+        case BlackKnightIndex1:
+        case BlackKnightIndex2:
+        case BlackCannonIndex1:
+        case BlackCannonIndex2:
+        case BlackPawnIndex1:
+        case BlackPawnIndex2:
+        case BlackPawnIndex3:
+        case BlackPawnIndex4:
+        case BlackPawnIndex5:
+            uint kp = piece(BlackKingIndex);
+            assert(kp != InvaildCoordinate);
+            incheck |= ((coordinate_flag(nonempty_down_1(kp))
+                       | coordinate_flag(nonempty_up_1(kp))
+                       | coordinate_flag(nonempty_left_1(kp))
+                       | coordinate_flag(nonempty_right_1(kp)))
+                      & (RedRookFlag | RedKingFlag))//rook
+                   | ((coordinate_flag(nonempty_down_2(kp))
+                       | coordinate_flag(nonempty_up_2(kp))
+                       | coordinate_flag(nonempty_left_2(kp))
+                       | coordinate_flag(nonempty_right_2(kp)))
+                      & RedCannonFlag)//cannon
+                   | ((coordinate_flag(knight_leg(piece(RedKnightIndex1), kp))
+                       | coordinate_flag(knight_leg(piece(RedKnightIndex2), kp)))
+                      & EmptyFlag);//knight
+            break;
+        }
+        if (incheck)
+        {
+            m_bitmap.undo_move(src, dst, dst_piece);
+            m_coordinates[src] = static_cast<uint8>(src_piece);
+            m_coordinates[dst] = static_cast<uint8>(dst_piece);
+            m_pieces[src_piece] = static_cast<uint8>(src);
+            m_pieces[dst_piece] = static_cast<uint8>(dst);
+            return false;
+        }
+        m_player = 1UL - m_player;
+        return true;
+    }
+
 }//namespace folium
