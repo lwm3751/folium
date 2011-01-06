@@ -11,6 +11,7 @@ namespace folium
 {
     extern void generate_moves(const XQ& xq, MoveList &ml, const History& history);
     extern void generate_capture_moves(const XQ& xq, MoveList &ml, const History& history);
+    extern uint64 perft(XQ& xq, int ply);
     class Generator
     {
     public:

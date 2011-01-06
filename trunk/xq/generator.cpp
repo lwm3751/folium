@@ -413,4 +413,44 @@ namespace folium
         return 0;
     }
 
+    uint64 perft(XQ& xq, int ply)
+    {
+        static History history;
+        static MoveList mls[16];
+        uint64 count = 0;
+        if (ply < 1)
+        {
+            generate_moves(xq, mls[0], history);
+            for(uint i = 0; i != mls[0].size(); ++i)
+            {
+                uint32 move = mls[0][i];
+                uint src, dst, dst_piece_;
+                src = move_src(move);
+                dst = move_dst(move);
+                dst_piece_ = xq.coordinate(dst);
+                if (xq.do_move(src, dst))
+                {
+                    count++;
+                    xq.undo_move(src, dst, dst_piece_);
+                }
+            }
+            return count;
+        }
+        generate_moves(xq, mls[ply], history);
+        for(uint i = 0; i != mls[ply].size(); ++i)
+        {
+            uint32 move = mls[ply][i];
+            uint src, dst, dst_piece_;
+            src = move_src(move);
+            dst = move_dst(move);
+            dst_piece_ = xq.coordinate(dst);
+            if (xq.do_move(src, dst))
+            {
+                count += perft(xq, ply-1);
+                xq.undo_move(src, dst, dst_piece_);
+            }
+        }
+        return count;
+    }
+
 }//namespace folium
