@@ -14,7 +14,7 @@
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Wall" />
-					<Add option="-DBUILD_DLL" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -52,8 +52,8 @@
 		<Unit filename="utility\str.h" />
 		<Unit filename="utility\time.cpp" />
 		<Unit filename="utility\time.h" />
-		<Unit filename="wrapper\ucci.cpp" />
 		<Unit filename="wrapper\_xq.cpp" />
+		<Unit filename="wrapper\ucci.cpp" />
 		<Unit filename="xq.cpp" />
 		<Unit filename="xq.h" />
 		<Unit filename="xq_data.cpp" />
