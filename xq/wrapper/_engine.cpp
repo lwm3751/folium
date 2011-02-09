@@ -9,11 +9,11 @@ using namespace std;
 using namespace boost;
 using namespace boost::python;
 using namespace folium;
-class UCCI : public Engine
+class EngineWrap : public Engine
 {
 public:
-    UCCI():
-        m_io(),
+    EngineWrap():
+        m_io(stdio()),
         m_depth(8),
         m_starttime(0.0f),
         m_mintime(0.0f),
@@ -26,6 +26,8 @@ public:
         set<folium::uint> s;
         return Engine::search(s);
     }
+    virtual bool readable();
+    virtual string readline();
     virtual void writeline(const string& str);
     virtual void interrupt();
     virtual bool searchable(sint depth);
@@ -38,36 +40,35 @@ public:
     double m_maxtime;
     bool m_ponder;
 };
-
-inline bool _readable()
+bool EngineWrap::readable()
 {
-    return stdio()->readable();
+    if (m_io)
+        return m_io->readable();
+    return false;
 }
 
-inline string _readline()
+string EngineWrap::readline()
 {
-    return stdio()->readline();
+    if (m_io)
+        return m_io->readline();
+    return string();
 }
 
-inline void _writeline(const string& str)
+void EngineWrap::writeline(const string& str)
 {
-    stdio()->writeline(str);
+    if (m_io)
+        m_io->writeline(str);
 }
 
-void UCCI::writeline(const string& str)
-{
-    stdio()->writeline(str);
-}
-
-void UCCI::interrupt()
+void EngineWrap::interrupt()
 {
     if (!m_ponder && current_time() >= m_maxtime)
         m_stop = true;
-    if (!m_stop && _readable())
+    if (!m_stop && readable())
     {
-        string line = _readline();
+        string line = readline();
         if (line == "isready")
-            _writeline("readyok");
+            writeline("readyok");
         else if (line == "stop")
             m_stop = true;
         else if (line == "ponderhit")
@@ -75,7 +76,7 @@ void UCCI::interrupt()
     }
 }
 
-bool UCCI::searchable(sint depth)
+bool EngineWrap::searchable(sint depth)
 {
     return !m_stop  && depth < m_depth && current_time() < m_mintime;
 }
@@ -83,7 +84,11 @@ bool UCCI::searchable(sint depth)
 void _init_engine()
 {
     //Engine
-    class_<UCCI, noncopyable>("UCCI")
+    class_<EngineWrap, noncopyable>("Engine")
+        .def("readable", &EngineWrap::readable)
+        .def("readline", &EngineWrap::readline)
+        .def("writeline", &Engine::writeline)
+
         .def("setxq", &Engine::setxq)
         .def("load", &Engine::load)
         .def("__str__", &Engine::fen)
@@ -91,19 +96,16 @@ void _init_engine()
         .def("makemove", &Engine::make_move)
         .def("unmakemove", &Engine::unmake_move)
 
-        .def("search", &UCCI::search)
+        .def("search", &EngineWrap::search)
 
         .def_readwrite("debug", &Engine::m_debug)
         .def_readwrite("stop", &Engine::m_stop)
-        .def_readwrite("ponder", &UCCI::m_ponder)
-        .def_readwrite("depth", &UCCI::m_depth)
-        .def_readwrite("starttime", &UCCI::m_starttime)
-        .def_readwrite("mintime", &UCCI::m_mintime)
-        .def_readwrite("maxtime", &UCCI::m_maxtime)
+        .def_readwrite("ponder", &EngineWrap::m_ponder)
+        .def_readwrite("depth", &EngineWrap::m_depth)
+        .def_readwrite("starttime", &EngineWrap::m_starttime)
+        .def_readwrite("mintime", &EngineWrap::m_mintime)
+        .def_readwrite("maxtime", &EngineWrap::m_maxtime)
     ;
 
-    def("readable", &_readable);
-    def("readline", &_readline);
-    def("writeline", &_writeline);
     def("currenttime", &current_time);
 }

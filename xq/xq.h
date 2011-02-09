@@ -54,10 +54,10 @@ namespace folium
         uint8 m_coordinates[91];
         uint8 m_player;
     };
+    uint player_in_check(const XQ& xq, uint player);
     uint status(const XQ& xq);
     bool is_good_cap(const XQ& xq, uint move);
     bool is_legal_move(const XQ& xq, uint32 src, uint32 dst);
-    uint player_in_check(const XQ& xq, uint player);
     string mirror4fen(const string& fen, uint mirror);
 
     inline uint XQ::coordinate(uint idx)const
